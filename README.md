@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AgroChat - Asistente de Fertilización Agrícola 🌱🇭🇳
 
 Sistema de chatbot inteligente para optimizar programas de fertilización agrícola basado en datos históricos de Honduras.
@@ -97,3 +98,6 @@ Este proyecto es parte de una tesis académica. Uso educativo permitido con atri
 ---
 
 **Desarrollado con ❤️ para mejorar la agricultura en Honduras**
+=======
+# Tesis_Chat_Bot_Agronegocios
+>>>>>>> faaaeab416ce01a5070aaf5a42b830b1550b86b4
