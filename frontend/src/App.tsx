@@ -1,9 +1,11 @@
 import React from 'react';
+import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
 
 function App() {
     return (
-        <div style={{ width: '100vw', height: '100vh' }}>
+        <div className="flex w-screen h-screen overflow-hidden bg-gray-50">
+            <Sidebar />
             <ChatInterface />
         </div>
     );

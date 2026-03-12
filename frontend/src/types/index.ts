@@ -12,19 +12,27 @@ export interface ChatMessage {
     timestamp: number;        // Fecha/hora de envío (ms)
 }
 
+export interface ChatSession {
+    id: string;               // UUID de la sesión
+    title: string;            // Título autogenerado (ej: "Dosis para tomate...")
+    updatedAt: number;        // Para ordenar el historial
+    messages: ChatMessage[];  // El flujo de mensajes en esa sesión
+}
+
 /**
  * Estado global del Chat manejado por Zustand.
  */
 export interface ChatState {
     // Estado
-    messages: ChatMessage[];
+    sessions: ChatSession[];
+    currentSessionId: string | null;
     isLoading: boolean;
-    sessionId: string;
 
     // Acciones
     sendMessage: (text: string) => Promise<void>;
-    clearChat: () => void;
-    setSessionId: (id: string) => void;
+    createNewChat: () => void;
+    deleteSession: (id: string) => void;
+    switchSession: (id: string) => void;
 }
 
 /**
