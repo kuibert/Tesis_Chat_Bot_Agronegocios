@@ -1,103 +1,86 @@
-<<<<<<< HEAD
-# AgroChat - Asistente de Fertilización Agrícola 🌱🇭🇳
+# 🚜 AgroChat: Asistente Agrícola Basado en IA
 
-Sistema de chatbot inteligente para optimizar programas de fertilización agrícola basado en datos históricos de Honduras.
+¡Bienvenido al repositorio de AgroChat! Este proyecto es un sistema de asistencia inteligente (Chatbot) diseñado para proveer recomendaciones técnicas de fertilización de cultivos en Honduras, basado en calendarios históricos del proyecto MCA-EDA.
 
-## 🎓 Proyecto de Tesis
+AgroChat utiliza una arquitectura **RAG (Retrieval-Augmented Generation)** respaldada por una Base de Datos Vectorial (PostgreSQL + pgvector) y embeddings generados localmente.
 
-**Título:** Diseño y Desarrollo de un Asistente Chatbot para Optimización de Programas de Fertilización en Cultivos Agrícolas, Basado en Datos Históricos
+---
 
-**Autor:** [Tu Nombre]  
-**Universidad:** [Tu Universidad]  
-**Año:** 2026
+## 🏗️ Arquitectura del Sistema
 
-## 🚀 Tecnologías
+El proyecto está dividido en cuatro componentes principales:
 
-### Backend
-- **Node.js** + **TypeScript**
-- **Express.js** - API REST
-- **Prisma ORM** - Gestión de base de datos
-- **PostgreSQL** - Base de datos principal
-- Preparado para **pgvector** (búsqueda semántica futura)
+1. **`/data`**: Contiene los archivos originales en Excel (`.xls`) con los calendarios históricos de fertilización del proyecto MCA-EDA Honduras.
+2. **`/database`**: Scripts SQL de inicialización para crear la tabla base en PostgreSQL y habilitar la extensión `vector` (pgvector).
+3. **`/backend`**: Servidor API REST construido con Node.js, Express y TypeScript. Contiene el "Cerebro" lógico del bot, la integración del modelo de IA, y scripts del pipeline ETL (Extracción y Vectorización de datos).
+4. **`/frontend`**: Interfaz de chat moderna e interactiva construida con React, Vite y Tailwind CSS. Renderiza mensajería rica (tablas de análisis de suelos y Markdown).
 
-### Frontend
-- **React 18** + **TypeScript**
-- **Vite** - Build tool moderno
-- **Tailwind CSS** - Diseño responsivo
-- **Zustand** - Gestión de estado
+### Stack Tecnológico
+* **Frontend:** React 18, Vite, Zustand (Manejo de estados), Tailwind CSS, React-Markdown.
+* **Backend:** Node.js, TypeScript, Express.js.
+* **Base de Datos:** PostgreSQL 16+ con extensión `pgvector`.
+* **ORM:** Prisma.
+* **Inteligencia Artificial (NLP):** HuggingFace `@xenova/transformers` (modelo local `Xenova/distiluse-base-multilingual-cased-v2`) para embeddings semánticos.
+* **Procesamiento de Datos:** Librería `xlsx` para lectura determinista del corpus tabular.
 
-## 📊 Características
+---
 
-✅ Consulta de recomendaciones de fertilización por cultivo y zona  
-✅ Base de datos con 60+ calendarios agrícolas de Honduras  
-✅ Interfaz amigable para técnicos y agricultores  
-✅ Respuestas basadas exclusivamente en datos históricos verificados  
-✅ Sistema offline-first con persistencia local  
+## 🚀 Flujo Mágico (RAG Pipeline)
 
-## 🛠️ Instalación
+A diferencia de un LLM comercial al que se le inyecta un Excel en cada mensaje, AgroChat pre-procesa todo el conocimiento y usa Similitud de Cosenos (Cosine Similarity).
 
-### Prerrequisitos
-- Node.js 18+
-- PostgreSQL 14+
-- npm o yarn
+1. **Pipeline ETL (Offline):** El script `/backend/scripts/processXlsData.ts` lee la carpeta `/data`, extrae ~1,700 registros granulares (generales, prevención, dosis semanales, análisis de ppm) y los guarda en PostgreSQL. Luego `/backend/scripts/generateEmbeddings.ts` corre el modelo de Transformadores locales para crear vectores matemáticos de cada registro.
+2. **Búsqueda (Runtime):** El usuario escribe "dosis semana 5 del tomate".
+3. **Filtro Lógico:** El backend extrae el nombre del cultivo de la sesión, formatea la intención de la pregunta (si incluye palabra "semana") e ignora tildes (`normalizeText`).
+4. **Vectorización de Pregunta:** La pregunta del usuario se convierte en Vector con Xenova.
+5. **Similitud y Respuesta:** Prisma busca en PostgreSQL usando SQL Crudo los 3 registros vectoriales más cercanos (Similitud Coseno), devuelve la fila en bruto, y el Chatbot la estructura para el Frontend de forma amistosa (Tablas / Íconos).
 
-### Backend
+---
+
+## 🛠️ Configuración Inicial (Para Desarrolladores)
+
+### 1. Base de Datos
+* Instalar PostgreSQL e instalar la extensión `pgvector`.
+* Ejecutar el script `database/schema.sql` (Verifica que se instale `CREATE EXTENSION IF NOT EXISTS vector`).
+
+### 2. Variables de Entorno
+Crea un archivo `.env` en la carpeta `backend` con lo siguiente:
+```env
+PORT=3000
+DATABASE_URL="postgresql://USUARIO:CONTRASEÑA@localhost:5432/fertilization_db?schema=public"
+```
+Crea un archivo `.env` en la carpeta `frontend`:
+```env
+VITE_API_URL=http://localhost:3000/api
+```
+
+### 3. Backend e IA
 ```bash
 cd backend
 npm install
 npx prisma generate
+npx prisma db push
+
+# ¡Paso CRÍTICO! Alimentar el cerebro del bot (Corre en orden):
+npx ts-node scripts/processXlsData.ts # Extrae excels a DB
+npx ts-node scripts/generateEmbeddings.ts # Convierte textos a Vectores IA
+
+# Levantar servidor
 npm run dev
 ```
 
-### Frontend
+### 4. Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-## 🌐 Uso
-
-1. Inicia el backend: `http://localhost:3000`
-2. Inicia el frontend: `http://localhost:8081`
-3. Abre el navegador y chatea con el asistente
-
-## 📝 Variables de Entorno
-
-Crea un archivo `.env` en la carpeta `backend`:
-
-```env
-DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/fertilization_db"
-PORT=3000
-```
-
-## 🗂️ Estructura del Proyecto
-
-```
-chatbot-fertilizacion/
-├── backend/           # API y lógica de negocio
-│   ├── src/
-│   ├── prisma/
-│   └── scripts/
-├── frontend/          # Interfaz de usuario
-│   └── src/
-├── database/          # Scripts SQL
-└── data/             # Datos de fertilización (no versionados)
-```
-
-## 🔒 Seguridad
-
-- No incluye datos sensibles en el repositorio
-- Variables de entorno para configuración
-- Validación de entradas del usuario
-
-## 📄 Licencia
-
-Este proyecto es parte de una tesis académica. Uso educativo permitido con atribución.
-
 ---
 
-**Desarrollado con ❤️ para mejorar la agricultura en Honduras**
-=======
-# Tesis_Chat_Bot_Agronegocios
->>>>>>> faaaeab416ce01a5070aaf5a42b830b1550b86b4
+## 🐛 Notas para el Desarrollador Externo
+* **Prisma vs rawQuery:** En `backend/src/index.ts` utilizamos consultas RAW (`prisma.$queryRaw`) porque Prisma ORM no soporta de forma nativa los operadores de distancia matemática de `pgvector` (`<=>`). Se debe tener extremo cuidado con el casteo directo (`$n::vector`).
+* **Tratamientos Preventivos:** Los insecticidas, fungicidas y otros preventivos se leen directamente de las filas ~75-85 de los Excels (Ver `processXlsData.ts`).
+* **Sesiones:** Para evitar que el bot se desvíe, el backend guarda un mapa temporal de memoria con el contexto del cultivo en memoria RAM (No persistente).
+
+¡Feliz Código! Construido en conjunto para revolucionar el acceso a datos agrícolas en Honduras. 🚜🇭🇳
