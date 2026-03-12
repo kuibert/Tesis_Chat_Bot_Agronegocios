@@ -1,6 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useChat } from '../hooks/useChat';
 import { ChatMessage } from '../types';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const SEND_ICON = '➤';
 const WARNING_ICON = '⚠️';
@@ -94,14 +96,22 @@ export default function ChatInterface() {
                                     </div>
                                 )}
                                 <div
-                                    className={`max-w-[85%] md:max-w-[70%] p-4 shadow-sm ${isUser
+                                    className={`max-w-[85%] md:max-w-[75%] p-4 shadow-sm ${isUser
                                         ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none'
-                                        : 'bg-white text-gray-800 border border-gray-100 rounded-2xl rounded-tl-none'
+                                        : 'bg-white text-gray-800 border border-gray-100 rounded-2xl rounded-tl-none markdown-body'
                                         }`}
                                 >
-                                    <p className="text-sm md:text-base whitespace-pre-wrap leading-relaxed">
-                                        {item.text}
-                                    </p>
+                                    {isUser ? (
+                                        <p className="text-sm md:text-base whitespace-pre-wrap leading-relaxed">
+                                            {item.text}
+                                        </p>
+                                    ) : (
+                                        <div className="text-sm md:text-base leading-relaxed">
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                {item.text}
+                                            </ReactMarkdown>
+                                        </div>
+                                    )}
                                     <span className={`block text-[10px] mt-2 text-right ${isUser ? 'text-blue-200' : 'text-gray-400'}`}>
                                         {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>

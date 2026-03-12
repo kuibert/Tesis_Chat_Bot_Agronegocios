@@ -74,7 +74,13 @@ export const useChat = create<ChatState>()(
                 }
             },
 
-            clearChat: () => {
+            clearChat: async () => {
+                const { sessionId } = get();
+                try {
+                    await api.post('/session/reset', { sessionId });
+                } catch (e) {
+                    console.error("Error reseteando sesión en backend", e);
+                }
                 set({
                     messages: [],
                     sessionId: generateId(),

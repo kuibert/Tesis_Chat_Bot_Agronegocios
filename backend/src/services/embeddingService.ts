@@ -4,8 +4,10 @@ import { pipeline, env } from '@xenova/transformers';
 env.allowLocalModels = false; // Descargar si no están locales
 env.useBrowserCache = false;
 
-// Modelo específico para Español (BERT)
-const MODEL_NAME = 'dccuchile/bert-base-spanish-wwm-uncased';
+// DistilBERT multilingüe con soporte ONNX nativo — recomendado por asesor
+// Soporta español + 50 idiomas más, optimizado para similitud semántica de oraciones
+const MODEL_NAME = 'Xenova/distiluse-base-multilingual-cased-v2';
+const EMBEDDING_DIMENSION = 768; // DistilBERT base hidden_size = 768 dims vía transformers.js
 
 /**
  * Servicio Singleton para generar Embeddings.
@@ -38,7 +40,7 @@ class EmbeddingService {
     /**
      * Genera el embedding vectorial para un texto dado.
      * @param text Texto a procesar (ej: "Fertilización tomate Comayagua")
-     * @returns Array de números (768 dimensiones) y string formateado para pgvector.
+     * @returns Array de números (768 dimensiones — DistilBERT base) y string formateado para pgvector.
      */
     public async generateEmbedding(text: string): Promise<{ vector: number[]; pgVector: string }> {
         await this.initPipeline();
@@ -54,9 +56,9 @@ class EmbeddingService {
         // Convertir Tensor a Array normal de JavaScript
         const vector = Array.from(output.data) as number[];
 
-        // Validar dimensiones (BERT base = 768)
-        if (vector.length !== 768) {
-            throw new Error(`Dimensión incorrecta de embedding: ${vector.length} (esperado 768)`);
+        // Validar dimensiones (DistilBERT base hidden_size = 768)
+        if (vector.length !== EMBEDDING_DIMENSION) {
+            throw new Error(`Dimensión incorrecta de embedding: ${vector.length} (esperado ${EMBEDDING_DIMENSION})`);
         }
 
         // Formatear para PostgreSQL pgvector: "[0.123, -0.456, ...]"

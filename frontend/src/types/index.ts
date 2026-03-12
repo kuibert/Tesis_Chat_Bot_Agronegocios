@@ -29,7 +29,7 @@ export interface ChatState {
 
 /**
  * Estructura de respuesta del Backend (API de Fertilización).
- * Basado en pgvector + BERT
+ * Basado en pgvector + DistilBERT multilingüe (Xenova/distiluse-base-multilingual-cased-v2)
  */
 export interface FertilizationPlanResponse {
     cultivo: string;
@@ -38,16 +38,16 @@ export interface FertilizationPlanResponse {
     formula_npk: string;
     fuente_potasio: string;
     observaciones_tecnicas: string;
-    similitud: number; // Score de coseno (0-1)
+    similitud: number; // Score de similitud coseno (0-1) generado por pgvector
 }
 
 /**
- * Respuesta API Estándar.
+ * Respuesta API Estándar — alineada con lo que devuelve el backend en /api/chat.
  */
 export interface ApiResponse {
-    answer: string;                  // Respuesta generada con template
-    sources: FertilizationPlanResponse[]; // Fuentes históricas encontradas
+    answer: string;                       // Respuesta generada con template RAG
+    sources: FertilizationPlanResponse[]; // Fuentes históricas encontradas por DistilBERT
     metadata: {
-        processed_time_ms: number;
+        processed_time_ms: number;        // Tiempo de procesamiento en milisegundos
     }
 }

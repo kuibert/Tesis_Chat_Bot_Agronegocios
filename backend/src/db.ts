@@ -1,12 +1,12 @@
-import { PrismaClient } from '@prisma/client';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+import * as dotenv from 'dotenv';
+import * as schema from './db/schema';
 
-// Singleton para evitar múltiples instancias en desarrollo
-declare global {
-    var prisma: PrismaClient | undefined;
-}
+dotenv.config();
 
-export const prisma = global.prisma || new PrismaClient({
-    log: ['query', 'error', 'warn'],
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
 });
 
-if (process.env.NODE_ENV !== 'production') global.prisma = prisma;
+export const db = drizzle(pool, { schema });

@@ -1,37 +1,32 @@
-import { Client } from 'pg';
 import { embeddingService } from '../src/services/embeddingService';
+import { db } from '../src/db';
+import { fertilization_plans } from '../src/db/schema';
+import { isNull, eq } from 'drizzle-orm';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
 // Cargar variables de entorno (simulado desde .env en root backend)
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-const DB_CONFIG = {
-    connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fertilization_db',
-};
-
 async function generateEmbeddings() {
     console.log('🚀 Iniciando proceso de generación de Embeddings...');
 
-    const client = new Client(DB_CONFIG);
-
     try {
-        await client.connect();
-        console.log('✅ Conectado a la base de datos.');
+        console.log('✅ Base de datos conectada.');
 
-        // Verificar extensión pgvector
-        await client.query('CREATE EXTENSION IF NOT EXISTS vector;');
-
-        // Obtener planes sin embedding
-        // Asumimos tabla 'fertilization_plans' con columna 'embedding' tipo vector(768)
-        const selectQuery = `
-      SELECT id, cultivo, variedad, zona, dias_cosecha, formula_npk, fuente_potasio, observaciones_tecnicas
-      FROM fertilization_plans
-      WHERE embedding IS NULL;
-    `;
-
-        const res = await client.query(selectQuery);
-        const plans = res.rows;
+        // Obtener planes sin embedding vía Drizzle
+        const plans = await db.select({
+            id: fertilization_plans.id,
+            cultivo: fertilization_plans.cultivo,
+            variedad: fertilization_plans.variedad,
+            zona: fertilization_plans.zona,
+            dias_cosecha: fertilization_plans.dias_cosecha,
+            formula_npk: fertilization_plans.formula_npk,
+            fuente_potasio: fertilization_plans.fuente_potasio,
+            observaciones_tecnicas: fertilization_plans.observaciones_tecnicas
+        })
+            .from(fertilization_plans)
+            .where(isNull(fertilization_plans.embedding));
 
         if (plans.length === 0) {
             console.log('✨ Todos los planes ya tienen embeddings generados.');
@@ -58,17 +53,13 @@ async function generateEmbeddings() {
             console.log(`🔄 Procesando [${i + 1}/${plans.length}]: ${plan.cultivo} (${plan.zona})...`);
 
             try {
-                // Generar vector usando el servicio BERT
+                // Generar vector usando DistilBERT multilingüe (Xenova/distiluse-base-multilingual-cased-v2)
                 const { pgVector } = await embeddingService.generateEmbedding(textToEmbed);
 
-                // Guardar en BD
-                const updateQuery = `
-              UPDATE fertilization_plans
-              SET embedding = $1
-              WHERE id = $2;
-            `;
-
-                await client.query(updateQuery, [pgVector, plan.id]);
+                // Guardar en BD usando Drizzle
+                await db.update(fertilization_plans)
+                    .set({ embedding: pgVector as any })
+                    .where(eq(fertilization_plans.id, plan.id));
 
             } catch (embError) {
                 console.error(`❌ Error generando embedding para ID ${plan.id}:`, embError);
@@ -80,8 +71,6 @@ async function generateEmbeddings() {
 
     } catch (err) {
         console.error('❌ Error crítico en el script:', err);
-    } finally {
-        await client.end();
     }
 }
 
