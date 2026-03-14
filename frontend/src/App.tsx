@@ -1,12 +1,10 @@
-import React from 'react';
-import ChatInterface from './components/ChatInterface';
+import { BrowserRouter } from "react-router";
+import { MainNavigation } from "./navigations";
 
-function App() {
-    return (
-        <div style={{ width: '100vw', height: '100vh' }}>
-            <ChatInterface />
-        </div>
-    );
+export default function App() {
+  return (
+    <BrowserRouter>
+      <MainNavigation />
+    </BrowserRouter>
+  );
 }
-
-export default App;
