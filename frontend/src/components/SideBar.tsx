@@ -1,11 +1,16 @@
-import { BotMessageSquare } from "lucide-react";
+import { BotMessageSquare, MessageSquare, History, Plus } from "lucide-react";
 import React from "react";
 
 type SideProps = React.ComponentProps<"div">;
-
 interface SideBarProps extends SideProps {}
 
 export function SideBar({ ...props }: SideBarProps) {
+  const previousChats = [
+    { id: 1, title: "Análisis de Maíz - Región Sur" },
+    { id: 2, title: "Costos de Fertilizantes" },
+    { id: 3, title: "Plan de Riego Mayo" },
+  ];
+
   return (
     <div {...props}>
       <label
@@ -13,19 +18,48 @@ export function SideBar({ ...props }: SideBarProps) {
         aria-label="close sidebar"
         className="drawer-overlay"
       ></label>
-      <div className="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64">
-        {/* Sidebar content here */}
-        <ul className="menu w-full grow">
-          <li>
-            <button
-              className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-              data-tip="Nuevo chat"
-            >
-              <BotMessageSquare className="my-1.5 inline-block size-4" />
-              <span className="is-drawer-close:hidden">Nuevo chat</span>
-            </button>
-          </li>
-        </ul>
+
+      <div className="flex min-h-full flex-col bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64 transition-all duration-300">
+        <div className="flex justify-center gap-2 items-center w-full mt-4">
+          <BotMessageSquare className="my-1.5 " />
+          <span className="is-drawer-close:hidden">AGRO CHAT</span>
+        </div>
+
+        <div className="px-2 mt-6">
+          <button
+            className="btn btn-primary w-full is-drawer-open:justify-start is-drawer-close:items-center is-drawer-close:pl-3 is-drawer-close:tooltip is-drawer-close:tooltip-right"
+            data-tip="Nuevo chat"
+          >
+            <Plus className="my-1.5 inline-block size-4" />
+
+            <span className="is-drawer-close:hidden transition-all">
+              Nuevo chat
+            </span>
+          </button>
+        </div>
+
+        <div className="w-full  flex-1 overflow-y-auto overflow-x-hidden is-drawer-close:hidden">
+          <div className="px-4 pt-8 pb-2 ">
+            <h3 className="text-xs font-bold uppercase tracking-widest opacity-40 flex items-center gap-2">
+              <History className="size-3" /> Mis chats
+            </h3>
+          </div>
+
+          <ul className="menu w-full p-2 gap-1">
+            {previousChats.map((chat) => (
+              <li key={chat.id}>
+                <button
+                  className="flex items-center gap-3 is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                  data-tip={chat.title}
+                >
+                  <span className="is-drawer-close:hidden text-sm truncate w-full text-left">
+                    {chat.title}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );
