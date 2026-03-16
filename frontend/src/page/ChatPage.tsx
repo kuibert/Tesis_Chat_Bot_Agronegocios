@@ -1,65 +1,56 @@
-import { Paperclip, SendHorizontal } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { Paperclip, SendHorizontal } from "lucide-react";
+import { useChat } from "@/hooks/useChat"; 
 import { Input } from "@/components";
 import { MessageWrapper, type MessageWrapperRef } from "@/layouts";
 
-interface Message {
-  id: number;
-  text: string;
-  sender: "user" | "ai";
-  timestamp: string;
-}
-
 export function ChatPage() {
   const wrapperRef = useRef<MessageWrapperRef>(null);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      text: "¡Hola! Soy tu asistente de Agronegocios. ¿En qué puedo ayudarte hoy con tus cultivos?",
-      sender: "ai",
-      timestamp: "10:00 AM",
-    },
-  ]);
   const [input, setInput] = useState("");
+ 
+  const { messages, sendMessage, isLoading, clearChat } = useChat();
 
+   
   useEffect(() => {
     wrapperRef.current?.scrollToBottom();
-  }, [messages]);
+  }, [messages, isLoading]);
 
-  const handleSendMessage = () => {
-    if (!input.trim()) return;
+  const handleSendMessage = async () => {
+    if (!input.trim() || isLoading) return;
 
-    const userMsg: Message = {
-      id: Date.now(),
-      text: input,
-      sender: "user",
-      timestamp: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
+    const currentInput = input;
+    setInput("");  
 
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-
-    setTimeout(() => {
-      const aiMsg: Message = {
-        id: Date.now() + 1,
-        text: "Analizando datos de mercado... Actualmente el precio del maíz ha subido un 2% en la región central.",
-        sender: "ai",
-        timestamp: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      };
-      setMessages((prev) => [...prev, aiMsg]);
-    }, 1500);
+    await sendMessage(currentInput);
   };
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-120px)] relative">
+    <div className="flex-1 flex flex-col h-[calc(100vh-120px)] relative"> 
+      <div className="absolute top-4 right-4 z-10">
+        <button
+          onClick={clearChat}
+          className="btn btn-ghost btn-xs opacity-50 hover:opacity-100"
+        >
+          Limpiar historial
+        </button>
+      </div>
+
       <MessageWrapper ref={wrapperRef}>
         <div className="max-w-4xl w-full mx-auto p-4 space-y-4 mt-auto">
+          {messages.length === 0 && !isLoading && (
+            <div className="chat chat-start">
+              <div className="chat-image avatar">
+                <div className="w-10 rounded-full bg-neutral flex items-center justify-center text-xs">
+                  🤖
+                </div>
+              </div>
+              <div className="chat-bubble bg-base-200 text-base-content">
+                ¡Hola! Soy tu asistente de Agronegocios. ¿En qué puedo ayudarte
+                hoy con tus cultivos?
+              </div>
+            </div>
+          )}
+
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -72,7 +63,12 @@ export function ChatPage() {
               </div>
               <div className="chat-header opacity-50 text-[10px] mb-1">
                 {msg.sender === "user" ? "Tú" : "AgroBot"}
-                <time className="ml-1">{msg.timestamp}</time>
+                <time className="ml-1">
+                  {new Date(msg.timestamp).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </time>
               </div>
               <div
                 className={`chat-bubble shadow-sm ${
@@ -85,8 +81,21 @@ export function ChatPage() {
               </div>
             </div>
           ))}
-        </div>
 
+          {isLoading && (
+            <div className="chat chat-start">
+              <div className="chat-image avatar">
+                <div className="w-10 rounded-full bg-neutral flex items-center justify-center text-xs">
+                  🤖
+                </div>
+              </div>
+              <div className="chat-bubble bg-base-200 opacity-70 italic">
+                AgroBot está pensando...
+              </div>
+            </div>
+          )}
+        </div>
+ 
         <div className="sticky bottom-0 w-full bg-transparent pt-2 pb-6 px-4">
           <div className="flex gap-2 items-end max-w-4xl mx-auto bg-base-200 backdrop-blur-md border border-base-300 px-4 py-2 rounded-[28px] shadow-lg">
             <button className="btn btn-circle btn-ghost btn-sm mb-1">
@@ -97,12 +106,14 @@ export function ChatPage() {
               value={input}
               onChange={setInput}
               onSend={handleSendMessage}
+              disabled={isLoading}
+              placeholder="Escribe tu consulta agrícola..."
             />
 
             <button
               className="btn btn-primary btn-circle shadow-md mb-1"
               onClick={handleSendMessage}
-              disabled={!input.trim()}
+              disabled={!input.trim() || isLoading}
             >
               <SendHorizontal className="size-3.5" />
             </button>

@@ -24,7 +24,7 @@ export function NavBar({ ...props }: NavBarProps) {
           )}
         </label>
 
-        <div className="px-4">Navbar Title</div>
+        <div className="px-4">Agro - Chat</div>
 
         <label className="swap swap-rotate btn btn-sm">
           <input type="checkbox" onChange={() => toggleTheme()} />
