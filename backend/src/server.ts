@@ -1,14 +1,17 @@
 import express from "express";
 import cors from "cors";
 
-import { routes } from "./routes/api.routes";
+import { routes, PATH } from "./routes/api.routes";
+import { errorHandler } from "./handlers";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.use(routes);
+app.use(`${PATH}`, routes);
+
+app.use(errorHandler);
 
 export const listen = ({
   port,
