@@ -1,5 +1,7 @@
-import { validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
+import { validationResult } from "express-validator";
+
+import { Validation } from "../errors";
 
 export const validateRequest = (
   req: Request,
@@ -21,11 +23,7 @@ export const validateRequest = (
       formattedErrors[field].push(error.msg);
     });
 
-    const err: any = new Error("The given data was invalid.");
-    err.status = 422; // Laravel usa 422
-    err.errors = formattedErrors;
-
-    return next(err);
+    return next(new Validation(formattedErrors));
   }
 
   next();
