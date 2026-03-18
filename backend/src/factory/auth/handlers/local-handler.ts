@@ -1,18 +1,25 @@
 import { AuthHandler, AuthLocalProfile, Session } from "../auth-factory.types";
 
 import * as userRepository from "../../../database/repositories/user.respository";
+import { Password } from "../../../value-objects";
+
+import { InvalidCredentials, Conflict } from "../../../errors";
 
 export class LocalHandler implements AuthHandler {
   async handle(profile: AuthLocalProfile): Promise<Session> {
     const { email } = profile;
 
     const user = await userRepository.findByEmail({ email });
+    const password = Password.create(profile.password);
 
     if (user) {
       if (!user.passwordHash)
-        throw new Error(
+        throw new Conflict(
           "Este email está vinculado a una cuenta social. Inicia sesión con Google o Microsoft.",
         );
+
+      const isMatch = await password.compare(user.passwordHash);
+      if (!isMatch) throw new InvalidCredentials("Credenciales inválidas.");
 
       return {
         id: user.id,
@@ -24,9 +31,13 @@ export class LocalHandler implements AuthHandler {
     } else {
       const { provider, id, accessToken, ...data } = profile;
 
-      const newUser = await userRepository.create({ ...data });
+      const hashedPassword = await password.getHashedValue();
+      const newUser = await userRepository.create({
+        ...data,
+        password: hashedPassword,
+      });
 
-      return { ...newUser, accessToken };
+      return { ...newUser };
     }
   }
 }
