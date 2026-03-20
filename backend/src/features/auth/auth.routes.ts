@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { signIn } from "./auth.controller";
-import { loginRequest } from "./auth.request";
+import { sigInLocal, sigInOauth } from "./auth.controller";
+import { loginLocalRequest, loginOAuthRequest } from "./auth.request";
 
 import { validateRequest } from "../../middlewares";
 import { asyncHandler } from "../../handlers";
@@ -8,6 +8,18 @@ import { asyncHandler } from "../../handlers";
 const routes = Router();
 const PATH = "/auth";
 
-routes.post("/login", [...loginRequest], validateRequest, asyncHandler(signIn));
+routes.post(
+  "/login/local",
+  [...loginLocalRequest],
+  validateRequest,
+  asyncHandler(sigInLocal),
+);
+
+routes.post(
+  "/login/oauth",
+  [...loginOAuthRequest],
+  validateRequest,
+  asyncHandler(sigInOauth),
+);
 
 export { PATH, routes };

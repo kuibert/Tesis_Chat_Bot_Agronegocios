@@ -5,48 +5,64 @@ import { AuthHandler, AuthProfile, Session } from "../auth-factory.types";
 
 export class OAuthHandler implements AuthHandler {
   async handle(profile: AuthProfile): Promise<Session> {
-    const { id, provider, accessToken, ...user } = profile;
+    const {
+      id: providerAccountId,
+      email,
+      name,
+      image,
+      provider,
+      accessToken,
+    } = profile;
 
-    const session = await accountRepository.findUserByAccount({
-      provider: profile.provider,
-      providerAccountId: profile.id,
+    const existingAccount = await accountRepository.findUserByAccount({
+      provider,
+      providerAccountId,
     });
 
-    if (session) return session;
+    if (existingAccount) {
+      return { ...existingAccount };
+    }
 
-    const newUser = await userRepository.create({ ...user });
+    const userDb = await userRepository.findByEmail({ email });
 
-    return session;
+    let session: Session;
 
-    // return profile;
-    // // 1. Buscar cuenta existente
-    // const existingAccount = await db.query.accounts.findFirst({
-    //   where: (acc, { and, eq }) => and(
-    //     eq(acc.provider, profile.provider),
-    //     eq(acc.providerAccountId, profile.id)
-    //   ),
-    // });
-    // if (existingAccount) return existingAccount.userId;
-    // // 2. Buscar o crear usuario (Lógica común)
-    // let user = await db.query.users.findFirst({
-    //   where: (u, { eq }) => eq(u.email, profile.email),
-    // });
-    // if (!user) {
-    //   [user] = await db.insert(users).values({
-    //     email: profile.email,
-    //     name: profile.name,
-    //     image: profile.image,
-    //     emailVerified: new Date(),
-    //   }).returning();
-    // }
-    // // 3. Vincular cuenta
-    // await db.insert(accounts).values({
-    //   userId: user!.id,
-    //   provider: profile.provider,
-    //   providerAccountId: profile.id,
-    //   type: "oauth",
-    //   access_token: profile.accessToken,
-    // });
-    // return user!.id;
+    if (!userDb) {
+      const newUser = await userRepository.create({
+        email,
+        name,
+        image,
+      });
+
+      session = {
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
+        image: newUser.image,
+      };
+    } else {
+      session = {
+        id: userDb.id,
+        email: userDb.email,
+        name: userDb.name,
+        image: userDb.image,
+      };
+    }
+    
+    await accountRepository.create({
+      userId: session.id,
+      provider,
+      providerAccountId,
+      accessToken: accessToken ?? "",
+      type: "oauth",
+    });
+
+    return {
+      id: session.id,
+      email: session.email,
+      name: session.name,
+      image: session.image,
+      accessToken: accessToken ?? null,
+    };
   }
 }

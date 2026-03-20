@@ -30,7 +30,13 @@ export const create = async (data: {
 
 export const findByEmail = async ({ email }: { email: string }) => {
   const [user] = await db
-    .select()
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      image: users.image,
+      passwordHash: users.passwordHash,
+    })
     .from(users)
     .where(eq(users.email, email))
     .limit(1);

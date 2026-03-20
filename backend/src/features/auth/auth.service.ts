@@ -1,10 +1,9 @@
 import { AuthProviderFactory, Provider } from "../../factory/auth/auth-factory";
+import { AuthProfile } from "../../factory/auth/auth-factory.types";
 
-export const authenticate = async (provider: Provider, data: any) => {
+export const authenticate = async (provider: Provider, data: AuthProfile) => {
   const handler = AuthProviderFactory.getHandler(provider);
   const session = await handler.handle(data);
-
-  // Aquí podrías generar el JWT una vez que el handler valide al usuario
-  // const token = generateToken(userId);
+ 
   return { session };
 };

@@ -26,14 +26,16 @@ export class LocalHandler implements AuthHandler {
         name: user.name,
         email: user.email,
         image: user.image,
-        accessToken: profile.accessToken,
+        accessToken: "",
       };
     } else {
-      const { provider, id, accessToken, ...data } = profile;
+      const { provider, ...data } = profile;
 
       const hashedPassword = await password.getHashedValue();
       const newUser = await userRepository.create({
-        ...data,
+        name: data.name,
+        email: data.email,
+        image: data.image,
         password: hashedPassword,
       });
 

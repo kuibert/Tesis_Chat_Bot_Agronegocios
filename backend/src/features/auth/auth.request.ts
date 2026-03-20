@@ -1,46 +1,46 @@
 import { checkSchema } from "express-validator";
 
-export const loginRequest = checkSchema({
+export const loginLocalRequest = checkSchema({
+  name: {
+    in: ["body"],
+    notEmpty: { errorMessage: "El nombre es obligatorio" },
+    trim: true,
+  },
+
   email: {
     in: ["body"],
     notEmpty: { errorMessage: "El email es obligatorio" },
     isEmail: { errorMessage: "Email inválido" },
     normalizeEmail: true,
   },
+
+  password: {
+    in: ["body"],
+    notEmpty: { errorMessage: "La contraseña es obligatoria" },
+    isLength: {
+      options: { min: 6 },
+      errorMessage: "La contraseña debe tener al menos 6 caracteres",
+    },
+  },
+});
+
+export const loginOAuthRequest = checkSchema({
   provider: {
     in: ["body"],
     notEmpty: {
-      errorMessage: "El proveedor de autenticación es obligatorio",
+      errorMessage: "El proveedor es obligatorio",
     },
     isIn: {
-      options: [["local", "google", "microsoft"]],
+      options: [["google", "microsoft"]],
       errorMessage: "Proveedor no soportado",
     },
   },
-  password: {
-    in: ["body"],
-    custom: {
-      options: (value, { req }) => {
-        if (req.body.provider === "local") {
-          if (!value) {
-            throw new Error("Password es requerido para login local");
-          }
 
-          if (value.length < 6) {
-            throw new Error("La contraseña debe tener al menos 6 caracteres");
-          }
-        }
-        return true;
-      },
+  idToken: {
+    in: ["body"],
+    notEmpty: {
+      errorMessage: "idToken es requerido",
     },
   },
-  name: {
-    in: ["body"],
-    optional: true,
-    trim: true,
-  },
-  accessToken: {
-    in: ["body"],
-    optional: true,
-  },
 });
+ 

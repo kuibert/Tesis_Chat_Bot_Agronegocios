@@ -1,13 +1,12 @@
 export interface AuthProfile {
-  id: string;
-  email: string;
-  name: string;
-  image?: string;
   provider: "google" | "microsoft" | "local";
-  accessToken?: string;
+  idToken?: string;
 }
 
 export interface AuthLocalProfile extends AuthProfile {
+  image?: string,
+  email: string;
+  name: string;
   password: string;
 }
 
@@ -15,7 +14,7 @@ export interface Session {
   id: string;
   email: string;
   name?: string | null;
-  image?: string | null; 
+  image?: string | null;
   accessToken?: string | null;
 }
 
