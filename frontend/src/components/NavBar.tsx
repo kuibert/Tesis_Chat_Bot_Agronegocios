@@ -5,7 +5,7 @@ import {
   Moon,
   UserPlus,
   Settings,
-  LogOut, 
+  LogOut,
   Trash2,
   Share2,
 } from "lucide-react";
@@ -19,7 +19,7 @@ type NavProps = React.ComponentProps<"nav">;
 interface NavBarProps extends NavProps {}
 
 export function NavBar({ ...props }: NavBarProps) {
-  const { isSideOpen, toggleTheme } = useApp();
+  const { isSideOpen, toggleTheme, themeMode } = useApp();
   const { hasSession, session, signOut } = useAuth();
 
   const handleSignOut = async () => {
@@ -87,7 +87,20 @@ export function NavBar({ ...props }: NavBarProps) {
                 {session?.email}
               </div>
 
-              <li className="menu-title">Chat</li>
+              <li className="menu-title">Configuraciones</li>
+              <li>
+                <button
+                  onClick={toggleTheme}
+                  className="flex items-center gap-2"
+                >
+                  {themeMode == "dark" ? (
+                    <Sun className="swap-on size-4" />
+                  ) : (
+                    <Moon className="swap-off size-4" />
+                  )}
+                  <span>{themeMode == "dark" ? "Claro" : "Oscuro"}</span>
+                </button>
+              </li>
               <li>
                 <button className="flex items-center gap-2">
                   <Share2 className="size-4 " />
