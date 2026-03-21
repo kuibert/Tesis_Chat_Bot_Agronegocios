@@ -1,13 +1,15 @@
 import { BrowserRouter } from "react-router";
 import { MainNavigation } from "./navigations";
 
-import { AppProvider } from "./provider";
+import { AppProvider, AuthProvider } from "./provider";
 
 export default function App() {
   return (
     <BrowserRouter>
       <AppProvider>
-        <MainNavigation />
+        <AuthProvider>
+          <MainNavigation />
+        </AuthProvider>
       </AppProvider>
     </BrowserRouter>
   );

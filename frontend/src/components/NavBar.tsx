@@ -5,22 +5,20 @@ import {
   Moon,
   UserPlus,
 } from "lucide-react";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 
 import { useApp } from "@/hooks/useApp";
+import { useAuth } from "@/hooks/useAuth";
 
 type NavProps = React.ComponentProps<"nav">;
 
 interface NavBarProps extends NavProps {}
 
 export function NavBar({ ...props }: NavBarProps) {
-  const { isSideOpen, toggleTheme, themeMode } = useApp();
-  const navigate = useNavigate();
+  const { isSideOpen, toggleTheme } = useApp();
+  const { hasSession } = useAuth(); 
 
-  const handleSignInNav = () => {
-    navigate("sign-in");
-  };
-
+ 
   return (
     <nav {...props}>
       <div className="flex items-center justify-between w-full">
@@ -38,17 +36,20 @@ export function NavBar({ ...props }: NavBarProps) {
 
         <div className="px-4">Agro - Chat</div>
 
-        <div className="flex flex-row gap-2 justify-center items-center">
-          <button className="btn btn-sm" onClick={handleSignInNav}>
-            <UserPlus className="size-4"></UserPlus>
-          </button>
-          <label className="swap swap-rotate btn btn-sm">
-            <input type="checkbox" onChange={() => toggleTheme()} />
+        {!hasSession && (
+          <div className="flex flex-row gap-2 justify-center items-center">
+            <Link to={"sign-in"} className="btn btn-sm">
+              <UserPlus className="size-4"></UserPlus>
+            </Link>
+            
+            <label className="swap swap-rotate btn btn-sm">
+              <input type="checkbox" onChange={() => toggleTheme()} />
 
-            <Sun className="swap-on size-4" />
-            <Moon className="swap-off size-4" />
-          </label>
-        </div>
+              <Sun className="swap-on size-4" />
+              <Moon className="swap-off size-4" />
+            </label>
+          </div>
+        )}
       </div>
     </nav>
   );

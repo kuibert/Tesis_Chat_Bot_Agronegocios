@@ -1,10 +1,14 @@
-import { BotMessageSquare, MessageSquare, History, Plus } from "lucide-react";
+import { BotMessageSquare, History, Plus } from "lucide-react";
 import React from "react";
+
+import { useAuth } from "@/hooks/useAuth";
 
 type SideProps = React.ComponentProps<"div">;
 interface SideBarProps extends SideProps {}
 
 export function SideBar({ ...props }: SideBarProps) {
+  const { hasSession } = useAuth();
+
   const previousChats = [
     { id: 1, title: "Análisis de Maíz - Región Sur" },
     { id: 2, title: "Costos de Fertilizantes" },
@@ -29,6 +33,7 @@ export function SideBar({ ...props }: SideBarProps) {
           <button
             className="btn btn-primary w-full is-drawer-open:justify-start is-drawer-close:items-center is-drawer-close:pl-3 is-drawer-close:tooltip is-drawer-close:tooltip-right"
             data-tip="Nuevo chat"
+            disabled={!hasSession}
           >
             <Plus className="my-1.5 inline-block size-4" />
 
@@ -45,20 +50,22 @@ export function SideBar({ ...props }: SideBarProps) {
             </h3>
           </div>
 
-          <ul className="menu w-full p-2 gap-1">
-            {previousChats.map((chat) => (
-              <li key={chat.id}>
-                <button
-                  className="flex items-center gap-3 is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                  data-tip={chat.title}
-                >
-                  <span className="is-drawer-close:hidden text-sm truncate w-full text-left">
-                    {chat.title}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          {hasSession && (
+            <ul className="menu w-full p-2 gap-1">
+              {previousChats.map((chat) => (
+                <li key={chat.id}>
+                  <button
+                    className="flex items-center gap-3 is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                    data-tip={chat.title}
+                  >
+                    <span className="is-drawer-close:hidden text-sm truncate w-full text-left">
+                      {chat.title}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>
