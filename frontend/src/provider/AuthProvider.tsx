@@ -1,6 +1,9 @@
 import { ReactNode, useEffect, useState } from "react";
 
-import { AuthContext, LocalSession, Session, SignInParams } from "@/context";
+import { AuthContext } from "@/context";
+import { LocalSession, Session, SignInParams } from "@/types/auth.types";
+
+import * as authService from "@/network/services/auth.service";
 
 interface AuthProviderProps {
   children?: ReactNode;
@@ -11,14 +14,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const hasSession = !!session;
 
   const handleSignIn = async (params: SignInParams) => {
-    if (params.provider === "local") {
-    } else {
-    }
+    const session = await authService.authenticate(params);
+
+    setSession(session);
   };
 
   const handleRegister = async ({ data }: { data: LocalSession }) => {};
 
-  const handleSignOut = async () => {};
+  const handleSignOut = async () => {
+    await authService.signOut();
+    setSession(null);
+  };
 
   useEffect(() => {
     const stored = localStorage.getItem("session");

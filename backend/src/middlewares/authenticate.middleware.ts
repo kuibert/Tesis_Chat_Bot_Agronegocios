@@ -8,7 +8,9 @@ const COOKIE_NAME = process.env.COOKIE_NAME!;
 export interface AuthRequest extends Request {
   session?: {
     id: string;
+    name: string;
     email: string;
+    avatar?: string;
   };
 }
 
