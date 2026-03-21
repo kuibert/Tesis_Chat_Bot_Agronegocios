@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { sigInLocal, sigInOauth } from "./auth.controller";
+import { sigInLocal, sigInOauth, signOut } from "./auth.controller";
 import { loginLocalRequest, loginOAuthRequest } from "./auth.request";
 
-import { validateRequest } from "../../middlewares";
+import { validateRequest, Authenticate } from "../../middlewares";
 import { asyncHandler } from "../../handlers";
 
 const routes = Router();
@@ -22,4 +22,11 @@ routes.post(
   asyncHandler(sigInOauth),
 );
 
+
+routes.post(
+  "/logout",  
+  Authenticate,
+  asyncHandler(signOut),
+);
+ 
 export { PATH, routes };

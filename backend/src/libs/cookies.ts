@@ -1,4 +1,3 @@
-// src/libs/cookies.ts
 import { Response } from "express";
 
 const COOKIE_NAME = process.env.COOKIE_NAME!;
