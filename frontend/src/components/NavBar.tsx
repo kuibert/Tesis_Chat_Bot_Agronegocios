@@ -1,4 +1,11 @@
-import { PanelLeftOpen, PanelLeftClose, Sun, Moon } from "lucide-react";
+import {
+  PanelLeftOpen,
+  PanelLeftClose,
+  Sun,
+  Moon,
+  UserPlus,
+} from "lucide-react";
+import { useNavigate } from "react-router";
 
 import { useApp } from "@/hooks/useApp";
 
@@ -7,7 +14,12 @@ type NavProps = React.ComponentProps<"nav">;
 interface NavBarProps extends NavProps {}
 
 export function NavBar({ ...props }: NavBarProps) {
-  const { isSideOpen , toggleTheme, themeMode} = useApp();
+  const { isSideOpen, toggleTheme, themeMode } = useApp();
+  const navigate = useNavigate();
+
+  const handleSignInNav = () => {
+    navigate("sign-in");
+  };
 
   return (
     <nav {...props}>
@@ -26,12 +38,17 @@ export function NavBar({ ...props }: NavBarProps) {
 
         <div className="px-4">Agro - Chat</div>
 
-        <label className="swap swap-rotate btn btn-sm">
-          <input type="checkbox" onChange={() => toggleTheme()} />
+        <div className="flex flex-row gap-2 justify-center items-center">
+          <button className="btn btn-sm" onClick={handleSignInNav}>
+            <UserPlus className="size-4"></UserPlus>
+          </button>
+          <label className="swap swap-rotate btn btn-sm">
+            <input type="checkbox" onChange={() => toggleTheme()} />
 
-          <Sun className="swap-on size-4" />
-          <Moon className="swap-off size-4" />
-        </label>
+            <Sun className="swap-on size-4" />
+            <Moon className="swap-off size-4" />
+          </label>
+        </div>
       </div>
     </nav>
   );
