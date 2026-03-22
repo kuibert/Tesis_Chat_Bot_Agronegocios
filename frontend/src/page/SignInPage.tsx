@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router";
+import { GoogleLogin } from "@react-oauth/google";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "@tanstack/react-form";
@@ -20,11 +21,28 @@ export function SignInPage() {
     } as SignInForm,
 
     onSubmit: async ({ value }) => {
-      await signIn({ provider: "local", data: { ...value } });
+      await signIn({
+        provider: "local",
+        data: { ...value },
+      });
 
       navigate("/", { replace: true });
     },
   });
+
+  const handleSuccess = async (response: any) => {
+    const token = response.credential;
+  
+    await signIn({
+      provider: "google",
+      data: {
+        idToken: token,
+        provider: "google",
+      },
+    });
+
+    navigate("/", { replace: true });
+  };
 
   return (
     <section className="flex flex-col md:flex-row h-screen items-center">
@@ -116,6 +134,10 @@ export function SignInPage() {
           <div className="divider"></div>
 
           <div className="flex flex-col gap-2">
+            <GoogleLogin
+              onSuccess={handleSuccess}
+              onError={() => console.log("Login Failed")}
+            />
             <button className="btn w-full">
               <GoogleIcon className="size-4" />
               Iniciar con Google

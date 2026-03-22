@@ -14,15 +14,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const hasSession = !!session;
 
   const handleSignIn = async (params: SignInParams) => {
-    const session = await authService.authenticate(params);
-
+    const session = await authService.signIn(params); 
+    console.log(session)
     setSession(session);
   };
 
   const handleRegister = async ({ data }: { data: LocalSession }) => {};
 
   const handleSignOut = async () => {
-    await authService.signOut();
+    await authService.signOut({ provider: session?.provider! });
     setSession(null);
   };
 

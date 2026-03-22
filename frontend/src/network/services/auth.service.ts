@@ -1,20 +1,38 @@
-import { SignInParams } from "@/types/auth.types";
-import { AuthProviderFactory } from "./factory/auth-factory";
+import { Provider, SignInParams } from "@/types/auth.types";
+import { googleLogout } from "@react-oauth/google";
 
 import { api } from "../api";
 
-export const authenticate = async ({ provider, data }: SignInParams) => {
-  const authProvider = AuthProviderFactory.invoke(provider);
+export const signIn = async ({ provider, data }: SignInParams) => {
+  if (provider === "local") {
+    const name = data.email.split("@")[0];
 
-  const session = await authProvider.handler({
-    profile: {
+    await api.post("/auth/login/local", {
+      name,
       ...data,
-    },
-  });
+    });
+  }
+
+  if (provider === "google" || provider === "microsoft") {
+    await api.post("/auth/login/oauth", {
+      ...data,
+    });
+  }
+
+  const { data: response } = await api.get("/auth/profile");
+  const session = {
+    id: response.id,
+    name: response.name,
+    email: response.email,
+    avatar: response.avatar,
+    provider,
+  };
 
   return session;
 };
 
-export const signOut = async () => {
+export const signOut = async ({ provider }: { provider: Provider }) => {
+  if (provider === "google") googleLogout();
+
   await api.post("/auth/logout");
 };

@@ -26,8 +26,8 @@ export class GoogleHandler implements AuthHandler {
       return {
         id: existingAccount.id,
         email: existingAccount.email,
-        name: existingAccount.name,
-        image: existingAccount.image,
+        name: googleData.name,
+        image: googleData.image,
         accessToken: existingAccount.accessToken,
       };
     }
@@ -53,8 +53,8 @@ export class GoogleHandler implements AuthHandler {
       session = {
         id: user.id,
         email: user.email,
-        name: user.name,
-        image: user.image,
+        name: googleData.name,
+        image: googleData.image,
       };
     }
 

@@ -4,6 +4,7 @@ export interface Session {
   name: string;
   email: string;
   avatar?: string;
+  provider?: Provider;
 }
 
 export interface OauthSession {

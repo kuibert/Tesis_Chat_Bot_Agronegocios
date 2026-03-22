@@ -70,21 +70,31 @@ export function NavBar({ ...props }: NavBarProps) {
               tabIndex={0}
               className="menu dropdown-content bg-base-200 rounded-box z-999 w-56 p-2 shadow-2xl border border-base-300"
             >
-              <div className="flex items-center gap-2 px-3 py-2">
-                <div className="avatar avatar-placeholder">
+              <div className="flex items-center gap-2 px-3 py-2 overflow-hidden">
+                <div className="avatar placeholder shrink-0">
                   {session?.avatar ? (
                     <div className="w-6 rounded-full">
-                      <img src={session?.avatar} />
+                      <img
+                        src={session.avatar}
+                        alt="avatar"
+                        referrerPolicy="no-referrer"
+                      />
                     </div>
                   ) : (
-                    <div className="bg-neutral text-neutral-content w-6 rounded-full">
-                      <span className="text-xs uppercase">
-                        {session?.name[0]}
+                    <div className="bg-neutral text-neutral-content w-6 rounded-full flex items-center justify-center">
+                      <span className="text-[10px] uppercase font-bold">
+                        {session?.name?.[0] || session?.email?.[0]}
                       </span>
                     </div>
                   )}
                 </div>
-                {session?.email}
+
+                <span
+                  className="text-sm truncate flex-1 min-w-0"
+                  title={session?.email}
+                >
+                  {session?.email}
+                </span>
               </div>
 
               <li className="menu-title">Configuraciones</li>
