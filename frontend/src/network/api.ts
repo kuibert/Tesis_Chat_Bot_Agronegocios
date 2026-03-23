@@ -11,10 +11,28 @@ export const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      console.warn("No autorizado");
+    const response = error.response;
+
+    if (response) {
+      const { status, data } = response;
+
+      const mappedError = {
+        status,
+        code: data?.code || "UNKNOWN_ERROR",
+        message: data?.message || "Ocurrió un error inesperado",
+      };
+
+      if (status === 401) {
+        console.warn("No autorizado");
+      }
+
+      return Promise.reject(mappedError);
     }
 
-    return Promise.reject(error);
+    return Promise.reject({
+      status: 0,
+      code: "NETWORK_ERROR",
+      message: "Error de red o servidor no disponible",
+    });
   },
 );

@@ -1,11 +1,13 @@
 import { Link, useNavigate } from "react-router";
 import { GoogleLogin } from "@react-oauth/google";
 import { useMsal } from "@azure/msal-react";
+import { sileo } from "sileo";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "@tanstack/react-form";
 
-import { GoogleIcon, MicrosoftIcon } from "@/components/icons"; 
+import { MicrosoftIcon } from "@/components/icons";
+import { useState } from "react";
 
 type SignInForm = {
   email: string;
@@ -13,9 +15,19 @@ type SignInForm = {
 };
 
 export function SignInPage() {
+  const [loading, setLoading] = useState(false);
+
   const { signIn } = useAuth();
   const { instance } = useMsal();
   const navigate = useNavigate();
+
+  const handleError = (err?: any) => {
+    sileo.error({
+      title: "Error al iniciar sesión",
+      description: err ? err.message : "Porfavor intentalo mas tarde.",
+    });
+  };
+
   const form = useForm({
     defaultValues: {
       email: "",
@@ -23,43 +35,64 @@ export function SignInPage() {
     } as SignInForm,
 
     onSubmit: async ({ value }) => {
-      await signIn({
-        provider: "local",
-        data: { ...value },
-      });
+      try {
+        setLoading(true);
 
-      navigate("/", { replace: true });
+        await signIn({
+          provider: "local",
+          data: { ...value },
+        });
+
+        navigate("/", { replace: true });
+      } catch (err: any) {
+        handleError(err);
+      } finally {
+        setLoading(false);
+      }
     },
   });
 
   const handleGoogleSignIn = async (response: any) => {
-    const token = response.credential;
-
-    await signIn({
-      provider: "google",
-      data: {
-        idToken: token,
+    try {
+      setLoading(true);
+      const token = response.credential;
+      await signIn({
         provider: "google",
-      },
-    });
+        data: {
+          idToken: token,
+          provider: "google",
+        },
+      });
 
-    navigate("/", { replace: true });
+      navigate("/", { replace: true });
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleMicrosoft = async () => {
-    const loginResponse = await instance.loginPopup({
-      scopes: ["openid", "profile", "email"],
-    });
-    const token = loginResponse.idToken;
-    await signIn({
-      provider: "microsoft",
-      data: {
-        idToken: token,
+    try {
+      setLoading(true);
+      const loginResponse = await instance.loginPopup({
+        scopes: ["openid", "profile", "email"],
+      });
+      const token = loginResponse.idToken;
+      await signIn({
         provider: "microsoft",
-      },
-    });
+        data: {
+          idToken: token,
+          provider: "microsoft",
+        },
+      });
 
-    navigate("/", { replace: true });
+      navigate("/", { replace: true });
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -105,6 +138,7 @@ export function SignInPage() {
                     placeholder="user.example@gmail.com"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
+                    disabled={loading}
                   />
 
                   {field.state.meta.errors.length > 0 && (
@@ -133,6 +167,7 @@ export function SignInPage() {
                     placeholder="type here your password"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
+                    disabled={loading}
                   />
 
                   {field.state.meta.errors.length > 0 && (
@@ -144,7 +179,11 @@ export function SignInPage() {
               )}
             </form.Field>
 
-            <button type="submit" className="btn btn-primary w-full mt-6">
+            <button
+              disabled={loading}
+              type="submit"
+              className="btn btn-primary w-full mt-6"
+            >
               Iniciar sesión
             </button>
           </form>
@@ -152,16 +191,18 @@ export function SignInPage() {
           <div className="divider"></div>
 
           <div className="flex flex-col gap-2">
-            <GoogleLogin
-              onSuccess={handleGoogleSignIn}
-              onError={() => console.log("Login Failed")}
-            />
-            {/* <button className="btn w-full">
-              <GoogleIcon className="size-4" />
-              Iniciar con Google
-            </button> */}
+            <div className={loading ? "pointer-events-none opacity-50" : ""}>
+              <GoogleLogin
+                onSuccess={handleGoogleSignIn}
+                onError={() => handleError()}
+              />
+            </div>
 
-            <button onClick={handleMicrosoft} className="btn w-full">
+            <button
+              disabled={loading}
+              onClick={handleMicrosoft}
+              className="btn w-full"
+            >
               <MicrosoftIcon className="size-4" />
               Iniciar con Microsoft
             </button>
