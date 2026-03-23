@@ -2,18 +2,14 @@ import { BotMessageSquare, History, Plus } from "lucide-react";
 import React from "react";
 
 import { useAuth } from "@/hooks/useAuth";
+import { useChats } from "@/hooks/useChats";
 
 type SideProps = React.ComponentProps<"div">;
 interface SideBarProps extends SideProps {}
 
 export function SideBar({ ...props }: SideBarProps) {
   const { hasSession } = useAuth();
-
-  const previousChats = [
-    { id: 1, title: "Análisis de Maíz - Región Sur" },
-    { id: 2, title: "Costos de Fertilizantes" },
-    { id: 3, title: "Plan de Riego Mayo" },
-  ];
+  const { data: chats = [], isLoading } = useChats();
 
   return (
     <div {...props}>
@@ -52,7 +48,7 @@ export function SideBar({ ...props }: SideBarProps) {
 
           {hasSession && (
             <ul className="menu w-full p-2 gap-1">
-              {previousChats.map((chat) => (
+              {chats.map((chat) => (
                 <li key={chat.id}>
                   <button
                     className="flex items-center gap-3 is-drawer-close:tooltip is-drawer-close:tooltip-right"
