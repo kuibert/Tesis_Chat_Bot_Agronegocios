@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "react-router";
 import { GoogleLogin } from "@react-oauth/google";
+import { useMsal } from "@azure/msal-react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "@tanstack/react-form";
 
-import { GoogleIcon, MicrosoftIcon } from "@/components/icons";
+import { GoogleIcon, MicrosoftIcon } from "@/components/icons"; 
 
 type SignInForm = {
   email: string;
@@ -13,6 +14,7 @@ type SignInForm = {
 
 export function SignInPage() {
   const { signIn } = useAuth();
+  const { instance } = useMsal();
   const navigate = useNavigate();
   const form = useForm({
     defaultValues: {
@@ -30,14 +32,30 @@ export function SignInPage() {
     },
   });
 
-  const handleSuccess = async (response: any) => {
+  const handleGoogleSignIn = async (response: any) => {
     const token = response.credential;
-  
+
     await signIn({
       provider: "google",
       data: {
         idToken: token,
         provider: "google",
+      },
+    });
+
+    navigate("/", { replace: true });
+  };
+
+  const handleMicrosoft = async () => {
+    const loginResponse = await instance.loginPopup({
+      scopes: ["openid", "profile", "email"],
+    });
+    const token = loginResponse.idToken;
+    await signIn({
+      provider: "microsoft",
+      data: {
+        idToken: token,
+        provider: "microsoft",
       },
     });
 
@@ -135,15 +153,15 @@ export function SignInPage() {
 
           <div className="flex flex-col gap-2">
             <GoogleLogin
-              onSuccess={handleSuccess}
+              onSuccess={handleGoogleSignIn}
               onError={() => console.log("Login Failed")}
             />
-            <button className="btn w-full">
+            {/* <button className="btn w-full">
               <GoogleIcon className="size-4" />
               Iniciar con Google
-            </button>
+            </button> */}
 
-            <button className="btn w-full">
+            <button onClick={handleMicrosoft} className="btn w-full">
               <MicrosoftIcon className="size-4" />
               Iniciar con Microsoft
             </button>

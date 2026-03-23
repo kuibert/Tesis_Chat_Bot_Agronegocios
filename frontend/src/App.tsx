@@ -1,5 +1,7 @@
 import { BrowserRouter } from "react-router";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { MsalProvider } from "@azure/msal-react";
+import { msalInstance } from "@/libs/microsoft";
 
 import { MainNavigation } from "./navigations";
 
@@ -12,9 +14,11 @@ export default function App() {
     <BrowserRouter>
       <AppProvider>
         <AuthProvider>
-          <GoogleOAuthProvider clientId={CLIENT_ID}>
-            <MainNavigation />
-          </GoogleOAuthProvider>
+          <MsalProvider instance={msalInstance}>
+            <GoogleOAuthProvider clientId={CLIENT_ID}>
+              <MainNavigation />
+            </GoogleOAuthProvider>
+          </MsalProvider>
         </AuthProvider>
       </AppProvider>
     </BrowserRouter>
