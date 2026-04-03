@@ -1,43 +1,43 @@
 import { useState, useRef, useEffect } from "react";
 import { Paperclip, SendHorizontal } from "lucide-react";
-import { useChat } from "@/hooks/useChat"; 
+import { useParams } from "react-router";
+
+import { useChat } from "@/hooks/useChat";
 import { Input } from "@/components";
 import { MessageWrapper, type MessageWrapperRef } from "@/layouts";
 
 export function ChatPage() {
+  const { chatId } = useParams<{ chatId: string }>();
+
   const wrapperRef = useRef<MessageWrapperRef>(null);
   const [input, setInput] = useState("");
- 
-  const { messages, sendMessage, isLoading, clearChat } = useChat();
 
-   
-  useEffect(() => {
-    wrapperRef.current?.scrollToBottom();
-  }, [messages, isLoading]);
+  // const { messages, sendMessage, isLoading, clearChat } = useChat();
+
+  // useEffect(() => {
+  //   wrapperRef.current?.scrollToBottom();
+  // }, [messages, isLoading]);
 
   const handleSendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim()) return;
 
     const currentInput = input;
-    setInput("");  
+    setInput("");
 
-    await sendMessage(currentInput);
+    // await sendMessage(currentInput);
   };
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-120px)] relative"> 
+    <div className="flex-1 flex flex-col h-[calc(100vh-120px)] relative">
       <div className="absolute top-4 right-4 z-10">
-        <button
-          onClick={clearChat}
-          className="btn btn-ghost btn-xs opacity-50 hover:opacity-100"
-        >
+        <button className="btn btn-ghost btn-xs opacity-50 hover:opacity-100">
           Limpiar historial
         </button>
       </div>
 
       <MessageWrapper ref={wrapperRef}>
         <div className="max-w-4xl w-full mx-auto p-4 space-y-4 mt-auto">
-          {messages.length === 0 && !isLoading && (
+          {/* {messages.length === 0 && !isLoading && (
             <div className="chat chat-start">
               <div className="chat-image avatar">
                 <div className="w-10 rounded-full bg-neutral flex items-center justify-center text-xs">
@@ -49,9 +49,9 @@ export function ChatPage() {
                 hoy con tus cultivos?
               </div>
             </div>
-          )}
+          )} */}
 
-          {messages.map((msg) => (
+          {/* {messages.map((msg) => (
             <div
               key={msg.id}
               className={`chat ${msg.sender === "user" ? "chat-end" : "chat-start"}`}
@@ -80,9 +80,9 @@ export function ChatPage() {
                 {msg.text}
               </div>
             </div>
-          ))}
+          ))} */}
 
-          {isLoading && (
+          {/* {isLoading && (
             <div className="chat chat-start">
               <div className="chat-image avatar">
                 <div className="w-10 rounded-full bg-neutral flex items-center justify-center text-xs">
@@ -93,9 +93,11 @@ export function ChatPage() {
                 AgroBot está pensando...
               </div>
             </div>
-          )}
+          )} */}
+
+          <span>{chatId ? "este es un chat" : "nuevo chat"}</span>
         </div>
- 
+
         <div className="sticky bottom-0 w-full bg-transparent pt-2 pb-6 px-4">
           <div className="flex gap-2 items-end max-w-4xl mx-auto bg-base-200 backdrop-blur-md border border-base-300 px-4 py-2 rounded-[28px] shadow-lg">
             <button className="btn btn-circle btn-ghost btn-sm mb-1">
@@ -106,14 +108,13 @@ export function ChatPage() {
               value={input}
               onChange={setInput}
               onSend={handleSendMessage}
-              disabled={isLoading}
               placeholder="Escribe tu consulta agrícola..."
             />
 
             <button
               className="btn btn-primary btn-circle shadow-md mb-1"
               onClick={handleSendMessage}
-              disabled={!input.trim() || isLoading}
+              disabled={!input.trim()}
             >
               <SendHorizontal className="size-3.5" />
             </button>

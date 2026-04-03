@@ -1,5 +1,6 @@
-import { BotMessageSquare, History, Plus } from "lucide-react";
 import React from "react";
+import { BotMessageSquare, History, Plus } from "lucide-react";
+import { Link, useNavigate } from "react-router";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useChats } from "@/hooks/useChats";
@@ -10,6 +11,11 @@ interface SideBarProps extends SideProps {}
 export function SideBar({ ...props }: SideBarProps) {
   const { hasSession } = useAuth();
   const { data: chats = [], isLoading } = useChats();
+  const navigate = useNavigate();
+
+  const handleNewChat = () => {
+    navigate("/");
+  };
 
   return (
     <div {...props}>
@@ -30,6 +36,7 @@ export function SideBar({ ...props }: SideBarProps) {
             className="btn btn-primary w-full is-drawer-open:justify-start is-drawer-close:items-center is-drawer-close:pl-3 is-drawer-close:tooltip is-drawer-close:tooltip-right"
             data-tip="Nuevo chat"
             disabled={!hasSession}
+            onClick={handleNewChat}
           >
             <Plus className="my-1.5 inline-block size-4" />
 
@@ -50,14 +57,15 @@ export function SideBar({ ...props }: SideBarProps) {
             <ul className="menu w-full p-2 gap-1">
               {chats.map((chat) => (
                 <li key={chat.id}>
-                  <button
+                  <Link
+                    to={`chat/${chat.id}`}
                     className="flex items-center gap-3 is-drawer-close:tooltip is-drawer-close:tooltip-right"
                     data-tip={chat.title}
                   >
                     <span className="is-drawer-close:hidden text-sm truncate w-full text-left">
                       {chat.title}
                     </span>
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
