@@ -1,11 +1,13 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { createServer } from "http";
 
 import { routes, PATH } from "./routes/api.routes";
 import { errorHandler } from "./handlers";
 
 const app = express();
+const httpServer = createServer(app);
 
 app.use(
   cors({
@@ -20,7 +22,7 @@ app.use(`${PATH}`, routes);
 
 app.use(errorHandler);
 
-export const listen = ({
+const listen = ({
   port,
   host,
 }: {
@@ -28,9 +30,11 @@ export const listen = ({
   host: string;
 }): Promise<void> => {
   return new Promise((resolve, reject) => {
-    app.listen(port, host, () => {
-      console.log(`Server running in: ${host}:${port}`);
+    httpServer.listen(port, host, () => {
+      console.log(`Server running in: http://${host}:${port}`);
       resolve();
     });
   });
 };
+
+export { httpServer, listen };
