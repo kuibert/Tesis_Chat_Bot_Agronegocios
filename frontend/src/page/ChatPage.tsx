@@ -1,13 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { Paperclip, SendHorizontal } from "lucide-react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
-import { useChat } from "@/hooks/useChat";
+import { useCreateChat } from "@/hooks/useChats";
 import { Input } from "@/components";
 import { MessageWrapper, type MessageWrapperRef } from "@/layouts";
+import { Chat } from "@/types/chat.types";
 
 export function ChatPage() {
   const { chatId } = useParams<{ chatId: string }>();
+  const createChatMutation = useCreateChat();
+  const navigate = useNavigate();
 
   const wrapperRef = useRef<MessageWrapperRef>(null);
   const [input, setInput] = useState("");
@@ -22,7 +25,20 @@ export function ChatPage() {
     if (!input.trim()) return;
 
     const currentInput = input;
+    const isNewChat = !chatId;
     setInput("");
+
+    if (isNewChat) {
+      createChatMutation.mutate(
+        { data: { title: currentInput } },
+        {
+          onSuccess: (newChat: Chat) => {
+            navigate(`chat/${newChat.id}`);
+          },
+        },
+      );
+    } else {
+    }
 
     // await sendMessage(currentInput);
   };
