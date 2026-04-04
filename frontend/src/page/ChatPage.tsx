@@ -1,12 +1,76 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, memo } from "react";
 import { Paperclip, SendHorizontal, Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 
 import { useCreateChat, useChatHistory } from "@/hooks/useChats";
 import { useChatSocket, useChatStatus } from "@/hooks/useChatSocket";
-import { Input } from "@/components";
+import { Input, MarkdownMessage } from "@/components";
 import { MessageWrapper, type MessageWrapperRef } from "@/layouts";
 import { Chat } from "@/types/chat.types";
+
+const ChatItem = memo(
+  ({
+    msg,
+    isLast,
+    isGenerating,
+    hasStarted,
+  }: {
+    msg: any;
+    isLast: any;
+    isGenerating: any;
+    hasStarted: any;
+  }) => {
+    const isAssistant = msg.role === "assistant";
+
+    return (
+      <div
+        key={msg.id}
+        className={`chat ${!isAssistant ? "chat-end" : "chat-start"}`}
+      >
+        <div className="chat-image avatar">
+          <div className="w-10 rounded-full bg-neutral flex items-center justify-center text-xs">
+            {!isAssistant ? "👨‍🌾" : "🤖"}
+          </div>
+        </div>
+        <div className="chat-header opacity-50 text-[10px] mb-1">
+          {!isAssistant ? "Tú" : "AgroBot"}
+          <time className="ml-1">
+            {new Date(msg.createdAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </time>
+        </div>
+        <div
+          className={`chat-bubble shadow-sm ${
+            !isAssistant
+              ? "bg-primary text-primary-content"
+              : "bg-base-200 text-base-content"
+          }`}
+        >
+          {isLast && isAssistant && isGenerating && !hasStarted ? (
+            <span className="flex items-center gap-2">
+              <span className="loading loading-dots loading-sm"></span>
+              Pensando...
+            </span>
+          ) : (
+            <>
+              {isAssistant ? (
+                <MarkdownMessage content={msg.content} />
+              ) : (
+                msg.content
+              )} 
+
+              {isLast && isAssistant && isGenerating && hasStarted && (
+                <span className="animate-pulse ml-1">|</span>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    );
+  },
+);
 
 export function ChatPage() {
   const { chatId } = useParams<{ chatId: string }>();
@@ -32,7 +96,7 @@ export function ChatPage() {
   useEffect(() => {
     const container = wrapperRef.current?.getContainer();
     if (!container) return;
- 
+
     if (isFetchingMoreRef.current) {
       const newHeight = container.scrollHeight;
       const diff = newHeight - previousHeightRef.current;
@@ -42,7 +106,7 @@ export function ChatPage() {
       isFetchingMoreRef.current = false;
       return;
     }
- 
+
     wrapperRef.current?.scrollToBottom();
   }, [messages.length]);
 
@@ -118,50 +182,14 @@ export function ChatPage() {
 
           {messages.map((msg, index) => {
             const isLast = index === messages.length - 1;
-            const isAssistant = msg.role === "assistant";
-
             return (
-              <div
+              <ChatItem
                 key={msg.id}
-                className={`chat ${!isAssistant ? "chat-end" : "chat-start"}`}
-              >
-                <div className="chat-image avatar">
-                  <div className="w-10 rounded-full bg-neutral flex items-center justify-center text-xs">
-                    {!isAssistant ? "👨‍🌾" : "🤖"}
-                  </div>
-                </div>
-                <div className="chat-header opacity-50 text-[10px] mb-1">
-                  {!isAssistant ? "Tú" : "AgroBot"}
-                  <time className="ml-1">
-                    {new Date(msg.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </time>
-                </div>
-                <div
-                  className={`chat-bubble shadow-sm ${
-                    !isAssistant
-                      ? "bg-primary text-primary-content"
-                      : "bg-base-200 text-base-content"
-                  }`}
-                >
-                  {isLast && isAssistant && isGenerating && !hasStarted ? (
-                    <span className="flex items-center gap-2">
-                      <span className="loading loading-dots loading-sm"></span>
-                      Pensando...
-                    </span>
-                  ) : (
-                    <>
-                      {msg.content}
-
-                      {isLast && isAssistant && isGenerating && hasStarted && (
-                        <span className="animate-pulse ml-1">|</span>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
+                msg={msg}
+                isLast={isLast}
+                isGenerating={isGenerating}
+                hasStarted={hasStarted}
+              />
             );
           })}
 
