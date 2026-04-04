@@ -11,3 +11,18 @@ export const findAll = async () => {
   const response = await api.get("/chats");
   return response.data; // chat list
 };
+
+export const chatHistory = async ({
+  chatId,
+  offset = 0,
+  limit = 15,
+}: {
+  chatId: string;
+  offset?: number;
+  limit?: number;
+}) => {
+  const response = await api.get(`/chats/${chatId}/messages`, {
+    params: { offset, limit },
+  });
+  return response.data;
+};

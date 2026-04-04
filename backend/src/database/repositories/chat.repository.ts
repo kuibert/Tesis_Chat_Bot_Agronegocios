@@ -2,7 +2,7 @@ import { chats } from "../schema/chat";
 import { messages } from "../schema/message";
 
 import { db } from "../db";
-import { eq, InferInsertModel, asc, sql } from "drizzle-orm";
+import { eq, InferInsertModel, asc, sql, desc } from "drizzle-orm";
 
 export const create = async ({
   data,
@@ -37,10 +37,15 @@ export const addMessage = async (messageData: NewMessage) => {
 };
 
 export const saveMessage = async (data: NewMessage, tx: any = db) => {
-  return await tx.insert(messages).values({
-    ...data,
-    createdAt: new Date(),
-  });
+  const [message] = await tx
+    .insert(messages)
+    .values({
+      ...data,
+      createdAt: new Date(),
+    })
+    .returning();
+
+  return message;
 };
 
 export const saveManyMessage = async (data: NewMessage[], tx: any = db) => {
@@ -64,7 +69,7 @@ export const findMessageByChatId = async (
     .select()
     .from(messages)
     .where(eq(messages.chatId, chatId))
-    .orderBy(asc(messages.createdAt))
+    .orderBy(desc(messages.createdAt))
     .limit(limit)
     .offset(offset);
 };
@@ -76,4 +81,26 @@ export const countMessageByChatId = async (chatId: string) => {
     .where(eq(messages.chatId, chatId));
 
   return result[0]?.count || 0;
+};
+
+export const transaction = async <T>(promise: (tx: any) => Promise<T>): Promise<T> => {
+  return await db.transaction(async (tx) => {
+    return await promise(tx);
+  });
+};
+
+export const updateMessage = async (
+  messageData: {
+    messageId: string;
+    content: string;
+  },
+  tx: any = db,
+) => {
+  const [message] = await tx
+    .update(messages)
+    .set({ content: messageData.content })
+    .where(eq(messages.id, messageData.messageId))
+    .returning();
+
+  return message;
 };

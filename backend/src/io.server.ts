@@ -10,7 +10,11 @@ export const listen = (
   opts?: Partial<ServerOptions>,
 ): void => {
   io = new Server(httpServer, {
-    cors: { origin: "*" },
+   cors: { 
+      origin: "http://localhost:5173", 
+      methods: ["GET", "POST"],
+      credentials: true 
+    },
     ...opts,
   });
 
