@@ -1,9 +1,41 @@
-import { useState, useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { socket } from "@/libs/socket";
 
-export const useChatSocket = (chatId: string | undefined) => {
-  const [isTyping, setIsTyping] = useState(false);
+const addLastMessage = (queryClient: QueryClient, message: any) => {
+  queryClient.setQueryData(
+    ["chats", message.chatId, "messages"],
+    (oldData: any) => {
+      if (!oldData) return oldData;
+
+      return {
+        ...oldData,
+        pages: oldData.pages.map((page: any, index: number) => {
+          if (index !== 0) return page;
+
+          return {
+            ...page,
+            data: [message, ...page.data],
+          };
+        }),
+      };
+    },
+  );
+};
+
+export const useChatStatus = (chatId?: string) => {
+  const queryClient = useQueryClient();
+
+  return {
+    isGenerating:
+      queryClient.getQueryData(["chats", chatId, "isGenerating"]) ?? false,
+
+    hasStarted:
+      queryClient.getQueryData(["chats", chatId, "hasStarted"]) ?? false,
+  };
+};
+
+export const useChatSocket = (chatId: string | undefined) => { 
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -12,69 +44,64 @@ export const useChatSocket = (chatId: string | undefined) => {
     socket.connect();
 
     socket.on("messages:created", (messagePlaceholder) => {
-      console.log(messagePlaceholder);
+      addLastMessage(queryClient, messagePlaceholder);
+      if (messagePlaceholder.role === "assistant") {
+        queryClient.setQueryData(["chats", chatId, "isGenerating"], true);
+      }
+    });
+
+    socket.on("messages:stream", ({ chunk, messageId }) => {
+      queryClient.setQueryData(["chats", chatId, "hasStarted"], true);
+
       queryClient.setQueryData(
-        ["chats", messagePlaceholder.chatId, "messages"],
+        ["chats", chatId, "messages"],
         (oldData: any) => {
           if (!oldData) return oldData;
 
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page: any, index: number) => {
-              if (index !== 0) return page;
+          const newPages = [...oldData.pages];
+          const firstPage = newPages[0];
+          const messages = [...firstPage.data];
 
-              return {
-                ...page,
-                data: [messagePlaceholder, ...page.data],
-              };
-            }),
-          };
+          const firstMessage = messages[0];
+
+          if (firstMessage && firstMessage.role === "assistant") {
+            messages[0] = {
+              ...firstMessage,
+              content: (firstMessage.content || "") + chunk,
+            };
+          } else {
+            messages.unshift({
+              id: `temp-${Date.now()}`,
+              role: "assistant",
+              content: chunk,
+              createdAt: new Date().toISOString(),
+            });
+          }
+
+          newPages[0] = { ...firstPage, data: messages };
+
+          return { ...oldData, pages: newPages };
         },
       );
     });
 
-    // socket.on("messages:stream", (chunk: string) => {
-    //   queryClient.setQueryData(
-    //     ["chats", chatId, "messages"],
-    //     (oldData: any) => {
-    //       if (!oldData) return oldData;
+    socket.on("messages:end", () => {
+      queryClient.setQueryData(["chats", chatId, "isGenerating"], false);
 
-    //       const newPages = [...oldData.pages];
-    //       const lastPage = newPages[0]; // La página más reciente
-    //       const messages = [...lastPage.data];
-    //       const lastMsg = messages[0]; // Asumiendo que el índice 0 es el más nuevo
-
-    //       if (lastMsg && lastMsg.sender === "assistant" && isTyping) {
-    //         // Editamos el último mensaje del bot que se está construyendo
-    //         messages[0] = { ...lastMsg, text: lastMsg.content + chunk };
-    //       } else {
-    //         // Creamos el mensaje del bot si es el primer chunk
-    //         messages.unshift({
-    //           id: `temp-${Date.now()}`,
-    //           sender: "assistant",
-    //           content: chunk,
-    //           createdAt: new Date().toISOString(),
-    //         });
-    //       }
-
-    //       newPages[0] = { ...lastPage, data: messages };
-    //       return { ...oldData, pages: newPages };
-    //     },
-    //   );
-    // });
-
-    // socket.on("messages:end", () => setIsTyping(false));
+      queryClient.setQueryData(["chats", chatId, "hasStarted"], false);
+    });
 
     return () => {
       socket.off("messages:created");
       socket.off("messages:stream");
+      socket.off("messages:stream");
       socket.disconnect();
     };
-  }, [chatId, queryClient, isTyping]);
+  }, [chatId, queryClient]);
 
   const sendMessage = (content: string, paramChatId?: string) => {
     socket.emit("messages:send", { chatId: paramChatId ?? chatId, content });
   };
 
-  return { isTyping, sendMessage };
+  return { sendMessage };
 };

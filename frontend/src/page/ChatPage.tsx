@@ -3,7 +3,7 @@ import { Paperclip, SendHorizontal, Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 
 import { useCreateChat, useChatHistory } from "@/hooks/useChats";
-import { useChatSocket } from "@/hooks/useChatSocket";
+import { useChatSocket, useChatStatus } from "@/hooks/useChatSocket";
 import { Input } from "@/components";
 import { MessageWrapper, type MessageWrapperRef } from "@/layouts";
 import { Chat } from "@/types/chat.types";
@@ -17,6 +17,9 @@ export function ChatPage() {
     useChatHistory(chatId ?? "");
 
   const { sendMessage } = useChatSocket(chatId);
+  const { hasStarted, isGenerating } = useChatStatus(chatId);
+  const previousHeightRef = useRef(0);
+  const isFetchingMoreRef = useRef(false);
 
   const wrapperRef = useRef<MessageWrapperRef>(null);
   const [input, setInput] = useState("");
@@ -27,10 +30,21 @@ export function ChatPage() {
   }, [data?.pages]);
 
   useEffect(() => {
-    if (messages.length > 0 && !isFetchingNextPage) {
-      wrapperRef.current?.scrollToBottom();
+    const container = wrapperRef.current?.getContainer();
+    if (!container) return;
+ 
+    if (isFetchingMoreRef.current) {
+      const newHeight = container.scrollHeight;
+      const diff = newHeight - previousHeightRef.current;
+
+      container.scrollTop += diff;
+
+      isFetchingMoreRef.current = false;
+      return;
     }
-  }, [messages.length, isFetchingNextPage]);
+ 
+    wrapperRef.current?.scrollToBottom();
+  }, [messages.length]);
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
@@ -38,19 +52,30 @@ export function ChatPage() {
     const currentInput = input;
     setInput("");
 
-    if (!chatId) { 
+    if (!chatId) {
       createChatMutation.mutate(
         { data: { title: currentInput } },
         {
-          onSuccess: (newChat: Chat) => { 
-            navigate(`/chat/${newChat.id}`); 
+          onSuccess: (newChat: Chat) => {
+            navigate(`/chat/${newChat.id}`);
             setTimeout(() => sendMessage(currentInput, newChat.id), 100);
           },
         },
       );
-    } else { 
+    } else {
       sendMessage(currentInput);
     }
+  };
+
+  const handleLoadMore = () => {
+    const container = wrapperRef.current?.getContainer();
+
+    if (container) {
+      previousHeightRef.current = container.scrollHeight;
+    }
+
+    isFetchingMoreRef.current = true;
+    fetchNextPage();
   };
 
   return (
@@ -67,7 +92,7 @@ export function ChatPage() {
             <div className="flex justify-center py-2">
               <button
                 className="btn btn-ghost btn-sm text-xs"
-                onClick={() => fetchNextPage()}
+                onClick={() => handleLoadMore()}
                 disabled={isFetchingNextPage}
               >
                 {isFetchingNextPage ? (
@@ -91,36 +116,54 @@ export function ChatPage() {
             </div>
           )}
 
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`chat ${msg.role === "user" ? "chat-end" : "chat-start"}`}
-            >
-              <div className="chat-image avatar">
-                <div className="w-10 rounded-full bg-neutral flex items-center justify-center text-xs">
-                  {msg.role === "user" ? "👨‍🌾" : "🤖"}
+          {messages.map((msg, index) => {
+            const isLast = index === messages.length - 1;
+            const isAssistant = msg.role === "assistant";
+
+            return (
+              <div
+                key={msg.id}
+                className={`chat ${!isAssistant ? "chat-end" : "chat-start"}`}
+              >
+                <div className="chat-image avatar">
+                  <div className="w-10 rounded-full bg-neutral flex items-center justify-center text-xs">
+                    {!isAssistant ? "👨‍🌾" : "🤖"}
+                  </div>
+                </div>
+                <div className="chat-header opacity-50 text-[10px] mb-1">
+                  {!isAssistant ? "Tú" : "AgroBot"}
+                  <time className="ml-1">
+                    {new Date(msg.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </time>
+                </div>
+                <div
+                  className={`chat-bubble shadow-sm ${
+                    !isAssistant
+                      ? "bg-primary text-primary-content"
+                      : "bg-base-200 text-base-content"
+                  }`}
+                >
+                  {isLast && isAssistant && isGenerating && !hasStarted ? (
+                    <span className="flex items-center gap-2">
+                      <span className="loading loading-dots loading-sm"></span>
+                      Pensando...
+                    </span>
+                  ) : (
+                    <>
+                      {msg.content}
+
+                      {isLast && isAssistant && isGenerating && hasStarted && (
+                        <span className="animate-pulse ml-1">|</span>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
-              <div className="chat-header opacity-50 text-[10px] mb-1">
-                {msg.role === "user" ? "Tú" : "AgroBot"}
-                <time className="ml-1">
-                  {new Date(msg.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </time>
-              </div>
-              <div
-                className={`chat-bubble shadow-sm ${
-                  msg.role === "user"
-                    ? "bg-primary text-primary-content"
-                    : "bg-base-200 text-base-content"
-                }`}
-              >
-                {msg.content}
-              </div>
-            </div>
-          ))}
+            );
+          })}
 
           {isLoading && chatId && (
             <div className="flex justify-center p-10">

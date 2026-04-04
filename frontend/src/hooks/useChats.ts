@@ -44,3 +44,12 @@ export const useChatHistory = (chatId: string) => {
     enabled: !!chatId,
   });
 };
+
+// export const useLastMessage = (chatId: string | undefined) => {
+//   return useQuery({
+//     queryKey: ["chats", chatId, "lastMessage"],
+//     queryFn: () => null,
+//     enabled: false,
+//     initialData: null,
+//   });
+// };

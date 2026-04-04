@@ -36,10 +36,10 @@ export const saveMessage = async (
   let fullResponse = "";
   const payload: Message = { content, role: "user" };
 
-  // await aiProvider.stream(payload, (chunk) => {
-  //   fullResponse += chunk; 
-  //   onStream(chunk, assistantMsg.id);
-  // });
+  await aiProvider.stream(payload, (chunk) => {
+    fullResponse += chunk; 
+    onStream(chunk, assistantMsg.id);
+  });
  
   await chatRepository.updateMessage({
     messageId: assistantMsg.id,

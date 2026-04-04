@@ -13,6 +13,7 @@ interface MessageWrapperProps extends DivProps {
 
 export interface MessageWrapperRef {
   scrollToBottom: () => void;
+  getContainer: () => HTMLDivElement | null;
 }
 
 export const MessageWrapper = forwardRef<
@@ -22,16 +23,19 @@ export const MessageWrapper = forwardRef<
   const containerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
+    if (!containerRef.current) return;
+
     containerRef.current?.scrollTo({
       top: containerRef.current.scrollHeight,
-      behavior: "smooth",
+      behavior: "auto",
     });
   };
 
   useImperativeHandle(ref, () => ({
     scrollToBottom,
-  })); 
-  
+    getContainer: () => containerRef.current,
+  }));
+
   return (
     <div
       ref={containerRef}
@@ -42,3 +46,5 @@ export const MessageWrapper = forwardRef<
     </div>
   );
 });
+
+MessageWrapper.displayName = "MessageWrapper";
