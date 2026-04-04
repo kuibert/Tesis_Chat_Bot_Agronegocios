@@ -2,7 +2,7 @@ import { chats } from "../schema/chat";
 import { messages } from "../schema/message";
 
 import { db } from "../db";
-import { eq, InferInsertModel } from "drizzle-orm";
+import { eq, InferInsertModel, asc, sql } from "drizzle-orm";
 
 export const create = async ({
   data,
@@ -53,4 +53,27 @@ export const saveMessageExecute = async (data: NewMessage | NewMessage[]) => {
   await db.transaction(async (tx) => {
     await tx.insert(messages).values(values).returning();
   });
+};
+
+export const findMessageByChatId = async (
+  chatId: string,
+  limit = 50,
+  offset = 0,
+) => {
+  return await db
+    .select()
+    .from(messages)
+    .where(eq(messages.chatId, chatId))
+    .orderBy(asc(messages.createdAt))
+    .limit(limit)
+    .offset(offset);
+};
+
+export const countMessageByChatId = async (chatId: string) => {
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(messages)
+    .where(eq(messages.chatId, chatId));
+
+  return result[0]?.count || 0;
 };

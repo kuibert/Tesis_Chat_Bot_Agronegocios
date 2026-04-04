@@ -15,3 +15,25 @@ export const create = async ({ data }: { data: Chat }) => {
 
   return chat;
 };
+
+export const getChatHistory = async (
+  chatId: string,
+  limit = 50,
+  offset = 0,
+) => {
+  const [data, total] = await Promise.all([
+    chatRepository.findMessageByChatId(chatId, limit, offset),
+    chatRepository.countMessageByChatId(chatId),
+  ]);
+
+  return {
+    data,
+    pagination: {
+      total,
+      limit,
+      offset,
+      hasMore: offset + limit < total,
+      nextOffset: offset + limit < total ? offset + limit : null,
+    },
+  };
+};
