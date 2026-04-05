@@ -1,8 +1,14 @@
 import { BaseError } from "./base.error";
 
 export class Unauthorized extends BaseError {
-  constructor(message = "No autenticado") {
+  constructor(message = "No autorizado") {
     super(message, 401, "UNAUTHORIZED");
+  }
+}
+
+export class Unauthenticated extends BaseError {
+  constructor(message = "No autenticado") {
+    super(message, 401, "UNAUTHENTICATED");
   }
 }
 

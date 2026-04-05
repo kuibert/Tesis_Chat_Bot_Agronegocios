@@ -17,6 +17,7 @@ export const sigInLocal = async (req: Request, res: Response) => {
     email: session.email,
     name: session.name!,
     avatar: session.image ?? "",
+    provider: "local"
   });
   setAuthCookie(res, token);
 
@@ -40,6 +41,7 @@ export const sigInOauth = async (req: Request, res: Response) => {
     email: session.email,
     name: session.name!,
     avatar: session.image ?? "",
+    provider,
   });
   setAuthCookie(res, token);
 

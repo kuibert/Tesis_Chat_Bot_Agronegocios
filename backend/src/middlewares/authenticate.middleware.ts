@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../libs/jwt";
 
-import { BaseError, InvalidCredentials, Unauthorized } from "../errors";
+import {
+  BaseError,
+  InvalidCredentials,
+  Unauthenticated,
+  Unauthorized,
+} from "../errors";
 
 const COOKIE_NAME = process.env.COOKIE_NAME!;
 
@@ -11,6 +16,7 @@ export interface AuthRequest extends Request {
     name: string;
     email: string;
     avatar?: string;
+    provider?: "local" | "google" | "microsoft";
   };
 }
 
@@ -22,7 +28,7 @@ export const Authenticate = (
   try {
     const token = req.cookies?.[COOKIE_NAME];
 
-    if (!token) throw new Unauthorized("No autenticado");
+    if (!token) throw new Unauthenticated("No autenticado");
 
     const decoded = verifyToken(token);
 
@@ -31,9 +37,9 @@ export const Authenticate = (
     next();
   } catch (error) {
     if (error instanceof BaseError) {
-      next(error);
+      return next(error);
     }
 
-    throw new InvalidCredentials("Token invalido o expirado");
+    next(new InvalidCredentials("Token invalido o expirado"));
   }
 };
