@@ -1,6 +1,8 @@
 import { ReactNode, useEffect, useState } from "react";
+import { Toaster } from "sileo";
+
 import { AppContext, type ThemeMode } from "@/context";
-import { SileoOptions, Toaster } from "sileo";
+import { sileoStyleToast } from "@/libs/sileo";
 
 interface AppProviderProps {
   children: ReactNode;
@@ -38,16 +40,6 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     localStorage.setItem("sidebar", JSON.stringify(isSideOpen));
   }, [isSideOpen]);
 
-  const styleToast: Partial<SileoOptions> = {
-    fill: "#171717",
-    position: "top-right",
-    duration: 2000,
-    styles: {
-      title: "text-white!",
-      description: "text-white/75!",
-    },
-  };
-
   return (
     <AppContext.Provider
       value={{
@@ -62,8 +54,11 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       <Toaster
         options={
           theme === "light"
-            ? { ...styleToast }
-            : { duration: 2000, styles: { description: "text-gray-600" } }
+            ? { ...sileoStyleToast }
+            : {
+                duration: sileoStyleToast.duration,
+                styles: { description: "text-gray-600" },
+              }
         }
       />
     </AppContext.Provider>

@@ -36,3 +36,8 @@ export const signOut = async ({ provider }: { provider: Provider }) => {
 
   await api.post("/auth/logout");
 };
+
+export const getProfile = async () => {
+  const { data: response } = await api.get("/auth/profile");
+  return response;
+};

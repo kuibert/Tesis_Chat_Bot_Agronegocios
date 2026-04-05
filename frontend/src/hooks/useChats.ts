@@ -7,10 +7,12 @@ import {
 import * as chatService from "@/network/services/chat.service";
 import { Chat } from "@/types/chat.types";
 
-export const useChats = () => {
+export const useChats = ({ enabled }: { enabled?: boolean } = {}) => {
   return useQuery<Chat[]>({
     queryKey: ["chats"],
     queryFn: chatService.findAll,
+    enabled: enabled,
+    staleTime: 1000 * 60 * 5,
   });
 };
 
@@ -26,7 +28,7 @@ export const useCreateChat = () => {
 
         return [newChat, ...oldChats];
       });
-    },
+    }, 
   });
 };
 
@@ -44,12 +46,4 @@ export const useChatHistory = (chatId: string) => {
     enabled: !!chatId,
   });
 };
-
-// export const useLastMessage = (chatId: string | undefined) => {
-//   return useQuery({
-//     queryKey: ["chats", chatId, "lastMessage"],
-//     queryFn: () => null,
-//     enabled: false,
-//     initialData: null,
-//   });
-// };
+ 

@@ -10,7 +10,7 @@ interface SideBarProps extends SideProps {}
 
 export function SideBar({ ...props }: SideBarProps) {
   const { hasSession } = useAuth();
-  const { data: chats = [], isLoading } = useChats();
+  const { data: chats = [], isLoading } = useChats({ enabled: hasSession });
   const navigate = useNavigate();
 
   const handleNewChat = () => {

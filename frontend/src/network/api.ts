@@ -1,4 +1,5 @@
 import axios from "axios";
+import { sileo } from "sileo";
 
 export const api = axios.create({
   baseURL: "http://localhost:3000/api",
@@ -7,6 +8,12 @@ export const api = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+let logoutFn: () => void = () => {};
+
+export const setLogoutHandler = (fn: () => void) => {
+  logoutFn = fn;
+};
 
 api.interceptors.response.use(
   (response) => response,
@@ -22,8 +29,17 @@ api.interceptors.response.use(
         message: data?.message || "Ocurrió un error inesperado",
       };
 
-      if (status === 401) {
-        console.warn("No autorizado");
+      if (response.data.code == "UNAUTHENTICATED") {
+        const session = localStorage.getItem("session");
+
+        sileo.error({
+          title: "Sesion",
+          description:
+            "No has iniciado sesión, para acceder a otras funciones necesitas iniciar sesion",
+          duration: 4000,
+        });
+
+        if (session) logoutFn();
       }
 
       return Promise.reject(mappedError);
