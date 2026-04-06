@@ -7,6 +7,7 @@ import { LocalSession, Session, SignInParams } from "@/types/auth.types";
 import * as authService from "@/network/services/auth.service";
 import { setLogoutHandler } from "@/network/api";
 import { useNavigate } from "react-router";
+import { socket } from "@/libs/socket";
 
 interface AuthProviderProps {
   children?: ReactNode;
@@ -21,19 +22,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const handleSignIn = async (params: SignInParams) => {
     const session = await authService.signIn(params);
+    socket.disconnect();
     setSession(session);
   };
 
   const handleRegister = async ({ data }: { data: LocalSession }) => {};
 
   const handleSignOut = async () => {
-    await authService.signOut({ provider: session?.provider! });
-    setSession(null);
-    queryClient.clear();
-    navigate("/");
+    try {
+      await authService.signOut({ provider: session?.provider! });
+    } finally {
+      socket.disconnect();
+      setSession(null);
+      queryClient.clear();
+      navigate("/");
+    }
   };
 
   const forceLogout = () => {
+    socket.disconnect();
     setSession(null);
     localStorage.removeItem("session");
     queryClient.clear();

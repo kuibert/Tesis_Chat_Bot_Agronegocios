@@ -2,15 +2,16 @@ import React from "react";
 import { BotMessageSquare, History, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 
-import { useAuth } from "@/hooks/useAuth";
-import { useChats } from "@/hooks/useChats";
+import { useAuth } from "@/hooks/useAuth"; 
+
+import { useChats } from "@/hooks/chat";
 
 type SideProps = React.ComponentProps<"div">;
 interface SideBarProps extends SideProps {}
 
 export function SideBar({ ...props }: SideBarProps) {
   const { hasSession } = useAuth();
-  const { data: chats = [], isLoading } = useChats({ enabled: hasSession });
+  const { data: chats = [], isLoading } = useChats();
   const navigate = useNavigate();
 
   const handleNewChat = () => {

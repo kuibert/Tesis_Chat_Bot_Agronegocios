@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect, useMemo, memo } from "react";
 import { Paperclip, SendHorizontal, Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
-
-import { useCreateChat, useChatHistory } from "@/hooks/useChats";
-import { useChatSocket, useChatStatus } from "@/hooks/useChatSocket";
+ 
 import { Input, MarkdownMessage } from "@/components";
 import { MessageWrapper, type MessageWrapperRef } from "@/layouts";
 import { Chat } from "@/types/chat.types";
+
+import { useAuth } from "@/hooks/useAuth";
+import { useHistoryChat, useCreateChat, useListeChat } from "@/hooks/chat";
 
 const ChatItem = memo(
   ({
@@ -59,7 +60,7 @@ const ChatItem = memo(
                 <MarkdownMessage content={msg.content} />
               ) : (
                 msg.content
-              )} 
+              )}
 
               {isLast && isAssistant && isGenerating && hasStarted && (
                 <span className="animate-pulse ml-1">|</span>
@@ -73,15 +74,23 @@ const ChatItem = memo(
 );
 
 export function ChatPage() {
-  const { chatId } = useParams<{ chatId: string }>();
+  const { chatId: urlChatId } = useParams<{ chatId: string }>();
   const navigate = useNavigate();
+  const { hasSession } = useAuth();
+
+  const chatId = useMemo(() => {
+    console.log("cambio")
+    if (urlChatId) return urlChatId;
+    if (!hasSession) return "no-memory-session";
+    return undefined; // Caso: nueva conversacion con sesion
+  }, [urlChatId, hasSession]);
 
   const createChatMutation = useCreateChat();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useChatHistory(chatId ?? "");
+    useHistoryChat(chatId ?? "");
 
-  const { sendMessage } = useChatSocket(chatId);
-  const { hasStarted, isGenerating } = useChatStatus(chatId);
+  const { hasStarted, isGenerating, sendMessage } = useListeChat(chatId);
+ 
   const previousHeightRef = useRef(0);
   const isFetchingMoreRef = useRef(false);
 
@@ -116,8 +125,8 @@ export function ChatPage() {
     const currentInput = input;
     setInput("");
 
-    if (!chatId) {
-      createChatMutation.mutate(
+    if (!chatId && hasSession) {
+      createChatMutation?.mutate(
         { data: { title: currentInput } },
         {
           onSuccess: (newChat: Chat) => {
@@ -217,7 +226,7 @@ export function ChatPage() {
             <button
               className="btn btn-primary btn-circle shadow-md mb-1"
               onClick={handleSendMessage}
-              disabled={!input.trim() || createChatMutation.isPending}
+              disabled={!input.trim() || createChatMutation?.isPending}
             >
               <SendHorizontal className="size-3.5" />
             </button>

@@ -2,21 +2,28 @@ import { useEffect } from "react";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { socket } from "@/libs/socket";
 
+const GHOST_CHAT_ID = "no-memory-session";
+
 const addLastMessage = (queryClient: QueryClient, message: any) => {
   queryClient.setQueryData(
     ["chats", message.chatId, "messages"],
     (oldData: any) => {
+      if (!oldData && message.chatId === GHOST_CHAT_ID) {
+        return {
+          pages: [{ data: [message] }],
+        };
+      }
+
       if (!oldData) return oldData;
 
       return {
         ...oldData,
         pages: oldData.pages.map((page: any, index: number) => {
-          if (index !== 0) return page;
-
+          if (index !== 0) return page; 
           return {
             ...page,
             data: [message, ...page.data],
-          };
+          };;
         }),
       };
     },
@@ -35,26 +42,29 @@ export const useChatStatus = (chatId?: string) => {
   };
 };
 
-export const useChatSocket = (chatId: string | undefined) => { 
+export const useChatSocket = (chatId: string | undefined) => {
   const queryClient = useQueryClient();
 
+  const activeChatId: string = chatId || GHOST_CHAT_ID;
+
   useEffect(() => {
-    if (!chatId) return;
+    // if (!chatId) return;
 
     socket.connect();
 
     socket.on("messages:created", (messagePlaceholder) => {
+      const targetId = messagePlaceholder.chatId || activeChatId;
       addLastMessage(queryClient, messagePlaceholder);
       if (messagePlaceholder.role === "assistant") {
-        queryClient.setQueryData(["chats", chatId, "isGenerating"], true);
+        queryClient.setQueryData(["chats", targetId, "isGenerating"], true);
       }
     });
 
     socket.on("messages:stream", ({ chunk, messageId }) => {
-      queryClient.setQueryData(["chats", chatId, "hasStarted"], true);
+      queryClient.setQueryData(["chats", activeChatId, "hasStarted"], true);
 
       queryClient.setQueryData(
-        ["chats", chatId, "messages"],
+        ["chats", activeChatId, "messages"],
         (oldData: any) => {
           if (!oldData) return oldData;
 
@@ -86,21 +96,24 @@ export const useChatSocket = (chatId: string | undefined) => {
     });
 
     socket.on("messages:end", () => {
-      queryClient.setQueryData(["chats", chatId, "isGenerating"], false);
+      queryClient.setQueryData(["chats", activeChatId, "isGenerating"], false);
 
-      queryClient.setQueryData(["chats", chatId, "hasStarted"], false);
+      queryClient.setQueryData(["chats", activeChatId, "hasStarted"], false);
     });
 
     return () => {
       socket.off("messages:created");
       socket.off("messages:stream");
-      socket.off("messages:stream");
+      socket.off("messages:end");
       socket.disconnect();
     };
   }, [chatId, queryClient]);
 
   const sendMessage = (content: string, paramChatId?: string) => {
-    socket.emit("messages:send", { chatId: paramChatId ?? chatId, content });
+    socket.emit("messages:send", {
+      chatId: paramChatId ?? activeChatId,
+      content,
+    });
   };
 
   return { sendMessage };
