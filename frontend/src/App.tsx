@@ -1,14 +1,38 @@
-import React from 'react';
-import Sidebar from './components/Sidebar';
-import ChatInterface from './components/ChatInterface';
+import { BrowserRouter } from "react-router";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { MsalProvider } from "@azure/msal-react";
+import {
+  QueryClient,
+  QueryClientProvider
+} from "@tanstack/react-query";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
-function App() {
-    return (
-        <div className="flex w-screen h-screen overflow-hidden bg-gray-50">
-            <Sidebar />
-            <ChatInterface />
-        </div>
-    );
+import { msalInstance } from "@/libs/microsoft";
+
+import { MainNavigation } from "./navigations";
+
+import { AppProvider, AuthProvider } from "./provider";
+
+const queryClient = new QueryClient();
+
+export default function App() {
+  const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+  return (
+    <BrowserRouter>
+      <AppProvider>
+        <MsalProvider instance={msalInstance}>
+          <GoogleOAuthProvider clientId={CLIENT_ID}>
+            <QueryClientProvider client={queryClient}>
+              <AuthProvider>
+                <MainNavigation />
+              </AuthProvider>
+
+              <ReactQueryDevtools initialIsOpen={false} />
+            </QueryClientProvider>
+          </GoogleOAuthProvider>
+        </MsalProvider>
+      </AppProvider>
+    </BrowserRouter>
+  );
 }
-
-export default App;

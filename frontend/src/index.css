@@ -1,8 +1,13 @@
-@tailwind base;
+/* @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities; */
 
-html, body, #root {
+@import "tailwindcss";
+@plugin "daisyui";
+
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -13,29 +18,36 @@ html, body, #root {
 .markdown-body p {
   margin-bottom: 0.75em;
 }
+
 .markdown-body p:last-child {
   margin-bottom: 0;
 }
+
 .markdown-body strong {
   font-weight: 600;
   color: #1f2937;
 }
+
 .markdown-body em {
   font-style: italic;
 }
+
 .markdown-body ul {
   list-style-type: disc;
   padding-left: 1.5em;
   margin-bottom: 0.75em;
 }
+
 .markdown-body ol {
   list-style-type: decimal;
   padding-left: 1.5em;
   margin-bottom: 0.75em;
 }
+
 .markdown-body li {
   margin-bottom: 0.25em;
 }
+
 .markdown-body table {
   width: 100%;
   border-collapse: collapse;
@@ -44,8 +56,9 @@ html, body, #root {
   font-size: 0.875rem;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
+
 .markdown-body th {
   background-color: #f3f4f6;
   text-align: left;
@@ -54,16 +67,20 @@ html, body, #root {
   color: #374151;
   border-bottom: 2px solid #e5e7eb;
 }
+
 .markdown-body td {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #e5e7eb;
 }
+
 .markdown-body tr:last-child td {
   border-bottom: none;
 }
+
 .markdown-body tr:nth-child(even) {
   background-color: #f9fafb;
 }
+
 .markdown-body hr {
   border: 0;
   border-top: 1px solid #e5e7eb;
