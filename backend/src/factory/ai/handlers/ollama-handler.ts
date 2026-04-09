@@ -8,14 +8,14 @@ export class OllamaHandler implements AIHandler {
     const messagesArray = Array.isArray(message) ? message : [message];
 
     const response = await fetch(
-      "http://localhost:12434/engines/llama.cpp/v1/chat/completions",
+      "http://localhost:11434/api/chat",
       {
         headers: {
           "Content-Type": "application/json",
         },
         method: "POST",
         body: JSON.stringify({
-          model: "ai/qwen3:0.6B-Q4_0",
+          model: "qwen3:0.6b",
           messages: [
             {
               role: "system",
@@ -71,28 +71,24 @@ export class OllamaHandler implements AIHandler {
 
       buffer += decoder.decode(value, { stream: true });
 
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split("\n");
-
+      const lines = buffer.split("\n");
       buffer = lines.pop() || "";
 
       for (const line of lines) {
         const trimmed = line.trim();
-        if (!trimmed || !trimmed.startsWith("data: ")) continue;
-
-        const jsonStr = trimmed.replace("data: ", "");
-
-        if (jsonStr === "[DONE]") return;
+        if (!trimmed) continue;
 
         try {
-          const parsed = JSON.parse(jsonStr);
-          const content = parsed.choices?.[0]?.delta?.content;
+          const parsed = JSON.parse(trimmed);
+          const content = parsed.message?.content;
 
           if (content) {
             onChunk(content);
           }
+
+          if (parsed.done) return;
         } catch (e) {
-          throw e;
+          // skip malformed lines
         }
       }
     }
