@@ -32,3 +32,22 @@ export const getMessages = async (req: Request, res: Response) => {
 
   res.json(result);
 };
+
+export const remove = async (req: Request, res: Response) => {
+  const { chatId } = req.params;
+  await chatService.deleteChat(chatId);
+  res.status(200).json({ success: true, message: "Chat deleted successfully" });
+};
+
+export const clearHistory = async (req: Request, res: Response) => {
+  const { chatId } = req.params;
+  await chatService.clearChatHistory(chatId);
+  res.status(200).json({ success: true, message: "Chat history cleared successfully" });
+};
+
+export const rename = async (req: Request, res: Response) => {
+  const { chatId } = req.params;
+  const { title } = req.body;
+  const chat = await chatService.renameChat(chatId, title);
+  res.status(200).json({ success: true, chat });
+};

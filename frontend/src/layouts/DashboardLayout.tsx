@@ -18,10 +18,10 @@ export function DashboardLayout() {
         onChange={toggleDrawer}
       />
 
-      <div className="drawer-content">
-        <NavBar className="navbar w-full bg-base-300" />
+      <div className="drawer-content bg-[#131517] text-gray-100 min-h-screen flex flex-col">
+        <NavBar className="navbar w-full bg-[#131517] border-b border-[#2D3139]" />
 
-        <main className="flex  w-full h-full">
+        <main className="flex flex-1 w-full h-full overflow-hidden">
           <Outlet />
         </main>
       </div>

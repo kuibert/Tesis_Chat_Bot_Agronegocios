@@ -104,3 +104,21 @@ export const updateMessage = async (
 
   return message;
 };
+
+export const deleteAllMessagesByChatId = async (chatId: string) => {
+  return await db.delete(messages).where(eq(messages.chatId, chatId));
+};
+
+export const deleteChat = async (chatId: string) => {
+  await db.transaction(async (tx) => {
+    // Delete messages first to avoid foreign key constraints
+    await tx.delete(messages).where(eq(messages.chatId, chatId));
+    // Then delete the chat
+    await tx.delete(chats).where(eq(chats.id, chatId));
+  });
+};
+
+export const renameChat = async (chatId: string, title: string) => {
+  const [chat] = await db.update(chats).set({ title }).where(eq(chats.id, chatId)).returning();
+  return chat;
+};

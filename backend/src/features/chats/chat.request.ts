@@ -33,3 +33,16 @@ export const getMessagesRequest = checkSchema({
     toInt: true,
   },
 });
+
+export const patchChatRequest = checkSchema({
+  chatId: {
+    in: ["params"],
+    notEmpty: {
+      errorMessage: "El chatId es obligatorio",
+    },
+  },
+  title: {
+    in: ["body"],
+    notEmpty: { errorMessage: "El titulo es obligatorio" },
+  },
+});

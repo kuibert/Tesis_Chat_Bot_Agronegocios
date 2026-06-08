@@ -9,6 +9,9 @@ import {
   useCreateChat as useQueryCreateChat,
   useQueryHistoryChat,
   useQueryStatusChat,
+  useDeleteChat as useQueryDeleteChat,
+  useClearHistoryChat as useQueryClearHistoryChat,
+  useRenameChat as useQueryRenameChat,
 } from "./useQueryChat";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -31,6 +34,24 @@ export const useHistoryChat = (chatId: string) => {
   const { hasSession } = useAuth();
  
   return useQueryHistoryChat(chatId, { hasMemory: hasSession });
+};
+
+export const useDeleteChat = () => {
+  const { hasSession } = useAuth();
+  const mutation = useQueryDeleteChat();
+  return hasSession ? mutation : null;
+};
+
+export const useClearHistoryChat = () => {
+  const { hasSession } = useAuth();
+  const mutation = useQueryClearHistoryChat();
+  return hasSession ? mutation : null;
+};
+
+export const useRenameChat = () => {
+  const { hasSession } = useAuth();
+  const mutation = useQueryRenameChat();
+  return hasSession ? mutation : null;
 };
 
 export const useListeChat = (chatId: string | undefined) => {
@@ -99,5 +120,9 @@ export const useListeChat = (chatId: string | undefined) => {
     [chatId],
   );
 
-  return { sendMessage, isGenerating, hasStarted };
+  const stopGeneration = useCallback(() => {
+      socket.emit("messages:stop", activeChatId);
+  }, [activeChatId]);
+
+  return { sendMessage, stopGeneration, isGenerating, hasStarted };
 };

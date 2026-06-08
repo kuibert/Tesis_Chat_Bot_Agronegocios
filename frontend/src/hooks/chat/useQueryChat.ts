@@ -33,6 +33,55 @@ export const useCreateChat = () => {
   });
 };
 
+export const useDeleteChat = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: chatService.deleteChat,
+    onSuccess: (_, chatId) => {
+      // Remove chat from the list
+      queryClient.setQueryData<Chat[]>(["chats"], (oldChats) => {
+        if (!oldChats) return [];
+        return oldChats.filter((chat) => chat.id !== chatId);
+      });
+      // Also remove its messages from cache
+      queryClient.removeQueries({ queryKey: ["chats", chatId, "messages"] });
+    },
+  });
+};
+
+export const useClearHistoryChat = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: chatService.clearChatHistory,
+    onSuccess: (_, chatId) => {
+      // Clear messages for this chat in cache
+      queryClient.setQueryData(["chats", chatId, "messages"], (oldData: any) => {
+        return {
+          pages: [{ data: [] }],
+          pageParams: [0],
+        };
+      });
+    },
+  });
+};
+
+export const useRenameChat = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ chatId, title }: { chatId: string; title: string }) => 
+        chatService.updateChat(chatId, title),
+    onSuccess: (response, { chatId, title }) => {
+      queryClient.setQueryData<Chat[]>(["chats"], (oldChats) => {
+        if (!oldChats) return [];
+        return oldChats.map(chat => chat.id === chatId ? { ...chat, title } : chat);
+      });
+    },
+  });
+};
+
 export const useQueryHistoryChat = (
   chatId: string,
   opt: { hasMemory?: boolean },

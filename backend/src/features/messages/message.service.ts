@@ -10,6 +10,7 @@ export const saveMessage = async (
   data: { chatId: string; content: string },
   onListen: (msg: any) => void,
   onStream: (chunk: string, messageId: string) => void,
+  signal?: AbortSignal
 ) => {
   const { content, chatId } = data;
 
@@ -35,12 +36,23 @@ export const saveMessage = async (
   onListen(assistantMsg);
 
   let fullResponse = "";
-  const payload: Message = { content, role: "user" };
+  
+  // 1. Recuperar últimos 15 mensajes del historial
+  const historyRaw = await chatRepository.findMessageByChatId(chatId, 15);
+
+  // 2. Limpiar y ordenar cronológicamente
+  const payload: Message[] = historyRaw
+    .filter((msg) => msg.id !== assistantMsg.id) // Ocultar el mensaje en blanco actual
+    .reverse() // De más antiguo a más reciente
+    .map((msg) => ({
+      content: msg.content,
+      role: msg.role as "user" | "assistant",
+    }));
 
   await aiProvider.stream(payload, (chunk) => {
     fullResponse += chunk;
     onStream(chunk, assistantMsg.id);
-  });
+  }, signal);
 
   await chatRepository.updateMessage({
     messageId: assistantMsg.id,
@@ -52,6 +64,7 @@ export const noMemoryMessage = async (
   data: { content: string },
   onListen: (msg: any) => void,
   onStream: (chunk: string, messageId: string) => void,
+  signal?: AbortSignal
 ) => {
   const { content } = data;
 
@@ -80,5 +93,5 @@ export const noMemoryMessage = async (
   await aiProvider.stream(payload, (chunk) => {
     fullResponse += chunk;
     onStream(chunk, assistantMsg.id);
-  });
+  }, signal);
 };

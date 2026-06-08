@@ -41,7 +41,7 @@ export function NavBar({ ...props }: NavBarProps) {
           )}
         </label>
 
-        <div className="px-4">Agro - Chat</div>
+        <div className="flex-1 text-center font-medium text-sm text-gray-200">Navbar Title</div>
 
         {!hasSession ? (
           <div className="flex flex-row gap-2 justify-center items-center">

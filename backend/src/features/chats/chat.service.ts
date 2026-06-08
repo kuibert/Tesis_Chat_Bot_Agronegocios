@@ -37,3 +37,15 @@ export const getChatHistory = async (
     },
   };
 };
+
+export const deleteChat = async (chatId: string) => {
+  await chatRepository.deleteChat(chatId);
+};
+
+export const clearChatHistory = async (chatId: string) => {
+  await chatRepository.deleteAllMessagesByChatId(chatId);
+};
+
+export const renameChat = async (chatId: string, title: string) => {
+  return await chatRepository.renameChat(chatId, title);
+};

@@ -8,5 +8,5 @@ export interface Message {
 }
 
 export interface AIHandler {
-  stream(message: Message | Message[], onChunk: StreamHandler): Promise<void>;
+  stream(message: Message | Message[], onChunk: StreamHandler, signal?: AbortSignal): Promise<void>;
 }
