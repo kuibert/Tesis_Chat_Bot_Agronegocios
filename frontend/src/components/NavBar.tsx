@@ -41,7 +41,10 @@ export function NavBar({ ...props }: NavBarProps) {
           )}
         </label>
 
-        <div className="flex-1 text-center font-medium text-sm text-gray-200">Navbar Title</div>
+        {/* Centro del Navbar */}
+        <div className="flex-1 text-center font-semibold text-sm text-gray-300 tracking-wide">
+          Asistente Agrícola RAG
+        </div>
 
         {!hasSession ? (
           <div className="flex flex-row gap-2 justify-center items-center">

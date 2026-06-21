@@ -1,4 +1,4 @@
 export * from "./NavBar";
-export * from "./SideBar";
+export * from "./Sidebar";
 export * from "./Input";
 export * from "./MarkdownMessage";

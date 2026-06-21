@@ -1,0 +1,1636 @@
+CAPÍTULO III. METODOLOGÍA	61
+3.1 Diseño metodológico.
+	61
+3.2 Diagnóstico de requerimientos
+	62
+3.3 Diseño de arquitectura e integración de tecnologías
+	63
+3.3.1 Desarrollo de la interfaz (Frontend)
+	63
+3.3.2 Entorno de ejecución y tipado
+	64
+3.3.3 Servidor Backend y API (Node.js)
+	64
+3.3.4 Base de datos vectorial (PostgreSQL + pgvector)
+	64
+3.3.5 Motor de inteligencia artificial local (Ollama + Qwen)
+	65
+3.3.6 Pipeline RAG (Retrieval-Augmented Generation)
+	66
+3.3.7 Modelo de embeddings (DistilBERT Multilingüe)
+	67
+3.4 Prototipado.
+	67
+3.4.1 Pantalla de inicio de sesión (Login)
+	67
+3.4.2 Flujo de autenticación OAuth (Google Identity Platform)
+	68
+3.4.3 Interfaz principal del chat (Estado Vacío)
+	69
+3.4.4 Gestión de sesión y panel de configuración
+	70
+3.4.5 Respuesta del sistema RAG (consulta técnica)
+	71
+3.4.6 Renderizado dinámico de tablas (markdown)
+	72
+3.4.7 Protocolo de redirección (pregunta fuera de dominio)
+	73
+3.5 Análisis de factibilidad: técnica, económica, operativa
+	73
+3.5.1 Factibilidad técnica
+	74
+3.5.2 Factibilidad económica
+	74
+3.5.3 Factibilidad operativa
+	75
+3.6 Herramientas para obtención de los datos
+	75
+3.6.1 Técnicas de recolección
+	75
+3.6.2 Instrumentos utilizados
+	76
+3.7 Estudio técnico
+	77
+3.7.1 Infraestructura de software y procesamiento de datos
+	77
+3.7.2 Rendimiento en entornos de baja conectividad
+	77
+3.7.3 Contenedorización con docker
+	78
+3.7.4 Seguridad y persistencia
+	78
+3.8 Requerimientos para el desarrollo del proyecto
+	78
+3.8.1 Requerimientos de software
+	78
+3.8.2 Infraestructura de servicios
+	79
+3.8.3 Requerimientos de hardware
+	79
+REFERENCIAS	81
+INTRODUCCIÓN
+La agricultura contemporánea se encuentra en una encrucijada tecnológica donde la eficiencia en el uso de insumos, como los fertilizantes, determina no solo la rentabilidad del productor, sino también la sostenibilidad del ecosistema. Históricamente, en regiones como el occidente de El Salbador, el manejo de la fertilización ha dependido de una combinación de experiencia empírica y la disponibilidad física de técnicos especializados. Sin embargo, esta dependencia genera una brecha de acceso a la información crítica en el momento oportuno, limitando la capacidad de respuesta de los agricultores ante las variaciones del suelo y las necesidades del cultivo.
+El presente proyecto de investigación surge como una propuesta a la subutilización de datos históricos y la centralización del conocimiento técnico. Con la evolución de la Agricultura 4.0, herramientas como el Procesamiento del Lenguaje Natural (PLN) y la Inteligencia Artificial ofrecen la oportunidad de democratizar el saber agronómico. La propuesta se centra en el desarrollo de un Cahtbot agrónomo, un sistema experto diseñado para transformar calendarios de fertilización y registros técnicos en una base de conocimiento interactiva, capaz de brindar asesoría inmediata, precisa y adaptada a los tipos de suelos locales
+A través de esta investigación, se busca no solo digitalizar la información agrícola de la zona, sino establecer un puente tecnológico que fortalezca la autonomía del productor y optimice la aplicación de recursos, sentando las bases para una modernización agrícola accesible.
+CAPÍTULO I. PLANTEAMIENTO DEL PROBLEMA
+Planteamiento del problema
+Actualmente, los programas de fertilización agrícola en la zona occidental de El Salvador dependen predominantemente del conocimiento empírico de técnicos especializados y de consultas manuales a archivos históricos almacenados en formatos dispersos, principalmente hojas de cálculo Excel. Este modelo de gestión presenta limitaciones estructurales que afectan la eficiencia en la toma de decisiones agrícolas.
+La inaccesibilidad de datos constituye la primera barrera identificada. Los calendarios de fertilización históricos no están disponibles de forma inmediata para el agricultor en el momento que los necesita, lo que genera retrasos en la aplicación de nutrientes y reduce la efectividad de los programas de fertilización. Esta situación se agrava por el reconocimiento no sistematizado, donde la experiencia técnica acumulada en décadas de registros agrícolas no está consolidada en un sistema consultable que permita su aprovechamiento óptimo.
+La dependencia del experto humano representa otra limitación significativa. Los agricultores no pueden obtener orientaciones básicas de fertilización sin la presencia física de un ingeniero agrónomo, lo que genera cuellos de botella operativos y costos adicionales que no todos los productores pueden asumir. Esta situación es particularmente crítica en zonas rurales donde el acceso a profesionales especializados es limitado.
+Finalmente, existe una subutilización de datos históricos documentados. Se cuenta con más de 60 calendarios de fertilización por zona y cultivo que no se explotan de forma sistemática para generar recomendaciones automatizadas. Esta brecha tecnológica entre la información disponible y su aplicación práctica constituye el núcleo del problema que esta investigación busca abordar mediante el desarrollo de un chatbot asistente basado en inteligencia artificial.
+Antecedentes investigativos
+La agricultura moderna ha experimentado una transformación significativa en las ultimas décadas, transitando desde métodos empíricos tradicionales hacia modelos basados en datos y tecnología. A nivel global, la agricultura de precisión se concibió inicialmente en Estados Unidos durante la década de 1990, introduciendo la idea de utilizar la tecnología de la información para adecuar el manejo de suelos y cultivos a la variabilidad natural presente dentro de un lote (García &amp; Flego, s.f.). Esta evolución ha permitido el desarrollo de herramientas clave como Sistemas de Posicionamiento Global (GPS), Sistemas de Información Geográfica (GIS) y monitores de rendimiento, los cuales facilitan la medición y análisis de variables que anteriormente eran conocidas, pero no manejables.
+En este contexto de innovación, la aplicación de la inteligencia artificial y los sistemas expertos han emergido como una alternativa viable para optimizar la toma de decisiones agrícolas. Berbel (1989), señala que los sistemas expertos permiten simular el conocimiento acumulado de un experto humano, facilitando el diagnóstico y la planificación en agricultura mediante reglas de inferencia y bases de conocimiento estructuradas. Investigaciones recientes continúan validando esta tendencia; por ejemplo, el desarrolló una aplicación en Excel para la gestión de fertilizantes en cabezales de riego, demostrando que la digitalización de cálculos complejos agiliza la dosificación de insumos y reduce errores humanos (Rojas, 2021).
+(López y Santos 2025) implementaron un sistema experto para optimizar prácticas agrícolas en una finca de Nicaragua, concluyendo que estas herramientas mejoran la productividad y sostenibilidad mediante recomendaciones personalizadas basadas en datos de suelo y clima. Este estudio regional es particularmente relevante para la presente investigación, ya que demuestra la viabilidad de sistemas expertos en contextos centroamericanos similares al de El Salvador.
+En América Latina, la sistematización de experiencias agrícolas ha cobrado relevancia como estrategia para preservar conocimientos locales frente a la variabilidad climática. La Red Iberoamericana de Agroecología para el Desarrollo de Sistema Agrícolas Resilientes (REDDAGRES), ha propuesto metodologías participativas para identificar y validar mecanismos de organización y manejo que permiten a los productores enfrentar eventos climáticos extremos. (Altieri et al., S.f.). Estudios realizados en Centroamérica evidenciaron que las parcelas que utilizan prácticas de diversificación y sistematización de conocimientos tradicionales sufren menos daños y muestran una recuperación más rápida que los monocultivos convencionales.
+Sin embargo. Gómez-Espinoza y Gómez-González (2006), advierten que, aunque los saberes agrícolas tradicionales (SAT), permiten la autosuficiencia alimentaria, existe una desconexión entre este conocimiento local y la ciencia occidental, limitando la pertinencia social y ecológica de las instituciones formadoras. Esta brecha entre el conocimiento tradicional y las herramientas tecnológicas modernas representa una oportunidad para el desarrollo de sistemas híbridos que integren ambos tipos de saber.
+En el contexto nacional de El Salvador, y particularmente en la zona occidental del país, la práctica agrícola mantiene una fuerte dependencia de métodos tradicionales de asesoría. La gestión de la fertilización suele basarse en el conocimiento empírico de técnicos especializados o en consultas manuales a registros históricos dispersos, frecuentemente almacenados en formatos no estructurados como hojas de cálculo Excel. La ausencia de un sistema que consolide organice y permita el acceso inmediato a estos registros, constituye una brecha tecnológica que afecta la eficiencia en la toma de decisiones agrónomas.
+Esta problemática se alinea con lo señalado por García y Flego, (s.f.), destacan que la agricultura de precisión requiere no solo de tecnología, sino también de una asimilación de conocimientos y una preparación previa que permita interpretar y aplicar los datos recopilados de manera óptima. Por lo tanto, la sistematización de los calendarios de fertilización históricos mediante una herramienta tecnológica consultable representa una oportunidad para transformar un conocimiento acumulado pero subutilizado en un recurso accesible, que optimice la asesoría agrícola y fortalezca la autonomía decisional de los productores de la zona de estudio.
+1.3 Objetivos
+1.3.1 Objetivo general
+Desarrollar e implementar un chatbot agrónomo basado en técnicas de inteligencia artificial y procesamiento de lenguaje natural, que permita brindar asesoría técnica automatizada a productores agrícolas de la zona occidental de El Salvador, optimizando el acceso a información especializada mediante una plataforma digital interactiva durante el periodo febrero-abril de 2026.
+1.3.2 Objetivos específicos 
+Diseñar la arquitectura de software del sistema, incluyendo frontend, backend y base de datos, que garantice escalabilidad y seguridad en el manejo de la información agrícola.
+Desarrollar una base de datos estructurada con información técnica sobre cultivos y fertilización, consolidando los más de 60 calendarios históricos disponibles por zona y cultivo.
+Integrar el chatbot en una plataforma digital web y aplicación móvil, garantizando accesibilidad, usabilidad y compatibilidad con dispositivos de gama baja comunes en zonas rurales.
+Validar la precisión de las respuestas del chatbot mediante pruebas comparativas con recomendaciones de expertos agrónomos, estableciendo un nivel de confianza mínimo del 85% en las recomendaciones generadas.
+1.4 Justificación
+Esta investigación contribuye al cuerpo de conocimiento sobre la aplicación de sistemas expertos y procesamiento de lenguaje natural en el sector agrícola centroamericano. Los estudios de establecen las bases teóricas de los sistemas expertos en agricultura, pero existe un vacío en la literatura sobre la implementación de chatbots conversacionales para fertilización en El Salvador (Berbel 1989, López y Santos 2025). Este trabajo busca llenar esa brecha mediante la integración de técnicas de IA con datos históricos locales, aportando un modelo teórico replicable para otros contextos regionales.
+El desarrollo del chatbot agrónomo brinda una solución concreta a la problemática de inaccesibilidad de información técnica que enfrentan los agricultores de la zona occidental. Al democratizar el acceso a recomendaciones de fertilización basadas en datos históricos validados, se espera reducir los costos de asesoría técnica en aproximadamente un 40%, optimizar el uso de fertilizantes en un 25%, y disminuir los tiempos de espera para obtener orientación especializada de días a minutos. Los beneficiarios directos incluirán pequeños y medianos productores agrícolas de Sonsonate, mientras que los beneficiarios indirectos comprenden instituciones educativas, cooperativas y el sector agroindustrial regional.
+La investigación propone un método replicable para la sistematización de calendarios de fertilización históricos mediante tecnologías de procesamiento de lenguaje natural. Esta metodología puede adaptarse a otros cultivos, regiones o tipos de asesoría agrícola, sirviendo como modelos para futuras investigaciones en agricultura digital. Además, el proceso de validación comparativa con expertos establece un precedente metodológico para evaluar la precisión de sistemas de IA en contextos agronómicos locales, contribuyendo al desarrollo de estándares de calidad para herramientas tecnológicas agrícolas en Centroamérica.
+1.5 Delimitación geográfica del estudio
+La investigación se desarrollará en la zona occidental de El Salvador, específicamente en el departamento de Sonsonate, con enfoque en productores agrícolas vinculados a la Universidad de Sonsonate y comunidades aledañas. Esta zona fue seleccionada por contar con registros históricos de fertilización documentados y por representar un contexto agrícola diverso que incluye cultivos de granos básicos, frutales y hortalizas.
+El proyecto se ejecutará durante el periodo comprendido entre el 15 de febrero de 2026 y el 30 de abril de 2026, correspondiente al ciclo académico del Seminario de Graduación. Los datos históricos de fertilización que alimentarán la base de conocimientos del chatbot abarcan un periodo de 10 años (2016-2025), lo que permite contar con información representativa de diferentes condiciones climáticas y de suelo.
+La población objetivo está formado por pequeños y medianos productores agrícolas de la zona occidental que requieren orientación técnica básica en fertilización. La muestra inicial para evaluación del sistema incluirá aproximadamente 30 agricultores y 5 ingenieros agrónomos expertos que participarán en las pruebas comparativas de precisión del chatbot.
+El sistema se limitará a proporcionar recomendaciones sobre programas de fertilización para cultivos específicos previamente definidos (maíz, frijol, café y hortalizas). No incluirá diagnósticos avanzados de plagas, análisis de laboratorio de suelos, ni recomendaciones sobre otros aspectos del manejo agrícola como riego, poda o cosecha. El chatbot funcionará como herramienta de apoyo a la decisión, no como sustituto del criterio profesional del ingeniero agrónomo en situaciones complejas.
+1.6 Cronograma del trabajo de grado 
+El cronograma de actividades se presenta en formato de Diagrama de Gantt, detallando las fases del proyecto desde febrero hasta abril de 2026, con la fecha límite de entrega del anteproyecto establecida para el 30 de abril, de 2026 según los lineamientos institucionales de la Universidad de Sonsonate.
+Las actividades principales incluyeron: revisión bibliográfica, diseño de arquitectura, desarrollo de base de datos, implementación del chatbot, pruebas de validación y redacción final del documento. Cada fase contará con hitos de evaluación para garantizar el cumplimiento de los plazos establecidos.
+ACTIVIDADES
+TIEMPO DE DURACIÓN
+FEBRERO
+MARZO
+ABRIL 
+SEM 1-2 
+SEM 3-4   
+SEM 5-6
+SEM 7-8
+SEM 9-10
+SEM 11-12
+I. INVESTIGACIÓN:                    
+Definición de requerimientos y lógica agrónoma.
+II. DATOS E INFRAESTRUC
+-
+TURA: 
+Curación de la base de conocimiento y configuración de entorno.
+III. DESARROLLO CORE: 
+Implementación del motor de inferencia y procesamiento lógico.
+IV. INTERFAZ (UI/UX):         
+Creación de componentes y diseño responsivo.
+V. CIERRE Y PRUEBAS:    
+Validación de lógica y documentación final.                       
+Figura 1.
+ Diagrama de Grantt con colores - AgroChat
+CAPÍTULO II. MARCO TEÓRICO
+2.1 Fundamentos conceptuales
+2.1.1 Inteligencia artificial (IA)
+En términos modernos, se define como el estudio de los agentes que reciben percepciones del entorno y llevan a cabo acciones (Russel y Norvig, 2004). En el contexto agrícola, esta capacidad permite que el sistema no solo almacene datos, sino que los procese para generar una recomendación técnica racional ante una consulta especifica del usuario.
+Aplicación en agricultura: Según Wolfert et al. (2017), la IA en agricultura se clasifica en:
+Aprendizaje supervisado: Para predicción de rendimientos basada en datos históricos
+Aprendizaje no supervisado: Para identificación de patrones en suelos y cultivos
+Procesamiento de lenguaje natural: Para interfaces conversacionales con agricultores
+Relevancia para el proyecto: El chatbot propuesto utilizará IA para interpretar consultas en lenguaje natural y recuperar información relevante de la base de conocimientos de fertilización, permitiendo a los agricultores obtener recomendaciones sin necesidad de conocimientos técnicos avanzados.
+2.1.2 Sistemas expertos
+Para comprender la arquitectura del chatbot propuesto, es fundamental definir los Sistemas Expertos. Según (Berbel Vecino, 1989). estos son programas de ordenador que mimetizan el comportamiento de un humano experto en la resolución de problemas en un dominio específico, como la agricultura. Un componente clave resaltado por el autor es la base de conocimiento, que en el presente proyecto estará constituida por los registros históricos de fertilización del occidente de El Salvador.
+Tabla 1
+Componentes del sistema experto
+Componente
+Función
+Aplicación en el Proyecto
+Base de conocimiento
+Almacena el conocimiento del dominio
+Calendario de fertilización históricos (60+registros)
+Motor de inferencia
+Aplica reglas para generar conclusiones
+Lógica de recomendación basada en cultivos y zona
+Interfaz de usuario
+Permite la interacción humano-sistema
+chatbot conversacional en lenguaje natural
+Nota: Descriptivos de componentes esenciales del sistema experto, sus funciones y aplicación práctica en calendario de fertilización
+.
+Ventajas según Jackson (1999):
+Disponibilidad 24/7 sin fatiga
+Consistencia en las recomendaciones
+Capacidad de explicar el razonamiento
+Preservación del conocimiento experto
+Relevancia para el proyecto:
+El chatbot funcionará como un sistema experto que consolida el conocimiento acumulado de ingenieros agrónomos en una base de datos consultable, democratizando el acceso a asesoría técnica especializada.
+2.1.3 Procesamiento de Lenguaje Natural (PLN)
+Complementando la arquitectura del sistema, se integra el Procesamiento de Lenguaje Natural (PLN), definido por (Tassara, 1988). como la disciplina que busca la creación de modelos computacionales capaces de procesar el lenguaje humano. En el contexto de esta investigación, el PLN permite que el chatbot no solo funcione como una interfaz rígida, sino que interprete la intención del usuario para extraer información pertinente de los calendarios de fertilización.
+Tabla 2
+Componentes clave (Bird et al., 2009)
+Componente
+Función
+Ejemplo en el chatbot
+Tokenización
+Dividir texto en unidades
+Separar "fertilización de maíz" en tokens
+Análisis sintáctico
+Identificar estructura gramatical
+Reconocer sujeto, verbo, objeto
+Reconocimiento de entidades
+Identificar conceptos clave
+Detectar "maíz", "nitrógeno", "Sonsonate"
+Análisis de intención
+Comprender el propósito
+Identificar si es consulta de dosis o calendario
+Nota: Detalle de procesos del PLN y ejemplos de uso, interpretación de intención e identidad del agricultor.
+Modelos modernos: Según Devlin et al. (2019), los modelos BERT y sus variantes (como DistilBERT) permiten:
+Comprensión contextual bidireccional
+Ejecución local sin dependencia de APIs externas
+Soporte multilingüe (español incluido)
+Relevancia para el proyecto: El PLN permitirá que los agricultores formulen preguntas en lenguaje natural (¿Cuándo fertilizo el frijol en Sonsonate?) en lugar de usar interfaces rígidas con menús predefinidos.
+2.1.4 Agricultura 4.0
+La Agricultura 4.0 se entiende como la digitalización integral de la agricultura mediante el uso de inteligencia artificial, sensores y el procesamiento masivo de datos (Grupo ETC, 2020). Si bien esta transición tecnológica presenta desafíos en cuanto al acceso para pequeños productores, la presente investigación busca aplicar estos principios de digitalización para transformar registros históricos en una herramienta de consultas accesible, permitiendo que la modernización agrícola sea inclusiva para los agricultores de la zona occidental de El Salvador.
+Tabla 3
+Pilares tecnológicos (Tzounis et al., 2017)
+Pilar
+Tecnologías
+Aplicación en el proyecto
+IoT
+Sensores, dispositivos conectados
+Futura integración con sensores de suelo
+Big data
+Análisis de grandes volúmenes
+Procesamiento de 60+ calendarios históricos
+Cloud computing
+Almacenamiento en la nube
+Hosting del chatbot para acceso remoto
+IA/ML
+Algoritmos predictivos
+Recomendaciones basadas en patrones históricos
+Nota: Clasificación de pilares de agricultura 4.0 e integración en chatbot para gestión de registros históricos.
+Desafíos en Latinoamérica: Según la FAO (2022), la adopción de agricultura 4.0 en la región enfrenta:
+Brecha digital en zonas rurales (45% de conectividad)
+Costos de implementación para pequeños productores
+Falta de capacitación técnica
+Relevancia para el proyecto: Este proyecto busca aplicar principios de agricultura 4.0 de manera inclusiva, transformando registros históricos en una herramienta accesible para agricultores de la zona occidental de El Salvador, sin requerir inversión en hardware costoso.
+2.1.5 Fertilización de precisión
+De acuerdo con Polo Navas y Vizcaíno Marín (2022), la integración de tecnologías en el campo permite una gestión de fertilización de precisión, la cual se basa en el análisis de datos para realizar una aplicación eficiente de insumos. Esta metodología asegura que el suministro de nutrientes se realice de forma optimizada reduciendo costos y minimizando el impacto ambiental. En esta investigación, el chatbot actúa como el vehículo tecnológico que facilita esta precisión al procesar registros históricos para ofrecer recomendaciones exactas al productor. Complementariamente, el diseño de interfaces gráficas para la gestión de insumos permite una interacción más fluida y visual entre el agricultor y los sistemas de control de fertilización (Rojas Urdillo, 2021).
+Tabla 4
+Fundamentales (Zhang et al., 2020):
+Principio
+Descripción
+Implementación en el chatbot
+Dosis correcta
+Cantidad exacta de nutrientes
+Recomendaciones basadas en calendarios validados
+Momento correcto
+Timing óptimo de aplicación
+Calendarios por fase fenológica
+Lugar correcto
+Ubicación específica
+Recomendaciones por zona geográfica
+Fuente correcta
+Tipo de fertilizante adecuado
+Sugerencias según cultivo y suelo
+Nota: Sistematización de los principios de fertilización de presión, método implementario y técnica en sistema propuesto.
+2.1.6 Generación Aumentada por Recuperación (RAG)
+La evolución del procesamiento del lenguaje natural (PLN) ha transitado desde modelos estadísticos básicos hacia sistemas complejos de aprendizaje profundo que intentan emular la cognición humana. En el marco de esta investigación, se vuelve imperativo desglosar los pilares técnicos que sostienen las implementaciones contemporáneas de inteligencia artificial, específicamente aquellas que permiten la creación de sistemas robustos, precisos y eficientes en entornos con recursos limitados. Este reporte analiza en profundidad la Generación Aumentada por Recuperación (RAG), la teoría de los embeddings y la representación vectorial, así como la justificación técnica detrás del despliegue de modelos de lenguaje pequeños (SLM) en dispositivos de borde.
+La arquitectura de Generación Aumentada por Recuperación, comúnmente abreviada como RAG por sus siglas en inglés (Retrieval-Augmented Generation), representa un cambio de paradigma en el despliegue de modelos de lenguaje de gran escala (LLM). Tradicionalmente, los modelos generativos han operado bajo una estructura paramétrica cerrada, donde el conocimiento del sistema está limitado a los datos con los que fue entrenado durante su fase de pre-entrenamiento (Lewis et al., 2020). Este enfoque presenta dos desafíos críticos: la obsolescencia de la información y la propensión a las "alucinaciones", un fenómeno donde el modelo genera respuestas que parecen plausibles, pero son fácticamente incorrectas (Zhang &amp; Zhang, 2025). RAG surge como una arquitectura híbrida que actúa como un puente entre la capacidad generativa del modelo y fuentes de datos externas, dinámicas y autoritativas, permitiendo que el sistema acceda a información en tiempo real sin la necesidad de un costoso reentrenamiento (Lewis et al., 2020)
+Mitigación de alucinaciones y grounding factual
+El concepto de grounding o anclaje es central en la teoría de RAG. Las alucinaciones ocurren principalmente porque los modelos detectan patrones estadísticos en sus datos de entrenamiento y los utilizan para predecir la siguiente unidad de texto (token) más probable, incluso si esa predicción no se alinea con la realidad objetiva (Zhang &amp; Zhang, 2025). Al implementar un flujo RAG, el modelo ya no depende exclusivamente de su memoria interna; en su lugar, recibe un contexto enriquecido que contiene fragmentos de documentos recuperados específicamente para responder a la consulta del usuario. Este proceso reduce drásticamente las alucinaciones al forzar al modelo a basar su respuesta en los datos proporcionados, transformando la tarea de una generación puramente creativa a una de síntesis informativa basada en evidencia (IBM Think &amp; Watsonx, 2024).
+Tabla 5
+Causas de alucinación y mecanismos de mitigación en RAG
+Causa de alucinación
+Mecanismo de mitigación en RAG
+Impacto en la confiabilidad
+Conocimiento desfasado (Knowledge Cutoff)
+Recuperación de datos en tiempo real de fuentes externas.
+Alta actualización de respuestas.
+Límites de capacidad del modelo
+Provisión de contexto externo que reduce la carga cognitiva del modelo.
+Mayor precisión en dominios específicos.
+Confabulación por falta de datos
+Acceso a bases de conocimiento propietarias o privadas.
+Reducción de respuestas inventadas.
+Sesgos en el conjunto de entrenamiento
+Priorización de fuentes autoritativas seleccionadas por el desarrollador.
+Mayor control sobre la veracidad.
+Nota:
+ Causas de alucinaciones en IA y mecanismos de mitigación mediante RAG. Adaptado de Zhang &amp; Zhang (2025).
+La literatura técnica identifica que las alucinaciones en RAG pueden persistir si los componentes de recuperación fallan o si el generador ignora el contexto provisto (Zhang &amp; Zhang, 2025). Por ello, el análisis de las causas raíz de estas fallas se divide comúnmente en dos fases: fallas de recuperación (datos fuente erróneos, consultas ambiguas o estrategias de búsqueda ineficientes) y deficiencias de generación (ruido en el contexto, conflictos entre documentos recuperados o problemas de alineación del modelo).
+Componentes y flujo de trabajo del sistema RAG
+Un sistema RAG funcional integra tres componentes esenciales que deben operar en sincronía para garantizar baja latencia y alta precisión: el recuperador (retriever), la base de conocimientos y el generador (Lewis et al., 2020). El proceso comienza cuando una consulta del usuario se transforma en una representación numérica. El recuperador navega por la base de conocimientos para identificar los documentos o pasajes que guardan la mayor similitud semántica con la consulta. Posteriormente, estos pasajes se combinan con la consulta original en un prompt enriquecido que se envía al generador (el modelo de lenguaje).
+Este flujo permite que el sistema maneje consultas multifacéticas y complejas que requieren la síntesis de múltiples fuentes. Además, una ventaja estratégica de RAG es la capacidad de proporcionar citas y referencias a las fuentes originales, lo que fomenta la transparencia y permite que el usuario final verifique la información de manera independiente, aumentando así la confianza en el sistema de IA (IBM Think &amp; Watsonx, 2024).
+Ventajas operativas y económicas
+Desde una perspectiva empresarial y de ingeniería, RAG ofrece una alternativa costo-eficiente al ajuste fino (fine-tuning) de modelos masivos. Reentrenar un modelo de fundación para incorporar nuevos datos es una tarea computacionalmente intensiva y costosa (Kaplan et al., 2020). En contraste, RAG permite que las organizaciones conecten sus LLM a repositorios de documentos existentes —como manuales técnicos, políticas internas o bases de datos de clientes— mediante el uso de APIs y bases de datos vectoriales. Esta arquitectura facilita el escalado de aplicaciones de IA, permitiendo que un mismo modelo base sirva para múltiples casos de uso simplemente cambiando la base de datos de conocimiento a la que tiene acceso.
+2.1.7 Embeddings y representación vectorial de la información
+Para que un sistema RAG pueda recuperar información relevante de manera eficiente, es necesario que el lenguaje humano se traduzca a un formato que las máquinas puedan procesar matemáticamente. Esta traducción se realiza a través de los embeddings o incrustaciones vectoriales, que son representaciones numéricas de datos en un espacio vectorial de alta dimensión (Weaviate Learning Center, 2024). La teoría subyacente a los embeddings se basa en la hipótesis distribucional, la cual postula que las palabras que aparecen en contextos similares tienden a tener significados similares.
+De la representación dispersa a la representación densa
+Históricamente, el PLN utilizaba representaciones dispersas (sparse representations), como el one-hot encoding, donde cada palabra en un vocabulario se representaba como un vector con un único valor "1" y miles de "0". Este enfoque no solo es ineficiente en términos de memoria, sino que trata a cada palabra como una entidad independiente, ignorando cualquier relación semántica entre "perro" y "canino" (Elastic &amp; Google Cloud, 2024). Los embeddings modernos son representaciones densas, lo que significa que codifican la información en vectores compactos de valores continuos (números decimales) donde cada dimensión captura alguna característica abstracta del significado.
+Tabla 6
+Comparación entre representación dispersa y densa
+Atributo
+Representación dispersa (Ej. BM25)
+Representación densa (ej. embeddings)
+Dimensión del vector
+Igual al tamaño del vocabulario (miles/millones).
+Fija y compacta (típicamente 384, 768 o 1024).
+Valores
+Principalmente ceros (binario o frecuencias).
+Números reales no nulos.
+Captura semántica
+Basada en coincidencia exacta de palabras clave.
+Basada en significado, contexto y conceptos.
+Manejo de sinónimos
+Requiere diccionarios o reglas manuales.
+Inherente a la posición en el espacio vectorial.
+Eficiencia en búsqueda
+Muy rápida para coincidencias léxicas.
+Requiere algoritmos ANN para escala masiva.
+Nota.
+ Presentación de comparativa técnica entre representación léxica y embeddings densos. Adaptado de Elastic &amp; Google Cloud (2024) y Weaviate Learning Center (2024
+)
+.
+Un vector de embedding de un modelo como Qwen 0.6B transforma una secuencia de texto en un vector de 1024 dimensiones (Alibaba Cloud / Qwen Team, 2025). En este espacio multidimensional, la cercanía geométrica entre dos vectores refleja su similitud conceptual. Por ejemplo, en un sistema de recomendación de música, las canciones con géneros, ritmos y artistas similares terminarán agrupadas en una región específica del espacio vectorial.
+Mecanismos de generación de embeddings y contextualización
+El proceso de generación de un embedding involucra varias etapas críticas. Primero, el texto se divide en unidades más pequeñas llamadas tokens (palabras o subpalabras). Cada token recibe un vector inicial de una tabla de búsqueda, que luego se refina mediante capas de atención en una arquitectura transformer. A diferencia de los modelos antiguos como Word2Vec, que asignaban un único vector estático a cada palabra, los modelos modernos generan embeddings contextualizados (ModelScope &amp; Hugging Face, 2025). Esto significa que la palabra "banco" tendrá un vector diferente en la frase "el banco de peces" que en "el banco central", capturando la polisemia de manera precisa basándose en las palabras circundantes.
+En modelos de última generación, se utiliza a menudo el token [EOS] (fin de secuencia) o un token especial [CLS] (clasificación) para obtener una representación resumida de toda la frase o párrafo. Este vector resultante es el que se almacena en las bases de datos vectoriales para su posterior recuperación.
+Métricas de similitud y búsqueda vectorial
+Una vez que la información está vectorizada, la búsqueda semántica se convierte en un problema de cálculo de distancias matemáticas entre el vector de la consulta y los vectores de los documentos almacenados.
+Similitud coseno: Es la métrica más prevalente en PLN. Mide el ángulo entre dos vectores, ignorando su magnitud. Esto es vital porque permite comparar fragmentos de texto de diferentes longitudes basándose puramente en su orientación semántica (Weaviate Learning Center, 2024).
+Distancia euclidiana (L2): Mide la distancia física entre dos puntos. Es sensible a la magnitud y se utiliza cuando la frecuencia o la intensidad de ciertos términos es un factor determinante.
+Producto escalar: Refleja tanto la dirección como la magnitud. Es comúnmente utilizado en modelos de aprendizaje por contraste para maximizar la alineación entre pares de datos relevantes.
+Para manejar millones de vectores con latencia mínima, las bases de datos vectoriales como Milvus, Weaviate o Pinecone emplean algoritmos de Vecinos Más Cercanos Aproximados (ANN). El algoritmo HNSW (Hierarchical Navigable Small World), por ejemplo, organiza los vectores en grafos jerárquicos que permiten realizar búsquedas en milisegundos, incluso en conjuntos de datos de escala masiva, sacrificando una fracción mínima de precisión por una velocidad sublineal (Weaviate Learning Center, 2024).
+2.1.8 Modelos de lenguaje pequeños (SLM) y edge AI
+La tendencia predominante en la industria de la IA ha sido el escalado masivo de parámetros (LLM), bajo la premisa de que modelos más grandes exhiben mejores capacidades de razonamiento (Kaplan et al., 2020). Sin embargo, esta carrera armamentista computacional ha creado barreras significativas en términos de costo, consumo energético y privacidad. Los Modelos de Lenguaje Pequeños (SLM) surgen como una respuesta estratégica que prioriza la eficiencia, la especialización y la capacidad de ejecución local, permitiendo lo que se conoce como edge AI o IA en el borde (Belcak et al., 2025).
+Justificación teórica de los SLMs y Qwen 0.6B
+Un SLM se define generalmente como un modelo con menos de 10 mil millones de parámetros, diseñado para ofrecer un rendimiento comparable al de modelos más grandes en tareas específicas o dominios acotados (Belcak et al., 2025). El uso de Qwen 0.6B (con aproximadamente 600 millones de parámetros) en esta investigación se justifica por su capacidad para equilibrar la inteligencia con la agilidad operativa (Alibaba Cloud / Qwen Team, 2025).
+Tabla 7
+Comparación entre LLM y SLM (Qwen 0.6B)
+Parámetro de comparación
+Modelos de lenguaje grandes (LLM)
+Modelos de lenguaje pequeños (SLM - Qwen 0.6B)
+Conteo de parámetros
+Centenares de miles de millones (ej. GPT-4).
+0.6 mil millones.
+Requerimientos de RAM
+Cientos de GB, requiere clusters de GPU.
+2 a 4 GB, ejecutable en CPUs estándar.
+Latencia de inferencia
+Variable, dependiente de la red y carga.
+Ultrabaja, procesamiento local casi instantáneo.
+Costo de operación
+Pago por token o infraestructura masiva.
+Costo marginal, infraestructura local económica.
+Privacidad
+Los datos viajan a la nube (riesgo de seguridad).
+Procesamiento local, los datos no salen del dispositivo.
+Especialización
+Generalista, puede ser "vago" en nichos.
+Altamente adaptable mediante fine-tuning ligero.
+Nota: Comparación de requerimientos entre modelos de gran escala y modelos pequeños. Adaptado de Alibaba Cloud / Qwen Team (2025) y Belcak et al. (2025).
+La eficiencia de Qwen 0.6B no es producto de una simple reducción de escala, sino de innovaciones arquitectónicas como la Atención de Consulta Agrupada (GQA - Grouped-Query Attention). GQA permite reducir la huella de memoria durante la inferencia hasta en un 50% al permitir que múltiples cabezas de atención compartan claves y valores, lo que es fundamental para dispositivos con memoria RAM limitada como smartphones o microcontroladores industriales (Alibaba Cloud / Qwen Team, 2025).
+Ventajas de la inferencia local y edge AI
+El despliegue de modelos como Qwen 0.6B en el borde ofrece beneficios que la infraestructura basada en la nube no puede igualar, especialmente en escenarios críticos donde cada milisegundo cuenta.
+Reducción de latencia: Al procesar los datos directamente donde se generan (en el sensor, el teléfono o el servidor local), se eliminan los retardos de transmisión de red. Esto es esencial para aplicaciones como el control de robots, vehículos autónomos o asistentes de voz de respuesta rápida (Imagination Technologies, 2024).
+Soberanía de datos y privacidad: En industrias como la salud, las finanzas o la defensa, el envío de información sensible a servidores de terceros representa un riesgo inaceptable y una posible violación de leyes como GDPR o HIPAA. Los SLM permiten que el procesamiento se realice detrás de firewalls corporativos o localmente en el dispositivo del usuario (Oracle &amp; Red Hat, 2024).
+Resiliencia y autonomía: Un sistema basado en la nube queda inoperativo ante una falla de conexión a internet. Los modelos en el borde garantizan que la inteligencia artificial siga funcionando en ubicaciones remotas, entornos industriales hostiles o situaciones de emergencia (Orange Hello Future &amp; Mirantis, 2024).
+Eficiencia energética y costo: La ejecución local reduce la carga en los centros de datos masivos y minimiza el ancho de banda necesario, lo que se traduce en una reducción significativa de la huella de carbono y de los costos operativos recurrentes por el uso de APIs externas (Imagination Technologies, 2024).
+El surgimiento de la IA agentica modular
+Una perspectiva de vanguardia sugiere que el futuro de la IA no reside en un único modelo monolítico, sino en una federación de agentes pequeños y especializados. En este modelo, un orquestador podría dirigir sub-tareas a diferentes SLMs finamente ajustados para funciones específicas (traducción, resumen, extracción de entidades o generación de código). Qwen 0.6B, con su ventana de contexto de 32,000 tokens y soporte para más de 100 idiomas, se posiciona como una pieza fundamental para este tipo de arquitecturas modulares, ofreciendo una precisión del 80-90% de los modelos grandes con una velocidad de inferencia hasta 15 veces superior (Belcak et al., 2025).
+La integración de RAG, embeddings vectoriales y modelos de lenguaje pequeños constituye un ecosistema tecnológico que democratiza el acceso a la inteligencia artificial avanzada. Al combinar la precisión fáctica de la recuperación externa con la eficiencia de los modelos optimizados para el borde, se superan las limitaciones históricas de los LLM tradicionales. Esta base teórica no solo justifica las decisiones arquitectónicas de la presente investigación, sino que establece un camino viable para el desarrollo de aplicaciones de IA que sean seguras, privadas y capaces de operar en las condiciones más exigentes del mundo real. La transición hacia una IA más pequeña, pero más conectada con datos fidedignos, marca el inicio de una era de inteligencia aplicada, donde la capacidad de respuesta y la veracidad son los pilares de la confianza del usuario final.
+2.2 Antecedentes y revisión de literatura
+2.2.1. Antecedentes internacionales
+Asia: Según Liakos et al. (2018), en India se desarrolló "Kisan Suvidha", un chatbot gubernamental que proporciona información sobre:
+Precios de mercado en tiempo real
+Prácticas de cultivo por región
+Alertas meteorológicas
+Resultado: 2.5 millones de usuarios registrados en el primer año
+Europa: Según Kamilaris &amp; Prenafeta-Boldú (2018), en España se implementó "AgroBot" para:
+Diagnóstico de plagas mediante imágenes
+Recomendaciones de tratamiento
+Resultado: 78% de precisión en diagnósticos
+Norteamérica: Según Chlingaryan et al. (2018), en Estados Unidos se desarrollaron sistemas como:
+"FarmBot": Automatización de siembra y fertilización
+"Climate FieldView": Análisis predictivo de rendimientos
+Resultado: Adopción del 35% en grandes productores
+Lección para el proyecto: Los sistemas exitosos combinan bases de conocimiento validadas con interfaces accesibles. La limitación común es la dependencia de conectividad de alta velocidad, lo que justifica el enfoque de bajo ancho de banda para Sonsonate.
+2.2.2. Antecedentes regionales (Latinoamérica)
+Ecuador: Barzola &amp; Calderón (2022) desarrollaron un sistema web y móvil para el control y monitoreo de actividades del cultivo del tomate y pimiento de un invernadero integrando un chatbot informativo. Los autores concluyeron que:
+La automatización de cálculos agronómicos reduce el margen de error humano
+Los productores obtienen recomendaciones técnicas de forma inmediata
+Limitación: Requiere conexión estable a internet
+Nicaragua: López Narváez &amp; Santos Mendieta (2025) implementaron un sistema experto para optimizar prácticas agrícolas en la finca Los Santos de Carazo, San Marcos. Los hallazgos incluyen:
+Mejora del 22% en productividad agrícola
+Reducción del 18% en costos de insumos
+Relevancia: Contexto centroamericano similar a El Salvador
+Colombia: Según Polo Navas &amp; Vizcaíno Marín (2022), se implementaron herramientas tecnológicas 4.0 para el fortalecimiento de la producción agrícola, incluyendo:
+Sensores de humedad del suelo
+Aplicaciones móviles para registro de actividades
+Resultado: Adopción del 40% en productores asociados
+Lección para el proyecto
+:
+ Los proyectos regionales exitosos priorizan la usabilidad en dispositivos móviles de gama baja y funcionan con conectividad intermitente, criterios que se incorporarán en el diseño del chatbot.
+2.2.3. Antecedentes nacionales (El Salvador)
+Contexto actual: Según el Ministerio de Agricultura y Ganadería de El Salvador (2024):
+El 65% de los productores son pequeños agricultores (&lt;5 hectáreas)
+El acceso a asesoría técnica es limitado (1 agrónomo por cada 450 productores)
+La digitalización del sector es inferior al 20%
+Iniciativas existentes: Según la Universidad de El Salvador (2023):
+Proyecto "AgroDigital": Plataforma de información de precios (sin chatbot)
+Proyecto "Campo Inteligente": Sensores IoT en zonas piloto (cobertura limitada)
+Brecha identificada: No existe un sistema conversacional para fertilización
+Registros históricos disponibles: La Universidad de Sonsonate cuenta con:
+60+ calendarios de fertilización documentados por zona y cultivo
+Registros de 10 años (2016-2025)
+Cobertura de granos básicos, frutales y hortalizas
+Justificación del proyecto: Existe una oportunidad única para transformar estos registros históricos en una herramienta consultable mediante IA, llenando el vacío de sistemas conversacionales para fertilización en El Salvador.
+2.2.4. Estado del arte en chatbots agrícolas
+Tabla 8
+Clasificación de chatbots agrícolas (Walter et al., 2022):
+Tipo
+Características
+Ejemplos
+Basados en reglas
+Respuestas predefinidas, sin IA
+WhatsApp Business para agricultura
+Basados en ML
+Aprendizaje de patrones, requiere datos
+Google Dialogflow ES
+Basados en LLM
+Generación de lenguaje natural
+ChatGPT con fine-tuning agrícola
+Híbridos (RAG)
+Recuperación + generación
+Enfoque propuesto para este proyecto
+Nota: Clasificatoria tipos de chatbots agrícolas según características técnicas y ejemplos de aplicaciones actuales en el mercado.
+Tendencias 2024-2025: Según el informe de AgTech Insights (2024):
+Privacidad de datos: Tendencia hacia modelos locales (Ollama, LlamaCpp)
+Multimodalidad: Integración de texto, voz e imágenes
+Edge computing: Procesamiento en dispositivo para zonas rurales
+Personalización: Recomendaciones basadas en historial del usuario
+Brecha Identificada: No se encontraron chatbots agrícolas en Centroamérica que:
+Utilicen arquitectura RAG con datos históricos locales
+Funcionen con conectividad intermitente
+Estén diseñados específicamente para fertilización
+Contribución del proyecto: Este chatbot llenará esa brecha mediante una arquitectura híbrida que combina recuperación de calendarios validados con generación de lenguaje natural accesible.
+2.2.5 Evolución de los chatbots agrícolas: de sistemas de reglas a modelos adaptativos
+El desarrollo de asistentes virtuales en el agro es un reflejo de la evolución más amplia de la computación, pero con matices específicos dictados por la variabilidad biológica, climática y económica del campo. Para comprender el estado actual, es necesario diseccionar las etapas que han permitido pasar de interfaces de comandos estáticos a sistemas que imitan el comportamiento de investigación humano (Hitos de Chatbots, s.f.).
+La historia de los asistentes conversacionales se remonta a hitos como ELIZA (1966), un bot que utilizaba la coincidencia de patrones y reglas de sustitución para simular una conversación, y ALICE (1995), inspirado en Eliza pero capaz de recolectar ejemplos de lenguaje natural de la web (Hitos de Chatbots, s.f.). Estos sistemas, aunque revolucionarios en su momento, carecían de una comprensión real del significado y dependían de árboles de decisión predefinidos.
+En la agricultura, este enfoque se materializó en los sistemas expertos de las décadas de 1980 y 1990. Un ejemplo paradigmático es GOSSYM/COMAX, un modelo de simulación de procesos mecánicos para el cultivo de algodón. GOSSYM, desarrollado por la USDA y diversas universidades, simulaba el crecimiento del cultivo basándose en el balance de carbono, nitrógeno y agua, utilizando ecuaciones complejas como la de Richards para el flujo de agua en suelos variadamente saturados (Lemmon, s.f.; Cotton.org, 1997). COMAX (Cotton Management eXpert) actuaba como la capa de inteligencia, utilizando un motor de inferencia y un conjunto de reglas tipo "si-entonces" para automatizar las recomendaciones de manejo.
+A pesar de su capacidad para aumentar los beneficios —con un promedio de 80 USD adicionales por hectárea para sus usuarios—, estos sistemas enfrentaban fallas críticas derivadas de su rigidez (Lemmon, s.f.):
+Tabla 9
+Limitaciones críticas de usabilidad y rigidez
+Limitación
+Descripción
+Carga de datos excesiva
+Requerían una cantidad abrumadora de datos de entrada (hidrología del suelo, fertilidad, registros de insectos, prácticas culturales) que el agricultor promedio encontraba difícil de mantener
+Incapacidad de adaptación
+Si las condiciones del campo no se ajustaban exactamente a las reglas programadas, el sistema no podía razonar fuera de sus límites
+Brecha de usabilidad
+La interfaz no era conversacional en el sentido moderno; requería formación especializada para su interpretación
+Nota: Resumen de limitaciones críticas de usabilidad y rigidez, identificadas en sistemas expertos agrícolas tradicionales.
+La evolución hacia los modelos estadísticos en la década de 2010 permitió mejoras en el procesamiento de lenguaje natural (NLP) mediante redes neuronales recurrentes (RNN) y unidades de memoria larga a corto plazo (LSTM), pero el verdadero cambio de paradigma ocurrió con la arquitectura de transformadores en 2017. Esta arquitectura introdujo mecanismos de atención que permiten a los modelos enfocarse en partes específicas de la entrada, permitiendo una comprensión contextual que los sistemas expertos simbólicos nunca pudieron alcanzar (Agentes de Razonamiento Secuencial, 2025).
+Hoy en día, la arquitectura de Generación Aumentada por Recuperación (RAG) representa la culminación de este proceso evolutivo. A diferencia de los chatbots iniciales que fallaban por su rigidez, los sistemas RAG actuales imitan el comportamiento de investigación humano al descomponer consultas complejas en pasos secuenciales (OG-RAG, 2025). Mientras que un sistema basado en reglas se detendría ante una pregunta no programada, un sistema RAG:
+Identifica los conceptos clave de la consulta.
+Busca información pertinente en bases de conocimiento externas (manuales, libros técnicos, datos climáticos).
+Sintetiza una respuesta basada en la evidencia recuperada, permitiendo al usuario realizar preguntas de seguimiento en un flujo de diálogo natural (AgroLLM, 2025).
+Tabla 10
+Fases evolutivas de los asistentes conversacionales agrícolas
+Fase evolutiva
+Arquitectura principal
+Tipo de conocimiento
+Limitación crítica
+Era simbólica (1970-1990)
+Sistemas expertos (Si-Entonces)
+Reglas codificadas manualmente
+Rigidez extrema y fatiga de datos
+Era estadística (2000-2015)
+NLP basado en datos (N-grams, RNN)
+Probabilidades de frecuencia de palabras
+Falta de contexto profundo y semántica
+Era generativa (2018-2022)
+LLM generales (transformers)
+Conocimiento latente en parámetros
+Alucinaciones y falta de datos actualizados
+Era adaptativa (2023-presente)
+RAG y agentes conversacionales
+Conocimiento recuperado dinámicamente
+Dependencia de infraestructura y calidad del corpus
+Nota: Descripción de fases evolucionadas de asistentes conversacionales en el campo, de reglas simbólicas a sistemas RAG adaptativos. Adaptado de OG-RAG (2025) y AgroLLM (2025).
+Esta capacidad de descomposición secuencial es fundamental en agricultura. Por ejemplo, ante una consulta sobre el tratamiento de una mancha en la hoja, el asistente no emite una respuesta genérica, sino que inicia un proceso de razonamiento: primero identifica el patógeno probable, luego verifica la etapa fenológica del cultivo y finalmente cruza esa información con el pronóstico del tiempo y las restricciones de productos químicos permitidos en la región (AgriPestDatabase, 2026).
+2.2.6 Privacidad y soberanía de datos en aplicaciones rurales
+La digitalización del campo ha traído consigo el fenómeno de la "agricultura de vigilancia". En este modelo, los datos recolectados por sensores, maquinaria y asistentes virtuales son extraídos y procesados por grandes empresas tecnológicas (Agri-Tech Providers o ATP), a menudo sin un consentimiento claro sobre su uso posterior (ETC Group, 2022).
+El riesgo para el agricultor es múltiple. Primero, existe una asimetría de poder: las empresas pueden utilizar los datos agregados para predecir rendimientos de cosechas y manipular precios de insumos o identificar tierras productivas para procesos de especulación, lo que encarece las rentas. Segundo, la pérdida de "secretos comerciales" agronómicos; el conocimiento acumulado por generaciones sobre el manejo de un lote específico puede ser absorbido por un algoritmo y vendido de vuelta al agricultor como un servicio (Cambridge University Press, 2024).
+En este contexto, la soberanía de datos se define como la capacidad de los productores para mantener el control sobre su información y decidir cómo se comparte y utiliza (OpenGlobalRights, s.f.). La implementación local de modelos de lenguaje, lograda mediante herramientas como Ollama, se ha convertido en la pieza clave para garantizar esta soberanía en entornos rurales (Red Hat, 2024).
+Casos de estudio recientes demuestran que la implementación local ofrece ventajas decisivas:
+Tabla 11
+Evaluación de impacto de IA local
+Factor de riesgo
+Cloud-based AI (general)
+Local AI (vía Ollama)
+Impacto en el agricultor
+Propiedad del dato
+Cedida mediante contratos EULA
+Mantenida en hardware local
+Control total sobre secretos comerciales
+Dependencia de red
+Requiere internet estable y de alta velocidad
+Funciona offline
+Continuidad operativa en campos remotos
+Costo operativo
+Pago por token o suscripción mensual
+Costo único de hardware y electricidad
+Viabilidad económica para pequeños productores
+Privacidad
+Riesgo de filtraciones en la nube
+Datos encriptados localmente
+Seguridad en información personal y financiera
+Nota: Evaluación de impacto de IA local frente a nube en términos de propiedad de datos, privacidad y resiliencia. Adaptado de AgriGen (2025) y Caso de Estudio Vietnam (2026).
+Seguridad y localización de datos
+:
+ En proyectos de seguridad alimentaria y legal, como el chatbot desarrollado en Vietnam para responder sobre normativas de seguridad alimentaria, el uso de Ollama permitió procesar documentos legales sensibles sin que salieran del servidor local, garantizando el cumplimiento de las leyes de residencia de datos (Acadlore, 2026).
+Resiliencia ante la baja conectividad: En zonas rurales de India y América Latina, la dependencia de APIs de nube (como OpenAI o Anthropic) es inviable debido a la inestabilidad de la red. Ollama permite que modelos como Llama 3 o Mistral funcionen de forma 100% offline una vez descargados, eliminando los costos de latencia y de suscripción por token (IICA/CEPAL/FAO, s.f.).
+Control sobre la infraestructura: La implementación en dispositivos como la Raspberry Pi 5 o NVIDIA Jetson permite a las comunidades rurales poseer físicamente el hardware donde reside su "cerebro" digital, evitando que cambios en los términos de servicio de un proveedor externo dejen el sistema inoperativo (Antonio Cortes, 2025; MonRaspberry, s.f.).
+La transición hacia lo local no es solo una cuestión de seguridad, sino de justicia tecnológica. Los sistemas locales permiten el desarrollo de modelos ajustados (fine-tuned) con dialectos y prácticas culturales específicas, promoviendo la inclusión de pequeños productores y pueblos indígenas cuyas reivindicaciones sobre la tierra y el conocimiento tradicional a menudo son ignoradas por los modelos entrenados en el norte global (AgTech Apps, s.f.).
+2.2.7 Arquitecturas modernas: el funcionamiento de los agentes RAG agrícolas
+Para que un asistente conversacional sea útil en el entorno agrícola, debe superar el simple intercambio de texto. Debe actuar como un agente capaz de razonar sobre la evidencia. Este proceso se sustenta en tres pilares técnicos: la recuperación semántica, la gestión de la memoria y el uso de herramientas externas (OG-RAG, 2025).
+2.2.8 Recuperación semántica y espacios vectoriales
+En un sistema RAG, la información no se busca por palabras clave, sino por significado. Los documentos técnicos se dividen en fragmentos (chunking) y se convierten en vectores en un espacio de alta dimensión mediante modelos de embedding. En el caso de AgroLLM, el sistema utiliza fragmentos de 1000 palabras con solapamiento para no perder el contexto de las tablas o fórmulas químicas (AgroLLM, 2025).
+Cuando el agricultor realiza una consulta, el sistema la convierte en un vector y busca los fragmentos más cercanos en una base de datos vectorial (como FAISS o ChromaDB). Este proceso permite que, si un agricultor pregunta por "bichos en el maíz", el sistema sea capaz de recuperar información técnica sobre 
+Spodoptera frugiperda
+ aunque el término científico no haya sido mencionado (AgriPestDatabase, 2026).
+2.2.9 Descomposición de consultas y comportamiento de investigación
+El comportamiento de investigación humano se imita mediante arquitecturas de agentes que utilizan el razonamiento secuencial (Agentes de Razonamiento Secuencial, 2025). Este enfoque es crítico para resolver problemas que no tienen una respuesta única en un manual.
+Identificación de intenciones: El agente determina qué tipo de problema enfrenta (¿es una plaga?, ¿es una deficiencia nutricional?, ¿es un trámite legal?).
+Encadenamiento de pensamiento (Chain-of-Thought): El LLM genera una secuencia de pasos lógicos antes de emitir la respuesta. Por ejemplo: "Primero debo consultar el nivel de nitrógeno recomendado, luego restar lo aportado por el abono verde y finalmente ajustar por la lluvia prevista".
+Routing y especialización: El sistema dirige la consulta a "trabajadores" especializados. Un agente experto en suelos puede manejar la interpretación de análisis químicos, mientras otro experto en meteorología analiza el riesgo de heladas (OG-RAG, 2025).
+Esta capacidad de "pensar antes de hablar" se ve potenciada en modelos recientes como el OpenAI o1, que escalan el cómputo durante la inferencia para explorar múltiples caminos de razonamiento, una técnica que está siendo adaptada para modelos locales en el agro para asegurar que las dosis recomendadas sean matemáticamente exactas (Agentes de Razonamiento Secuencial, 2025).
+2.3 Requerimientos técnicos de la problemática
+2.3.1 Requerimientos funcionales
+Los requerimientos funcionales definen las acciones específicas que el sistema debe ser capaz de ejecutar para satisfacer las necesidades del usuario final (Sommerville, 2016).
+Tabla 12
+Listado completo de requerimientos funcionales
+ID
+Requerimiento
+Descripción
+Prioridad
+RF-01
+Procesamiento de consultas en lenguaje natural
+El sistema debe integrar un módulo de PLN para interpretar las dudas de los agricultores y convertirlas en intenciones de búsqueda de información técnica
+Alta
+RF-02
+Consulta de Base de Conocimiento
+El chatbot debe interactuar con una base de datos estructurada que consolide los calendarios históricos de fertilización
+Alta
+RF-03
+Generación de recomendaciones personalizadas
+Basado en el tipo de cultivo y zona, el sistema debe devolver una dosis de fertilización precisa
+Alta
+RF-04
+Gestión de autenticación
+El sistema debe contar con un módulo de seguridad para validar el acceso de administradores y técnicos agrónomos
+Media
+RF-05
+Administración de registros históricos
+La plataforma debe permitir a los usuarios con rol de administrador cargar, editar o actualizar los parámetros técnicos de fertilización
+Media
+RF-06
+Historial de consultas
+El sistema debe almacenar el historial de consultas por usuario para permitir continuidad en conversaciones
+Baja
+RF-07
+Exportación de recomendaciones
+El sistema debe permitir exportar las recomendaciones en formato PDF para consulta offline
+Baja
+Nota: Lista de capacidades específicas que el sistema debe ejecutar para satisfacer las necesidades técnicas y operativas de los usuarios.
+2.3.2 Requerimientos no funcionales
+Los requerimientos no funcionales definen las propiedades del sistema, como rendimiento, seguridad, usabilidad y escalabilidad, que no están relacionadas con funciones específicas, pero son críticas para la calidad del sistema (ISO/IEC 25010, 2011).
+Tabla 13
+Listado completo de requerimientos no funcionales
+ID
+Requerimiento
+Métrica
+Prioridad
+RNF-01
+Disponibilidad y conectividad
+El sistema debe estar alojado en una infraestructura en la nube que garantice una disponibilidad del 99.9%
+Alta
+RNF-02
+Usabilidad y accesibilidad
+La interfaz desarrollada en React debe ser ligera e intuitiva, permitiendo su correcto funcionamiento en dispositivos móviles de gama baja comunes en áreas rurales de Sonsonate
+Alta
+RNF-03
+Escalabilidad
+La arquitectura debe permitir el almacenamiento progresivo de nuevos registros de fertilización sin degradar los tiempos de respuesta de la consulta
+Alta
+RNF-04
+Tiempo de respuesta
+Las consultas realizadas al chatbot deben procesarse y responderse en un tiempo no mayor de 3 segundos bajo condiciones normales de red
+Alta
+RNF-05
+Seguridad de datos
+Las comunicaciones deben usar HTTPS/TLS y las contraseñas deben almacenarse como hashes bcrypt
+Alta
+RNF-06
+Compatibilidad
+El sistema debe funcionar en navegadores Chrome, Firefox y Safari versiones 2020 o superiores
+Media
+RNF-07
+Mantenibilidad
+El código debe seguir estándares de documentación que permitan actualizaciones sin dependencia de desarrolladores originales
+Media
+RNF-08
+Consumo de ancho de banda
+Cada consulta no debe exceder 500 KB de transferencia de datos para funcionar en redes 3G
+Media
+Nota: Definición de estándares de calidad, rendimiento y seguridad que garantiza la robustez técnica de la plataforma desarrollada,
+2.3.3 Gestión de memoria e inferencia en entornos locales
+La gestión de memoria en sistemas con recursos limitados representa uno de los mayores desafíos para la estabilidad de un chatbot local. Ollama, al utilizar el motor de inferencia llama.cpp, implementa estrategias avanzadas que permiten la ejecución de modelos que, en condiciones normales, excederían la capacidad física de la memoria del sistema (Ollama Documentation, s.f.). Dos de las técnicas más fundamentales en este dominio son el mapeo de memoria (mmap) y el bloqueo de RAM (mlock).
+El mapeo de memoria permite que el proceso de inferencia asocie el archivo del modelo en el almacenamiento persistente directamente con el espacio de direcciones virtuales del proceso. Este enfoque no carga todo el modelo en la RAM física de inmediato; en su lugar, utiliza un mecanismo del kernel del sistema operativo conocido como paginación por demanda (demand paging). Cuando el motor de inferencia requiere acceder a una capa específica del modelo, se genera un fallo de página que instruye al sistema operativo para cargar solo esa sección desde el disco a la memoria física (Vamachar, 2024).
+Esta técnica es vital para la estabilidad del chatbot en sistemas donde la RAM es insuficiente para albergar el modelo completo junto con el sistema operativo. Sin el uso de mmap, un intento de cargar un modelo de 13 mil millones de parámetros (13B) en un sistema con 8 GB de RAM resultaría en un error de falta de memoria (Out of Memory - OOM) y el colapso inmediato de la aplicación. Con mmap, el sistema puede funcionar, aunque el rendimiento se vea afectado por la velocidad del disco. No obstante, en escenarios de producción donde la latencia es una métrica crítica, el uso de mlock complementa esta estrategia al impedir que las páginas de memoria asignadas al modelo sean enviadas al archivo de intercambio (swap) en el disco. Al bloquear los pesos del modelo en la RAM física, se garantiza que los tiempos de acceso sean constantes, evitando las caídas de rendimiento impredecibles que ocurren cuando el sistema operativo intenta liberar memoria para otros procesos (Jameschrisa, 2024).
+La importancia de estas técnicas se hace evidente al analizar la jerarquía de memoria y su impacto en la velocidad de generación de tokens. La inferencia local es un proceso limitado por el ancho de banda (memory-bound), donde la velocidad a la que se transfieren los datos a la unidad de cómputo dicta la latencia percibida por el usuario.
+Tabla 14
+Técnicas de gestión de memoria en inferencia local
+Técnica de gestión
+Función primaria
+Impacto en estabilidad
+Impacto en rendimiento
+Mmap
+Mapea archivos de disco a memoria virtual
+Alta: Permite cargar modelos mayores a la RAM física
+Variable: Puede introducir latencia por accesos a disco
+Mlock
+Bloquea páginas en RAM física (evita swap)
+Crítica: Garantiza tiempos de respuesta deterministas
+Positiva: Elimina latencias por fallos de página en swap
+Cuantización
+Reduce la precisión de los pesos (e.g., de 16-bit a 4-bit)
+Media: Reduce la huella total de memoria
+Alta: Aumenta los tokens/s al mover menos datos
+KV Cache Type
+Gestiona la precisión del caché de atención
+Media: Previene errores OOM en contextos largos
+Alta: Optimiza el uso de VRAM para diálogos extensos
+Nota: Análisis de técnicas de gestión, memoria e inferencia local necesaria para estabilidad del sistema hardware limitado. Adaptado de Ollama Documentation (s.f.) y llama.cpp Performance Tuning (s.f.).
+Además del manejo de los pesos del modelo, el sistema debe gestionar el caché de claves y valores (KV Cache), que almacena los vectores de atención pre-calculados para los tokens previos en una secuencia. A medida que la conversación progresa y la ventana de contexto se llena, el KV Cache crece linealmente, consumiendo memoria adicional que puede no haber sido contabilizada durante la carga inicial del modelo. Ollama permite configurar el tipo de precisión de este caché (f16, q8_0, q4_0) para equilibrar el uso de memoria y la fidelidad de la respuesta (llama.cpp Performance Tuning, s.f.). Un sistema de ingeniería robusto debe prever este crecimiento; por ejemplo, un modelo de 70B puede requerir desde 1.6 GB de caché para un contexto de 2,048 tokens hasta más de 42 GB si se extiende a 128,000 tokens.
+Otro pilar de la gestión de memoria en Ollama es el manejo del ciclo de vida del modelo mediante el parámetro keep_alive y la gestión de modelos cargados simultáneamente (OLLAMA_MAX_LOADED_MODELS). Por defecto, Ollama mantiene los modelos en memoria durante 5 minutos después de la última solicitud para evitar el costo temporal de recarga en interacciones frecuentes. Sin embargo, en entornos con memoria extremadamente limitada, reducir este valor o establecerlo en 0 para una descarga inmediata puede ser necesario para liberar recursos para otras tareas del sistema. La orquestación inteligente de estos parámetros permite que un chatbot local mantenga una respuesta ágil sin comprometer la integridad de la estación de trabajo del ingeniero (Ollama Documentation, s.f.).
+2.3.4 Estrategias de Chunking y ventana de contexto
+La ventana de contexto representa el horizonte cognitivo del modelo, limitando la cantidad total de información que puede procesar en una sola pasada de inferencia. En sistemas de Recuperación Aumentada por Generación (RAG), donde el chatbot debe consultar documentos externos para fundamentar sus respuestas, la estrategia de división de estos documentos en fragmentos o "chunks" se vuelve un componente crítico de la arquitectura. La fundamentación técnica para utilizar fragmentos de aproximadamente 1,000 caracteres se basa en la necesidad de equilibrar tres factores: la capacidad de direccionamiento del modelo de búsqueda (embeddings), la relevancia semántica de la información recuperada y los límites físicos de la ventana de contexto del LLM (Snowflake Engineering, 2024).
+Desde una perspectiva de ingeniería, fragmentos de 1,000 caracteres representan un tamaño ideal para mantener la cohesión de ideas complejas sin introducir ruido excesivo. Cuando los fragmentos son demasiado grandes (e.g., 14,000 caracteres), la relevancia semántica se diluye; el modelo de recuperación vectorial puede tener dificultades para identificar el fragmento correcto porque el vector de embedding representa un promedio de demasiados conceptos distintos. Investigaciones de Snowflake Engineering indican que el uso de fragmentos moderados (alrededor de 1,800 caracteres) mejora la precisión de la recuperación en tareas financieras complejas, mientras que fragmentos excesivamente largos pueden reducir el rendimiento entre un 10% y un 20% debido a la "confusión de contexto" (Snowflake Engineering, 2024).
+El impacto de la saturación de la ventana de contexto no es meramente una cuestión de capacidad, sino de mecánica de atención. Los modelos transformer utilizan un mecanismo de autoatención que tiene una complejidad computacional y de memoria de , donde es la longitud de la secuencia. Al inyectar fragmentos de tamaño controlado, el ingeniero asegura que el modelo pueda concentrar su presupuesto de atención en los datos más pertinentes. Además, existe un fenómeno documentado como "Lost in the Middle" (Perdido en el Medio), donde los LLM muestran una degradación significativa en su capacidad para extraer información si esta se encuentra enterrada en el centro de un contexto largo (Redis, 2024). Fragmentar el contenido en unidades de 1,000 caracteres permite al sistema RAG recuperar solo los fragmentos más puntuados y posicionarlos en las zonas de alta atención (al inicio o al final del prompt), maximizando la probabilidad de una respuesta correcta.
+Existen diversas metodologías de Chunking que el ingeniero debe considerar según la naturaleza de la documentación:
+Tabla 15
+Estrategias de Chunking para RAG
+Estrategia de Chunking
+Operativa técnica
+Ventaja en inferencia local
+Recursivo (recursive character)
+Divide por delimitadores jerárquicos (\n\n, \n, .)
+Mantiene la integridad de párrafos y oraciones
+Tamaño fijo (fixed-size)
+División estricta cada $X$ caracteres o tokens
+Máxima velocidad de indexación; alta predictibilidad
+Semántico (semantic)
+Detecta cambios de tema mediante embeddings de oraciones
+Evita romper conceptos que cruzan límites estructurales
+Estructura (header-based)
+Alineado con encabezados de Markdown o HTML
+Preserva la jerarquía de secciones definida por el autor
+Padre-hijo (parent-child)
+Busca en fragmentos pequeños; entrega fragmentos grandes
+Combina precisión en búsqueda con riqueza en generación
+Nota: Evaluación de diversas estrategias de división en documentos (chunking) y ventajas específicas para recuperación semántica. Adaptado de PremAI (2026) y Medium (2024).
+La elección de fragmentos de 1,000 caracteres también responde a la relación de tokenización. En inglés, un token corresponde aproximadamente a 4 caracteres, lo que significa que un fragmento de 1,000 caracteres se traduce en cerca de 250 tokens. Si un sistema RAG recupera los 5 fragmentos más relevantes (), se están utilizando aproximadamente 1,250 tokens de la ventana de contexto solo para la base de conocimientos. Dado que muchos modelos locales operan con una ventana estándar de 2,048 o 4,096 tokens, este tamaño de fragmento deja suficiente espacio para las instrucciones del sistema (system prompt), el historial de chat del usuario y la respuesta que el modelo debe generar. Superar este equilibrio mediante fragmentos más grandes riesgo de que el sistema trunque información vital o de que el modelo alucine al no poder procesar la totalidad del contexto suministrado (Medium, 2024).
+Para optimizar esta gestión, técnicas como Flash Attention se han vuelto indispensables. Flash Attention es un algoritmo diseñado para ser consciente de los movimientos de entrada/salida (I/O aware), minimizando los viajes de datos entre la memoria de alto ancho de banda (HBM) de la GPU y su memoria estática (SRAM) interna. Al calcular la atención en bloques o "tiles", Flash Attention permite que modelos con contextos extensos se ejecuten de manera mucho más eficiente en términos de memoria, reduciendo la necesidad de almacenar la matriz de atención completa de , lo que ahorra gigabytes de VRAM que pueden ser redistribuidos para permitir fragmentos de texto ligeramente más grandes o una mayor concurrencia de usuarios (DataCamp, 2024).
+2.3.5 Dinámicas de hardware y límites operativos en la inferencia local
+El análisis de los requerimientos técnicos debe considerar la variabilidad del hardware en el que se despliega Ollama. No todos los entornos locales ofrecen las mismas garantías de rendimiento, y el ingeniero debe adaptar la configuración del software a las capacidades físicas del sistema. La distinción principal reside en el uso de aceleración por GPU frente a la ejecución puramente basada en CPU.
+Aceleración por GPU y soporte de drivers
+Ollama aprovecha las bibliotecas de cómputo paralelo para acelerar la inferencia. En sistemas NVIDIA, el soporte se basa en la arquitectura CUDA (Compute Unified Device Architecture). Se requiere una capacidad de cómputo mínima de 5.0 y drivers actualizados (versión 531 o superior) para garantizar la compatibilidad con las optimizaciones más recientes (Ollama Documentation, s.f.). La ventaja de la GPU radica en su capacidad para procesar miles de hilos en paralelo, lo cual es ideal para las multiplicaciones de matrices que definen a los transformadores. Cuando el modelo cabe enteramente en la VRAM (indicado como "100% GPU" en el comando ollama ps), se alcanzan velocidades de generación de 40 a 80 tokens por segundo, lo que proporciona una experiencia de chat instantánea.
+Por otro lado, los sistemas basados en AMD utilizan la plataforma ROCm (Radeon Open Compute). En Linux, Ollama requiere el driver ROCm v7, y en algunos casos, es necesario forzar la compatibilidad mediante variables de entorno como HSA_OVERRIDE_GFX_VERSION si la GPU específica no está soportada de forma nativa por las librerías de LLVM. Esta flexibilidad es crucial para el ingeniero que busca reutilizar hardware existente que no pertenece al ecosistema dominante de NVIDIA (Ollama Documentation, s.f.).
+Inferencia en CPU y el desafío de la latencia
+Cuando la memoria de video es insuficiente, Ollama realiza un "spillover" o desbordamiento hacia la RAM del sistema. Aunque esto permite que el modelo se ejecute, la caída en el rendimiento es drástica. Un modelo que genera 45 t/s en GPU puede caer a 3-6 t/s cuando se ejecuta enteramente en CPU. Esto se debe a que las CPUs están optimizadas para tareas secuenciales complejas y tienen un ancho de banda de memoria significativamente menor en comparación con las GPUs. Para mitigar esto en entornos solo de CPU, es imperativo configurar el número de hilos (num_thread) para que coincida con los núcleos físicos del procesador, evitando el uso de núcleos lógicos (hyperthreading) que pueden introducir latencias por cambio de contexto (llama.cpp Performance Tuning, s.f.).
+Tabla 16
+Escenarios de carga y rendimiento esperado
+Escenario de carga
+Processor status (Ollama ps)
+Velocidad esperada (t/s)
+Experiencia del usuario
+Totalmente en GPU
+100% GPU
+40 – 80
+Fluida, tiempo real
+Carga híbrida
+e.g. 50%/50% CPU/GPU
+10 – 15
+Aceptable, lectura pausada
+Totalmente en CPU
+100% CPU
+1 – 5
+Muy lenta, insatisfactoria para chat
+Nota: Proyección de velocidad de procesamiento y experiencia del usuario basado en escenarios distintos de carga de hardware. Datos adaptados de Ollama Documentation (s.f.).
+Arquitecturas de memoria unificada (Apple Silicon)
+Una excepción notable a la degradación por CPU es la arquitectura de Apple Silicon (M1/M2/M3/M4). Estas máquinas utilizan memoria unificada, donde la CPU y la GPU comparten el mismo pool de RAM física con un ancho de banda muy elevado. Esto permite que Ollama cargue modelos masivos que normalmente no cabrían en una tarjeta gráfica de consumo. En estas plataformas, la distinción entre RAM y VRAM se difumina, permitiendo operaciones de "zero-copy" que aceleran significativamente la transferencia de datos entre los pesos del modelo mapeados y las unidades de ejecución de Metal (arXiv, 2026).
+Optimización de la relevancia semántica mediante la gestión de contexto
+El control de la ventana de contexto no es solo una medida de ahorro de memoria, sino una herramienta para combatir la alucinación del modelo. Las alucinaciones ocurren cuando el modelo, al carecer de información precisa en su contexto inmediato o al enfrentarse a información contradictoria, genera respuestas basadas en probabilidades estadísticas de su entrenamiento que no se ajustan a la realidad. Un ingeniero debe entender que la calidad de la respuesta está intrínsecamente ligada a la higiene de los datos inyectados en la ventana de contexto.
+El Rol de los metadatos y el re-ranking
+Para mantener la relevancia semántica, no basta con fragmentar los documentos; es necesario enriquecer estos fragmentos con metadatos. Al inyectar información sobre el origen del fragmento (título del documento, número de página, fecha de creación), se le proporciona al modelo un marco de referencia para interpretar la información. Además, en sistemas avanzados, se utiliza una fase de re-ranking después de la recuperación inicial. Un modelo de re-ranking evalúa de manera más profunda la relación entre la pregunta del usuario y los fragmentos recuperados, asegurando que solo los fragmentos más pertinentes ocupen el valioso espacio de la ventana de contexto (Snowflake Engineering, 2024).
+Prevención de la alucinación por saturación
+Inyectar demasiada información en la ventana de contexto, incluso si es relevante, puede ser contraproducente. Cuando el prompt se vuelve excesivamente largo (bloating), el modelo puede perder el hilo de las instrucciones originales o confundir términos similares presentes en diferentes fragmentos. Por ejemplo, en documentos financieros, un fragmento puede hablar de "compensación del conductor" y otro de "comisión del conductor"; si ambos están presentes en un contexto saturado, el modelo podría mezclar las cifras de ambos conceptos. La estrategia de fragmentos de 1,000 caracteres previene esto al forzar una selección más granular y precisa de la información, permitiendo que el modelo mantenga un enfoque nítido en los datos que realmente responden a la consulta (Medium, 2024).
+La construcción de un chatbot local robusto requiere una integración sinérgica entre las capacidades del hardware y las optimizaciones de software. El ingeniero debe considerar la gestión de memoria como un proceso dinámico y la fragmentación de datos como una herramienta de precisión semántica.
+Estabilidad mediante gestión de memoria: El uso de mmap es innegociable para la estabilidad en sistemas con memoria limitada, ya que previene el colapso del proceso ante modelos de gran escala. Sin embargo, para entornos profesionales donde la latencia no puede fluctuar, mlock debe ser habilitado para asegurar que los pesos del modelo permanezcan en los estratos más rápidos de la jerarquía de memoria (Jameschrisa, 2024).
+Rendimiento mediante cuantización y flash attention: Se recomienda el uso de cuantizaciones de 4 bits (Q4_K_M) como estándar de facto, proporcionando un equilibrio óptimo entre la huella de memoria y la perplejidad del modelo. La activación de Flash Attention es crítica para manejar contextos largos de manera eficiente, reduciendo el costo computacional del mecanismo de atención cuadrático (DataCamp, 2024).
+Precisión mediante Chunking estratégico: La división en fragmentos de 1,000 caracteres, preferiblemente mediante métodos recursivos o basados en estructura, es vital para operar dentro de las limitaciones de la ventana de contexto. Esta práctica no solo evita el desbordamiento de memoria del KV Cache, sino que también combate el fenómeno de "Lost in the Middle", asegurando que la información clave sea procesada con el máximo peso de atención (Redis, 2024).
+Soberanía y adaptabilidad de hardware: La capacidad de Ollama para trabajar con hardware heterogéneo (NVIDIA, AMD, Apple Silicon) permite una flexibilidad sin precedentes. El ingeniero debe ajustar parámetros como num_thread y num_gpu específicamente para cada estación de trabajo, reconociendo que la inferencia híbrida es una solución de compromiso que requiere una gestión cuidadosa de las expectativas de latencia (Ollama Documentation, s.f.).
+En definitiva, la problemática técnica de la IA local no se resuelve con una única configuración, sino con un enfoque de capas donde el software compensa las limitaciones del hardware y la preparación de los datos potencia la inteligencia del modelo. La implementación de estas estrategias asegura que el chatbot no solo sea estable, sino que se convierta en una herramienta de consulta fiable y precisa en el entorno corporativo o de investigación.
+2.4 Fundamentación técnica
+2.4.1 Plataformas y servidores
+Revisión arquitectónica
+Las plataformas de servidor modernas se clasifican según su paradigma de ejecución: servidores de proceso bloqueante (blocking I/O) y servidores de proceso asíncrono o no bloqueante (non-blocking I/O). Esta distinción es fundamental para sistemas que requieren alta concurrencia, como los chatbots que asisten a múltiples usuarios simultáneamente.
+Node.js representa el estándar dominante en el paradigma no bloqueante. Basado en el motor V8 de Google y el bucle de eventos (event loop) de libuv, permite gestionar miles de conexiones concurrentes con un consumo de recursos mínimo. Arquitectónicamente, utiliza un modelo de un solo hilo (single-threaded) con operaciones de I/O asíncronas delegadas al sistema operativo, lo que lo hace especialmente eficiente para aplicaciones con alta demanda de operaciones de red como APIs REST y comunicaciones en tiempo real mediante WebSockets (Tilkov &amp; Vinoski, 2010).
+Apache tomcat / Jakarta EE representa la alternativa en el ecosistema Java, con un modelo de hilos por petición (thread-per-request). Aunque más maduro y robusto para aplicaciones empresariales, su consumo de memoria por hilo es significativamente mayor, lo que limita la escalabilidad en escenarios de alta concurrencia.
+Python con ASGI (FastAPI, Uvicorn) ha emergido como alternativa relevante, especialmente para sistemas con componentes de inteligencia artificial, dado el ecosistema científico de Python. Su modelo asíncrono mediante asyncio es comparable a Node.js en rendimiento, aunque su adopción en producción a escala es más reciente.
+Tabla 17
+Datos comparativos de tecnología backend
+Criterio
+Node.js
+Java (Spring Boot)
+Python (FastAPI)
+Modelo de concurrencia
+Event loop asíncrono
+Hilos por petición
+ASGI asíncrono
+Rendimiento I/O
+★★★★☆
+★★★☆☆
+★★★★☆
+Ecosistema IA/ML
+★★☆☆☆
+★★★☆☆
+★★★★★
+Consumo de memoria
+Bajo
+Alto
+Medio
+Adopción empresarial
+Alta
+Muy alta
+Media-Alta
+Curva de aprendizaje
+Media
+Alta
+Baja-Media
+Nota: Datos comparativos de tecnología backend (backend (Node.js, Java Spring Boot y Python FastAPI) según criterios de concurrencia.
+Ventajas y desventajas de node.js
+Ventajas:
+Unificación del lenguaje JavaScript/TypeScript en frontend y backend
+Rendimiento excepcional para aplicaciones de I/O intensivo
+Ecosistema npm con más de 2.1 millones de paquetes disponibles
+Nativo para WebSockets y comunicación en tiempo real
+Bajo costo computacional por conexión concurrente
+Desventajas:
+No apto para tareas de CPU intensiva (cálculos pesados bloquean el event loop)
+Gestión de errores asíncronos compleja si no se implementan patrones correctos
+El modelo de un solo hilo limita el uso de múltiples núcleos sin clusterización
+Tendencias de mercado
+Según el informe Stack Overflow Developer Survey 2024, Node.js es la plataforma de servidor más utilizada por cuarto año consecutivo con un 40.8% de adopción. La tendencia se orienta hacia entornos de ejecución alternativos como Deno y Bun, que ofrecen mayor seguridad por defecto (Deno) y mayor rendimiento (Bun), aunque Node.js mantiene su dominio en producción.
+En el contexto del presente proyecto, Node.js fue seleccionado por su compatibilidad nativa con Socket.io para el streaming de respuestas del chatbot en tiempo real, y su integración fluida con TypeScript, garantizando tipado estático en todo el backend.
+2.4.2 Lenguajes de programación y frameworks
+Revisión arquitectónica
+La selección del lenguaje de programación determina no solo la sintaxis del código, sino también los paradigmas disponibles (orientado a objetos, funcional, reactivo), el ecosistema de librerías, las herramientas de tipado y la comunidad de soporte.
+TypeScript es un superconjunto tipado de JavaScript desarrollado por Microsoft. Introduce un sistema de tipos estático opcional sobre JavaScript, habilitando detección de errores en tiempo de compilación, autocompletado avanzado en IDEs y refactorización segura. Su arquitectura de compilación transpila el código a JavaScript estándar, lo que lo hace compatible con cualquier entorno JavaScript.
+Express.js es un framework minimalista para Node.js que provee routing HTTP, gestión de middlewares y abstracción sobre el módulo nativo http. Su arquitectura basada en middlewares encadenados (pipeline pattern) permite insertar lógica transversal (autenticación, logging, validación) de forma declarativa.
+React (frontend) implementa una arquitectura de componentes declarativos con un DOM virtual (Virtual DOM) que optimiza las actualizaciones de la interfaz calculando los cambios mínimos necesarios. Su modelo de datos unidireccional (one-way data flow) facilita la depuración y el razonamiento sobre el estado de la aplicación.
+Tabla 18
+Datos comparativos de frameworks backend
+Framework
+Lenguaje
+Paradigma
+Rendimiento
+Madurez
+Express.js
+Node.js/TS
+Minimalista
+Alto
+Muy maduro
+NestJS
+TypeScript
+Modular/DI
+Alto
+Maduro
+Django
+Python
+Baterías incluidas
+Medio
+Muy maduro
+Spring Boot
+Java
+Empresarial/DI
+Alto
+Muy maduro
+FastAPI
+Python
+Mínimo/Asíncrono
+Alto
+Creciente
+Laravel
+PHP
+MVC completo
+Medio
+Muy maduro
+Nota: Datos comparativos de frameworks backend según lenguaje, paradigma, rendimiento y madurez tecnológica.
+Ventajas del Stack TypeScript + Express + React
+Ventajas:
+Tipado estático elimina categorías enteras de errores en runtime
+Compartición de tipos entre frontend y backend en monorepos
+Ecosistema maduro con soporte empresarial (Microsoft, Vercel, Meta)
+Interoperabilidad total con el ecosistema JavaScript existente
+Productividad alta gracias a herramientas como ts-node-dev para hot-reload
+Desventajas:
+Overhead de configuración inicial (tsconfig, paths, strict mode)
+El tipado puede volverse complejo en sistemas altamente genéricos
+TypeScript no ofrece garantías de tipos en runtime (solo en compilación)
+Tendencias de mercado
+TypeScript superó a JavaScript en popularidad en equipos profesionales según la encuesta de State of JS 2024, con un 78% de adopción. Para frameworks backend, NestJS gana terreno como alternativa a Express al ofrecer una arquitectura modular con inyección de dependencias nativa, más adecuada para aplicaciones de gran escala.
+2.4.3 Bases de datos y sistemas de almacenamiento
+Revisión arquitectónica
+Los sistemas de gestión de bases de datos (SGBD) se dividen en dos grandes categorías: relacionales (SQL) y no relacionales (NoSQL). La selección depende de la naturaleza de los datos, los patrones de acceso y los requisitos de consistencia.
+PostgreSQL es un SGBD relacional objeto-relacional de código abierto y es considerado el sistema de bases de datos de código abierto más avanzado del mundo. Su arquitectura MVCC (Multi-Version Concurrency Control) permite lecturas y escrituras concurrentes sin bloqueos, garantizando alta disponibilidad. Adicionalmente, PostgreSQL soporta tipos de datos avanzados como JSONB (almacenamiento binario de JSON), arrays, tipos geométricos y, mediante la extensión pgvector, vectores matemáticos de alta dimensionalidad necesarios para búsqueda semántica en sistemas de inteligencia artificial (RAG).
+MongoDB es la alternativa NoSQL documental más utilizada. Almacena datos en formato BSON (Binary JSON), ofreciendo esquemas flexibles sin migraciones. Es ideal para datos no estructurados o con esquemas variables, pero sacrifica ACID compliance en operaciones multicolección. Actualmente soporta búsqueda vectorial nativa mediante Atlas Vector Search.
+Redis es un almacén de estructuras de datos en memoria que actúa como base de datos, caché y broker de mensajes. Su utilización más común en sistemas conversacionales es como caché de sesiones y cola de tareas asíncronas.
+Tabla 19
+Datos comparativos de sistema de bases de datos
+Sistema
+Tipo
+ACID
+Búsqueda Vectorial
+Escalabilidad
+PostgreSQL + pgvector
+Relacional
+✅ Completo
+✅ Nativo (ext.)
+Vertical + Réplicas
+MongoDB Atlas
+Documental
+✅ Parcial
+✅ Atlas Search
+Horizontal nativo
+MySQL
+Relacional
+✅ Completo
+❌ No nativo
+Vertical + Réplicas
+SQLite
+Relacional
+✅ Limitado
+❌ No nativo
+Solo local
+Pinecone
+Vectorial puro
+❌ No aplica
+✅ Especializado
+Horizontal nativo
+Nota: datos comparativos de sistemas de bases de datos según su arquitectura
+pgvector: almacenamiento vectorial en el contexto del proyecto
+El módulo pgvector extiende PostgreSQL para almacenar vectores de embeddings de alta dimensionalidad (en este proyecto, 768 dimensiones generadas por el modelo DistilBERT multilingüe). Permite operaciones de similitud coseno, producto escalar y distancia euclidiana directamente en SQL, eliminando la necesidad de bases de datos vectoriales especializadas externas.
+La consulta de búsqueda semántica con pgvector utiliza el operador &lt;=&gt; (similitud coseno):
+Figura 2.
+Consulta semántica con pgvector.Imagen demostrativa de la consulta de búsqueda semántica con pgvector utiliza el operador &lt;=&gt; (similitud coseno).
+Tendencias de mercado
+La convergencia entre bases de datos relacionales y capacidades vectoriales es la tendencia dominante para 2024-2025. PostgreSQL con pgvector, MySQL con HeatWave y MongoDB Atlas se posicionan como alternativas a bases de datos vectoriales puras como Pinecone o Weaviate, reduciendo la complejidad operacional al unificar almacenamiento transaccional y semántico en un solo sistema.
+2.4.4 Servicios, librerías, APIs y herramientas de integración
+Revisión arquitectónica
+Los sistemas de software modernos rara vez son monolíticos en cuanto a su cadena de dependencias. La integración de servicios externos, librerías especializadas y APIs de terceros es fundamental para acelerar el desarrollo y aprovechar capacidades que sería costoso replicar internamente.
+Autenticación OAuth 2.0 / OpenID Connect
+El estándar OAuth 2.0 define un framework de autorización que permite a aplicaciones de terceros acceder a recursos del usuario sin exponer credenciales. OpenID Connect (OIDC) extiende OAuth 2.0 añadiendo una capa de identidad mediante tokens JWT (JSON Web Token).
+En el proyecto AgroBot se implementan dos proveedores OAuth:
+Google Identity Platform: Utiliza la librería google-auth-library para verificar tokens ID de Google. El flujo es: el frontend obtiene el idToken mediante Google Sign-In, lo envía al backend, y el backend lo verifica criptográficamente contra los certificados públicos de Google.
+Microsoft Identity Platform (MSAL): Implementado mediante @azure/msal-react en el frontend y jwks-rsa en el backend para verificación de tokens mediante claves públicas de Microsoft.
+Socket.io: comunicación en tiempo real
+Socket.io proporciona comunicación bidireccional en tiempo real mediante WebSockets con fallback automático a Long Polling para entornos sin soporte nativo. Su arquitectura de eventos permite emitir y escuchar mensajes nombrados entre cliente y servidor.
+En el contexto del chatbot, Socket.io es fundamental para el streaming de respuestas: en lugar de esperar a que el modelo de IA genere la respuesta completa, cada fragmento (token) se emite al cliente en tiempo real, mejorando significativamente la percepción de velocidad por parte del usuario.
+Drizzle ORM
+Drizzle ORM es un ORM (Object-Relational Mapper) TypeScript-first que genera consultas SQL tipadas sin overhead de abstracción excesivo. A diferencia de ORMs como Prisma o Sequelize, Drizzle mantiene el control fino sobre las consultas SQL mientras ofrece tipado estático completo. Su enfoque "schema-as-code" permite definir la estructura de la base de datos directamente en TypeScript y generar migraciones automáticamente.
+@xenova/transformers: embeddings locales
+La librería @xenova/transformers es el port oficial de Hugging Face para JavaScript/Node.js. Permite ejecutar modelos de transformers localmente sin necesidad de APIs externas, usando el runtime ONNX (Open Neural Network Exchange). En el proyecto se utiliza para generar embeddings vectoriales con el modelo distiluse-base-multilingual-cased-v2, un modelo DistilBERT multilingüe optimizado para similitud semántica de oraciones en más de 50 idiomas.
+TanStack Query (React Query)
+En el frontend, TanStack Query gestiona el estado del servidor (fetching, caching, sincronización y actualización de datos remotos). A diferencia de soluciones como Redux, React Query separa el estado del servidor del estado del cliente, simplificando significativamente la gestión de datos asíncronos.
+Tabla 20
+Datos comparativos de tecnologías de desarrollo
+Categoría
+Solución Adoptada
+Alternativas Evaluadas
+Razón de Selección
+Auth OAuth
+google-auth-library + MSAL
+Passport.js, Auth0, Clerk
+Control nativo, sin dependencia de terceros
+Real-time
+Socket.io
+WebSockets nativos, SSE, Pusher
+Fallback automático, salas, namespaces
+ORM
+Drizzle ORM
+Prisma, Sequelize, TypeORM
+TypeScript-first, control SQL, ligereza
+Embeddings
+@xenova/Transformers
+OpenAI API, Cohere API
+Ejecución local, sin costo por API call
+Estado cliente
+TanStack Query
+Redux Toolkit, Zustand, SWR
+Cache automático, deduplicación de requests
+Nota: detalles comparativos de tecnologías seleccionadas para el desarrollo del chatbot, detallando la solución adoptada, alternativas evaluadas y la justificación técnica de cada decisión
+2.4.5 Tecnologías de redes e infraestructura
+Revisión arquitectónica
+La infraestructura de red define cómo los componentes del sistema se comunican entre sí y con los clientes externos, determinando la latencia, seguridad y disponibilidad del sistema.
+Protocolos de comunicación
+HTTP/HTTPS es el protocolo base para la comunicación cliente-servidor en aplicaciones web. La versión HTTP/2 introduce multiplexación de streams, compresión de cabeceras (HPACK) y server push, reduciendo la latencia respecto a HTTP/1.1. HTTPS añade cifrado TLS (Transport Layer Security) que garantiza confidencialidad e integridad de los datos en tránsito.
+WebSockets es un protocolo de comunicación full-duplex sobre una única conexión TCP. A diferencia de HTTP (request-response), WebSockets permite al servidor enviar datos al cliente sin que este lo solicite, esencial para el streaming de respuestas del chatbot en tiempo real.
+Server-Sent Events (SSE) es una alternativa más simple a WebSockets cuando solo se requiere comunicación unidireccional del servidor al cliente. Muchas APIs de LLMs como OpenAI utilizan SSE para el streaming de tokens.
+Docker y Contenedorización
+Docker
+provee virtualización a nivel de sistema operativo mediante contenedores, unidades ligeras que encapsulan una aplicación con todas sus dependencias. A diferencia de las máquinas virtuales, los contenedores comparten el kernel del sistema operativo host, resultando en menor overhead de recursos.
+En el proyecto, Docker se utiliza para contenerizar el servicio Ollama, que sirve el modelo de lenguaje qwen3:0.6b. Esto garantiza que el entorno de ejecución del modelo sea reproducible independientemente del sistema operativo del desarrollador o del servidor de producción.
+Figura 3.
+Archivo docker-compose,yml Imagen demostrativa de archivo Docker-compose.yml del proyecto orquesta el contenedor de Ollama.
+CORS (Cross-Origin Resource Sharing)
+CORS es un mecanismo de seguridad del navegador que restringe las solicitudes HTTP entre orígenes distintos. En el backend, está configurado para aceptar únicamente solicitudes del origen http://localhost:5173 (el servidor de desarrollo de Vite del frontend), previniendo solicitudes no autorizadas desde otros dominios.
+Tabla 21
+Comparación de Estrategias de Infraestructura
+Estrategia
+Ventajas
+Desventajas
+Adecuado para
+Servidor dedicado
+Control total, predecible
+Costos fijos, mantenimiento manual
+Producción estable
+Docker + VPS
+Reproducible, portable
+Requiere gestión de contenedores
+Proyectos medianos
+Kubernetes
+Escalabilidad automática
+Complejidad operacional alta
+Sistemas a gran escala
+Serverless (Vercel, AWS Lambda)
+Escalado automático, sin infraestructura
+Cold starts, limitaciones de ejecución
+APIs sin estado
+PaaS (Railway, Render)
+Despliegue simple
+Menos control, costos variables
+Startups y proyectos académicos
+Nota
+: 
+detalles comparativos de estrategias de despliegue según nivel de control, escalabilidad y complejidad operativa.
+Tendencias de Mercado
+La adopción de Kubernetes para orquestación de contenedores en producción supera el 67% en organizaciones medianas y grandes (CNCF Survey 2024). Para proyectos académicos y startups, plataformas como Railway, Render y Fly.io democratizan el despliegue contenerizado sin la complejidad de Kubernetes.
+2.4.6 Criterios de ciberseguridad
+Marco de referencia: OWASP Top 10
+La Open Web Application Security Project (OWASP) publica periódicamente el ranking de las vulnerabilidades de seguridad más críticas en aplicaciones web. El diseño de AgroBot considera estas amenazas como criterios de diseño fundamentales.
+1. Control de autenticación y autorización (OWASP A01, A07)
+El sistema implementa autenticación en múltiples capas:
+JWT (JSON Web Tokens): Los tokens de sesión son firmados criptográficamente con una clave secreta (HS256) y tienen tiempo de expiración configurable. Esto garantiza que el servidor no necesita almacenar estado de sesión (arquitectura stateless), mejorando la escalabilidad.
+HTTP-Only Cookies: Los JWT se transmiten exclusivamente mediante cookies con los flags HttpOnly (inaccesible desde JavaScript, mitiga XSS) y SameSite=Strict (previene CSRF).
+Verificación criptográfica de tokens OAuth: Los tokens de Google y Microsoft son verificados contra las claves públicas oficiales de cada proveedor antes de crear una sesión, garantizando que no pueden ser falsificados.
+Middleware de autenticación: Todas las rutas protegidas requieren pasar por el middleware Authenticate que verifica y decodifica el JWT antes de procesar la solicitud.
+2. Inyección (OWASP A03)
+El uso de Drizzle ORM con sentencias parametrizadas elimina el riesgo de inyección SQL. Las consultas se construyen programáticamente con tipos estáticos, nunca mediante concatenación de strings con input del usuario.
+Para las interacciones con el modelo de IA, el contenido del usuario se pasa como dato (no como instrucción del sistema), y el system prompt está predefinido en el código, evitando prompt injection mediante la clara separación entre instrucciones del sistema y mensajes del usuario en la API de chat.
+3. Exposición de Datos Sensibles (OWASP A02)
+Las contraseñas de usuarios locales se almacenan como hashes bcrypt (factor de coste configurable), nunca en texto plano.
+Las variables de entorno (claves API, secrets JWT, cadenas de conexión) se gestionan mediante archivos.env excluidos del control de versiones mediante.gitignore.
+Las comunicaciones en producción deben usar HTTPS/TLS para cifrar datos en tránsito.
+4. Validación de entradas (OWASP A04)
+La librería express-validator implementa validación y sanitización de todos los inputs en las rutas del API antes de procesarlos, rechazando solicitudes malformadas con respuestas de error apropiadas.
+5. Gestión de Errores y Logging
+El sistema implementa un error handler centralizado que captura excepciones no manejadas y retorna respuestas de error estandarizadas sin exponer información interna del sistema (stack traces, nombres de tablas, rutas del sistema de archivos) al cliente.
+Tabla 22
+Matriz de criterios de seguridad implementados
+Criterio
+Mecanismo
+OWASP Referencia
+Autenticación
+JWT + HTTP-Only Cookies
+A07
+Autorización
+Middleware de roles y sesión
+A01
+Cifrado de contraseñas
+Bcrypt
+A02
+Prevención SQL Injection
+ORM con queries parametrizadas
+A03
+Validación de input
+express-validator
+A04
+Control CORS
+Whitelist de orígenes
+A05
+Nota: Matriz de criterios de ciberseguridad implementados en el chatbot agrónomo, relacionando mecanismos técnicos con las vulnerabilidades OWASP.
+2.4.7 Inteligencia artificial y analítica de datos
+Revisión arquitectónica: RAG (Retrieval-Augmented Generation)
+El sistema AgroBot implementa la arquitectura RAG (Retrieval-Augmented Generation), un paradigma que combina modelos de lenguaje de gran escala (LLMs) con recuperación de información basada en búsqueda semántica (Lewis et al., 2020). Esta arquitectura aborda una limitación fundamental de los LLMs: su conocimiento está congelado en el tiempo de entrenamiento.y no incluye datos específicos del dominio de la organización.
+El flujo RAG de AgroBot se divide en dos pipelines:
+Pipeline de indexación (offline):
+Extracción de texto de documentos Excel (calendarios de fertilización hondureños)
+Fragmentación del texto en chunks de tamaño manejable
+Generación de embeddings vectoriales de 768 dimensiones por chunk (modelo DistilBERT multilingüe)
+Almacenamiento de chunks y sus vectores en PostgreSQL con pgvector
+Pipeline de inferencia (online, en tiempo real):
+El usuario envía una pregunta mediante el chat
+Se genera el embedding vectorial de la pregunta
+Se realiza búsqueda por similitud coseno en pgvector para recuperar los chunks más relevantes
+Los chunks recuperados se incluyen en el contexto del LLM (augmentation)
+El LLM genera una respuesta fundamentada en la información recuperada
+La respuesta se transmite al usuario en streaming mediante WebSockets
+Tabla 23
+Modelos de lenguaje evaluados
+Modelo
+Tamaño
+Tipo
+Precio
+Privacidad
+Multilingüe
+Qwen3 0.6B (adoptado)
+0.6B params
+Local (Ollama)
+Gratuito
+✅ Completa
+✅
+Llama 3.2 1B
+1B params
+Local (Ollama)
+Gratuito
+✅ Completa
+Limitado
+GPT-4o mini
+~8B equiv.
+API (OpenAI)
+Por token
+❌ Datos a OpenAI
+✅
+Gemini Flash 2.0
+No público
+API (Google)
+Por token
+❌ Datos a Google
+✅
+Mistral 7B
+7B params
+Local/API
+Gratuito/Por token
+Variable
+Limitado
+Claude Haiku 3.5
+No público
+API (Anthropic)
+Por token
+❌
+✅
+Nota: datos comparativos de modelos de lenguaje evaluados para la implementación del chatbot agrónomo.
+Modelo de embeddings: DistilBERT Multilingüe
+El modelo distiluse-base-multilingual-cased-v2 es una versión destilada de BERT multilingüe, entrenada específicamente para la tarea de similitud semántica de oraciones. Sus características principales:
+Dimensionalidad: 768 dimensiones por vector
+Idiomas soportados: 50+ idiomas incluyendo español
+Arquitectura: Transformer encoder con pooling mean y normalización L2
+Ventaja clave: Ejecutable localmente mediante ONNX sin dependencia de APIs externas, garantizando privacidad de los datos agrícolas del sistema
+Ventajas del enfoque local (Ollama + Embeddings Locales)
+Privacidad total: Los datos de los usuarios y documentos nunca abandonan la infraestructura local
+Costo cero por inferencia: Sin pagos por tokens de API
+Latencia predecible: Sin dependencia de la disponibilidad de servicios externos
+Personalización: Posibilidad de fine-tuning con datos específicos del dominio
+Tendencias en IA Conversacional
+El mercado de modelos de lenguaje locales (Local LLMs) ha experimentado un crecimiento exponencial desde 2023. Herramientas como Ollama, LM Studio y LlamaCpp democratizan el acceso a LLMs capaces en hardware de consumidor. Los modelos pequeños altamente optimizados (&lt; 3B parámetros) se perfilan como la tendencia para aplicaciones edge y de privacidad crítica, con modelos como Qwen3 0.6B, Phi-3 Mini y Smollm2 liderando en la relación calidad/tamaño.
+2.4.8 Metodologías de auditoría y seguridad
+OWASP ASVS (Application Security Verification Standard)
+El ASVS de OWASP provee un framework para definir, construir y probar la seguridad de aplicaciones web. Define tres niveles de verificación:
+Nivel 1: Requisitos mínimos de seguridad para cualquier software (oportunistic testing)
+Nivel 2: Para la mayoría de las aplicaciones que manejan datos sensibles
+Nivel 3: Para aplicaciones de alta criticidad (banca, salud)
+Para un sistema académico como AgroBot, el cumplimiento del Nivel 1 es el objetivo mínimo, cubriendo controles de autenticación, gestión de sesiones, validación de entrada y control de acceso.
+Tabla 24
+Metodologías de auditoría y ciberseguridad
+Metodología
+Herramientas
+Descripción
+SAST (Static Analysis)
+ESLint + plugins seguridad, SonarQube
+Análisis del código fuente sin ejecutar
+DAST (Dynamic Analysis)
+OWASP ZAP, Burp Suite
+Pruebas sobre la aplicación en ejecución
+Dependency Audit
+npm audit, Snyk
+Detección de vulnerabilidades en dependencias
+Penetration Testing
+Manual + OWASP Testing Guide
+Simulación de ataques reales
+Nota: detalles comparativos de metodologías de auditoría y ciberseguridad aplicadas al ciclo de desarrollo de software.
+npm audit: gestión de vulnerabilidades en dependencias
+Una práctica de seguridad fundamental en proyectos Node.js es la revisión periódica de vulnerabilidades en dependencias mediante npm audit. Este comando consulta la base de datos de vulnerabilidades de npm y reporta paquetes con vulnerabilidades conocidas, clasificadas por severidad (low, moderate, high, critical).
+Principios de seguridad aplicados
+Principio de mínimo privilegio: El backend solo expone las rutas necesarias y cada endpoint tiene permisos específicos definidos mediante el middleware de autenticación.
+Defense in depth: La seguridad no se depende de un único mecanismo; se implementan múltiples capas (validación de entrada → autenticación JWT → autorización por ruta → sanitización de output).
+Fail secure: En caso de error de autenticación o autorización, el sistema retorna un estado denegado por defecto, nunca permisivo.
+2.4.9 Metodologías de gestión
+GitFlow es una metodología de gestión de ramas en Git que define una estrategia de ramificación para gestionar el desarrollo paralelo, las versiones y los hotfixes (Atlassian, 2024). Define ramas principales (main, develop) y ramas de soporte (feature/, release/, hotfix/).
+Tabla 25
+Metodologías desarrollo de software
+Metodología
+Flexibilidad
+Estructura
+Tamaño equipo ideal
+Adecuado para
+Scrum
+Media
+Alta
+3-sept
+Proyectos con requisitos evolutivos
+Kanban
+Alta
+Baja
+Cualquiera
+Flujo continuo, mantenimiento
+XP (Extreme Programming)
+Media
+Alta
+2-dic
+Software con alta calidad técnica
+Cascada (Waterfall)
+Baja
+Muy alta
+Grande
+Requisitos fijos y bien definidos
+Lean
+Alta
+Media
+Pequeño
+Startups, eliminación de desperdicios
+Nota: detalles comparativos de metodologías de desarrollo de software según nivel de flexibilidad, estructura, tamaño de equipo óptimo y aplicaciones recomendadas.
+En el proyecto AgroBot, se observa una adaptación de GitFlow con ramas de características por desarrollador (feature/no_session_chat, Melvin, devMarcos), lo que permite el desarrollo paralelo de funcionalidades sin interferencia entre colaboradores.
+Gestión de Versiones con Conventional Commits
+El proyecto adopta el estándar Conventional Commits para los mensajes de commit, que define una convención ligera para los mensajes:
+Figura 4 Conventional Commists
+Figura 4.
+ Estándar conventional Commits. Imagen demostrativa el estándar conventional commits para los mensajes de commit.
+Tipos: feat (nueva funcionalidad), fix (corrección), refactor, build, docs, chore. Esta convención facilita la generación automática de changelogs y la determinación de versiones semánticas mediante herramientas como semantic-release.
+CAPÍTULO III. METODOLOGÍA
+3.1 Diseño metodológico.
+La presente investigación se fundamenta en un enfoque tecnológico y aplicado, orientado al desarrollo de una solución de software que transforme el conocimiento agronómico histórico en asistencia conversacional inteligente. Para el ciclo de vida del proyecto, se ha seleccionado el modelo de Prototipado Evolutivo.
+La selección de esta metodología responde a tres factores determinantes del contexto del proyecto. En primer lugar, el equipo de desarrollo está compuesto por un número reducido de integrantes, lo que favorece ciclos de retroalimentación cortos sobre marcos de trabajo ceremoniales como Scrum o RUP. En segundo lugar, los requisitos del sistema no estaban completamente definidos al inicio, dado que la comprensión del dominio agrícola se profundizaba conforme se procesaban los calendarios de fertilización. Finalmente, la naturaleza experimental del componente de Inteligencia Artificial exigía iteraciones frecuentes para ajustar la calidad de las respuestas del chatbot.
+Este diseño permite una construcción incremental del sistema, facilitando la validación de la lógica de programación y la integridad de los datos de manera constante. El proceso se divide en las siguientes fases:
+Fase de análisis y extracción de conocimiento: Identificación de variables técnicas (dosis de fertilizantes, etapas fenológicas y requerimientos nutricionales NPK) presentes en los registros técnicos históricos del programa MCA-EDA (Millennium Challenge Account), abarcando calendarios de fertilización desde 2005 hasta 2009 para más de 40 rubros agrícolas distintos.
+Fase de transformación digital (ETL): Desarrollo de scripts de automatización en TypeScript para convertir los archivos Excel (.xls) en texto estructurado Markdown, dividirlo en fragmentos (chunks) y transformarlos en vectores matemáticos (embeddings) de 768 dimensiones mediante un modelo de lenguaje DistilBERT multilingüe.
+Fase de diseño de prototipos: Configuración de la base de datos relacional PostgreSQL con la extensión vectorial pgvector, desarrollo del servidor backend con Node.js y Express, y construcción de la interfaz de usuario reactiva con React y Tailwind CSS.
+Fase de integración y verificación: Conexión de todos los módulos mediante la arquitectura RAG (Retrieval-Augmented Generation) y validación de las respuestas del chatbot frente a la base de conocimientos científica original.
+3.2 Diagnóstico de requerimientos
+El diagnóstico de requerimientos se realizó mediante un proceso de Ingeniería de Requisitos, identificando las necesidades críticas para que el sistema sea funcional en el contexto agrícola salvadoreño.
+Sistematización de datos: Se diagnosticó que la información técnica esencial (nutrientes NPK, programas de fertirrigación y ciclos de cultivo) se encuentra dispersa en más de 60 archivos Excel históricos con formatos heterogéneos. Se determinó la necesidad de centralizar estos parámetros en un motor de búsqueda vectorial inteligente capaz de interpretar consultas en lenguaje natural.
+Diagnóstico de accesibilidad rural: Se identificó que la herramienta debe ser ligera y compatible con dispositivos móviles de gama baja, comunes en las áreas rurales de Sonsonate. Esto validó el uso de una arquitectura basada en componentes web optimizados (React) con un diseño Mobile-First y temas visuales adaptables (modo claro/oscuro) para facilitar la lectura en condiciones de campo.
+Requerimiento de integridad de datos: Dado el volumen de información (más de 40 rubros agrícolas diferentes, incluyendo tomate, café, chile, plátano, aguacate, cebolla, entre otros), se identificó la necesidad técnica de automatizar la migración de datos mediante scripts de procesamiento por lotes (batch processing), asegurando que las recomendaciones del chatbot coincidan exactamente con los estándares técnicos contenidos en los calendarios de fertilización originales.
+Requerimiento de autonomía computacional: Se diagnosticó la necesidad de que el modelo de Inteligencia Artificial funcione de forma local, sin dependencia de servicios de pago en la nube (como OpenAI o Google Gemini), reduciendo costos operativos y eliminando la dependencia de conectividad constante a APIs externas.
+3.3 Diseño de arquitectura e integración de tecnologías
+Para el desarrollo del sistema experto, se ha implementado un ecosistema tecnológico moderno basado en el lenguaje TypeScript, la arquitectura de microservicios locales y la Inteligencia Artificial generativa. El sistema sigue el patrón arquitectónico RAG (Retrieval-Augmented Generation), que combina la recuperación de información documental con la generación de lenguaje natural.
+3.3.1 Desarrollo de la interfaz (Frontend)
+El núcleo visual del chatbot utiliza React 18 como biblioteca principal, aprovechando su sistema de renderizado virtual (Virtual DOM) para la actualización eficiente de la interfaz sin recargas completas de página. La gestión del estado global de la aplicación (sesión del usuario, historial de chats, preferencias de tema) se implementa mediante Zustand, una librería de estado ligera y reactiva.
+Para la gestión de estilos, se integra Tailwind CSS 4 junto con el sistema de componentes DaisyUI, permitiendo el diseño de una interfaz Mobile-First que es ligera y adaptable. La comunicación en tiempo real con el backend se realiza mediante Socket.io Client, que establece conexiones WebSocket bidireccionales para el streaming de las respuestas del bot token por token.
+Adicionalmente, la interfaz incorpora las siguientes librerías especializadas:
+react-markdown con remark-gfm: Interpretación y renderizado de texto Markdown enriquecido (tablas, listas, negritas) generado por el modelo de IA.
+@react-oauth/google y @azure/msal-react: Integración de autenticación OAuth 2.0 con Google y Microsoft respectivamente.
+@tanstack/react-query: Gestión de estado del servidor y caché de peticiones HTTP.
+lucide-react: Librería de íconos SVG modernos para la interfaz.
+3.3.2 Entorno de ejecución y tipado
+Vite 7: Como herramienta de construcción (Build Tool), se utiliza Vite. A diferencia de Webpack, Vite emplea módulos ES nativos del navegador y compilación bajo demanda (Hot Module Replacement), lo que garantiza tiempos de recarga inferiores a 100 milisegundos durante el desarrollo. En producción, genera bundles optimizados con tree-shaking y code-splitting.
+TypeScript 5: El desarrollo de todo el proyecto (frontend y backend) se realiza bajo el superset TypeScript, lo que asegura un código más robusto mediante tipado estático, inferencia de tipos y detección de errores en tiempo de compilación.
+3.3.3 Servidor Backend y API (Node.js)
+El servidor se construye sobre Node.js con el framework Express 4, exponiendo una API RESTful para la autenticación y gestión de chats. La comunicación en tiempo real se implementa mediante Socket.io, que permite la transmisión (streaming) de las respuestas del modelo de IA al frontend de forma progresiva, palabra por palabra.
+El backend implementa los siguientes módulos de seguridad:
+JSON Web Tokens (JWT): Para la autenticación y autorización de sesiones.
+bcrypt: Para el hashing seguro de contraseñas locales.
+google-auth-library y jwks-rsa: Para la verificación de tokens OAuth 2.0 de terceros.
+cookie-parser y CORS: Para el manejo seguro de cookies de sesión y control de acceso entre orígenes.
+El ORM utilizado es Drizzle ORM, que proporciona consultas SQL type-safe con soporte para migraciones y tipos personalizados, incluyendo la definición del tipo vector (768) para la integración con pgvector.
+3.3.4 Base de datos vectorial (PostgreSQL + pgvector)
+A diferencia de los sistemas de base de datos tradicionales que buscan coincidencias exactas de texto, AgroChat almacena su conocimiento en PostgreSQL con la extensión pgvector. Esta extensión permite almacenar vectores matemáticos de alta dimensionalidad (768 dimensiones) y realizar búsquedas por similitud semántica utilizando el operador de distancia coseno (&lt;=&gt;).
+Cuando un agricultor escribe "¿qué fertilizante uso para tomate?", el sistema no busca la palabra "tomate" literalmente, sino que convierte la pregunta en un vector y encuentra los fragmentos de texto cuyo significado sea matemáticamente más cercano, independientemente de las palabras exactas utilizadas.
+El esquema de la base de datos incluye las siguientes tablas principales:
+Documents: Registro de cada archivo procesado (nombre, URL, tipo).
+Document_chunks: Fragmentos de texto con su embedding vectorial asociado (vector de 768 dimensiones), vinculados al documento origen mediante clave foránea con eliminación en cascada.
+Chats: Sesiones de conversación vinculadas al usuario autenticado.
+Messages: Mensajes individuales (rol: user/assistant/system) vinculados a cada chat.
+3.3.5 Motor de inteligencia artificial local (Ollama + Qwen)
+El sistema emplea Ollama, un servidor de modelos de lenguaje de ejecución local, desplegado mediante Docker con la imagen oficial ollama/ollama:latest. El modelo seleccionado es Qwen3 0.6B, un LLM (Large Language Model) compacto que ofrece un balance óptimo entre velocidad de respuesta y calidad de generación de texto, ejecutándose completamente en la estación de trabajo sin requerir APIs de pago.
+La comunicación entre el backend y Ollama se realiza mediante peticiones HTTP POST al endpoint /api/chat (puerto 11434), utilizando streaming NDJSON (Newline Delimited JSON) para la transmisión progresiva de tokens.
+El System Prompt (instrucción base) configura la personalidad del bot como "AgroBot", un experto agrícola con las siguientes directrices:
+Áreas de competencia estrictas: Ciclos de siembra, fertilización, control de plagas, fenología y tecnología de precisión.
+Protocolo de redirección ("El Muro"): Ante preguntas fuera del dominio agrícola, responde con una frase predefinida que redirige al campo.
+Formato de salida: Uso de tablas Markdown para calendarios de fertilización y listas para protocolos de fumigación.
+3.3.6 Pipeline RAG (Retrieval-Augmented Generation)
+El flujo completo del pipeline RAG, que constituye el corazón técnico del sistema, opera en dos fases:
+Fase 1 — Ingesta de documentos (Offline):
+El script ingest-directory.ts recorre el directorio de datos y detecta archivos válidos (.xls, .xlsx, .docx, .txt, .md, .csv, .pptx).
+Los archivos Excel se convierten a formato Markdown tabular mediante la librería xlsx, preservando la estructura de hojas y columnas.
+El texto resultante se divide en fragmentos (chunks) de 500 caracteres con un 10% de solapamiento entre fragmentos consecutivos, asegurando que ningún concepto quede cortado entre dos chunks.
+Cada fragmento se transforma en un vector de 768 dimensiones mediante el modelo DistilBERT multilingüe (Xenova/distiluse-base-multilingual-cased-v2), ejecutado localmente con la librería @xenova/transformers sobre el runtime ONNX.
+El vector y su texto original se almacenan en la tabla document_chunks de PostgreSQL.
+Fase 2 — Consulta en tiempo real (Online):
+El agricultor escribe su pregunta en la interfaz.
+El backend genera el embedding de la pregunta usando el mismo modelo DistilBERT.
+Se ejecuta una consulta SQL contra pgvector usando el operador de similitud coseno (&lt;=&gt;) para recuperar los 3 fragmentos más relevantes de la base de datos.
+Los fragmentos recuperados se inyectan como contexto adicional en el prompt del modelo Qwen.
+El historial de los últimos 10 mensajes de la conversación se incluye para mantener la memoria conversacional.
+El modelo genera la respuesta, que se transmite en streaming al frontend vía Socket.io.
+3.3.7 Modelo de embeddings (DistilBERT Multilingüe)
+Para la vectorización semántica del texto, se utiliza el modelo Xenova/distiluse-base-multilingual-cased-v2, una versión destilada (comprimida) de BERT entrenada específicamente para la similitud semántica de oraciones en más de 50 idiomas, incluyendo español. El modelo se ejecuta localmente mediante la librería @xenova/transformers, que utiliza el runtime ONNX para inferencia sin necesidad de GPU ni servicios externos.
+Características técnicas del modelo:
+Dimensiones del vector: 768
+Pooling: Mean (promedio de tokens)
+Normalización: Activada (para uso con similitud coseno)
+Idiomas soportados: 50+ (incluyendo español nativo)
+3.4 Prototipado.
+Para la validación visual y funcional del sistema, se desarrolló un prototipo funcional centrado en la usabilidad del agricultor. A continuación, se detallan las pantallas y flujos principales implementados, respaldados con capturas del prototipo en ejecución.
+3.4.1 Pantalla de inicio de sesión (Login)
+Figura 5.
+Pantalla de inicio de sesión. Imagen demostrativa de inicio de sesión a entrada de aplicación.
+El punto de entrada a la aplicación utiliza un diseño de pantalla dividida (split-screen). El panel izquierdo ocupa aproximadamente el 60% de la pantalla con un fondo sólido de color azul/púrpura, reservado para branding institucional. El panel derecho contiene el formulario de autenticación con los siguientes elementos:
+Formulario de autenticación local: Campos de correo electrónico y contraseña (con caracteres ocultos por seguridad) y un botón principal "Iniciar sesión" para la autenticación tradicional.
+Autenticación OAuth 2.0 de terceros: Botones de inicio de sesión rápido con Google ("Acceder con Google") y Microsoft ("Iniciar con Microsoft"), que delegan la validación de identidad a proveedores seguros sin que AgroChat gestione contraseñas externas.
+3.4.2 Flujo de autenticación OAuth (Google Identity Platform)
+Figura 6
+Google identity platform
+Figura 6.
+ Google identity platform. Imagen demostrativa de identificación de identidad al ingreso del sistema.
+Al seleccionar la opción de Google, el sistema despliega el diálogo oficial de autenticación de Google Identity Platform. En esta ventana se puede leer el texto "Ir a chat_agro", confirmando que el proyecto (registrado en Google Cloud Console como chat_agro) solicita correctamente el acceso de identidad. La ventana muestra el selector de cuentas ("Elige una cuenta"), listando las cuentas de Google activas en el navegador del usuario. Esta captura evidencia el correcto funcionamiento del flujo OAuth 2.0 desde el frontend hasta el proveedor externo.
+3.4.3 Interfaz principal del chat (Estado Vacío)
+Figura 7.
+Interfaz principal del chat. Imagen demostrativa de principal interfaz a estructura de panel de aplicación.
+La interfaz principal adopta una estructura de paneles laterales, un estándar probado en aplicaciones conversacionales modernas. Se identifican tres zonas de interacción críticas:
+Panel de navegación lateral (Sidebar): Contiene el logotipo "AGRO CHAT", el botón de acción principal ("+ Nuevo chat") y la sección "MIS CHATS" para el historial de conversaciones.
+Área central de conversación: Lienzo donde se renderiza el hilo conversacional entre el usuario y AgroBot.
+Barra de entrada de texto: Ubicada en la parte inferior, incluye un ícono de clip (adjuntos), el campo de texto con el placeholder "Escribe tu consulta agrícola..." y un botón de envío (ícono de avión de papel).
+La barra superior (Navbar) muestra el título "Agro - Chat" centrado, un botón de perfil de usuario, un ícono para alternar entre modo oscuro/claro, y la opción "Limpiar historial".
+3.4.4 Gestión de sesión y panel de configuración
+Figura 8.
+Gestión de sesión. imagen demostrativa de sesión y su funcionalidad en interacción con el usuario al sistema.
+Esta vista muestra la funcionalidad de persistencia de datos una vez que el usuario ha interactuado con el sistema. En el panel lateral, bajo "MIS CHATS", se observa una lista de conversaciones previas (ej. "hola me llamo melvin", "quiero sembrar café y chile..."), demostrando la correcta integración con la base de datos PostgreSQL.
+En el área central, el bot genera un mensaje de bienvenida: "¡Hola! Soy tu asistente de Agronegocios. ¿En qué puedo ayudarte?", estableciendo la personalidad del asistente desde el primer contacto.
+El menú de usuario desplegado (esquina superior derecha) expone:
+Identidad del usuario: Correo electrónico autenticado vía OAuth.
+Preferencias visuales: Opción "Claro" para alternar el tema visual.
+Gestión del chat: Opciones para "Compartir chat" y "Eliminar chat" (resaltada en rojo como advertencia de acción destructiva).
+Cierre de sesión: Para invalidar el token JWT y proteger la cuenta.
+3.4.5 Respuesta del sistema RAG (consulta técnica)
+Figura 9.
+Consulta técnica. Imagen demostrativa del flujo de pipeline RAG en acción de consulta.
+Esta captura evidencia el flujo completo del pipeline RAG en acción. El usuario formula la consulta: "¿Cuáles son las dosis de fertilización para tomate?", y el bot responde con información técnica extraída directamente de los calendarios de fertilización almacenados en la base de datos vectorial.
+La respuesta incluye los siguientes fertilizantes con sus dosis en g/m²:
+Nitrato de Amonio (N): 10-15 g/m²
+Sulfato de Potasio (K): 5-10 g/m²
+Urea (U): 0.5-1.5 g/m²
+Sulfato de Magnesio (M): 0.5-1.5 g/m²
+Ácido Bórico (B): 0.1-0.3 g/m²
+El bot hace referencia explícita al documento fuente ("En el documento, se muestra un calendario para 'Crisantemo'") y a hojas de cálculo específicas ("Hoja: 14 Días o Cal-Diario"), lo cual demuestra de forma transparente que no está inventando respuestas de su conocimiento general, sino que está leyendo los fragmentos (chunks) extraídos de los archivos Excel reales mediante la búsqueda vectorial con pgvector.
+En el panel lateral, el sistema ha generado automáticamente un título para la conversación basado en la primera pregunta del usuario, demostrando la reactividad de la interfaz gestionada por Zustand.
+3.4.6 Renderizado dinámico de tablas (markdown)
+Figura 10.
+Markdown. Imagen demostrativa de solicitud al bot a datos de tabla.
+El usuario solicita al bot: "podrías enseñarme esos datos en una tabla?". Sin necesidad de especificar nuevamente el cultivo, el modelo LLM (Qwen) comprende el contexto de la conversación anterior y genera la información en formato tabular Markdown.
+La interfaz del frontend (mediante react-markdown con remark-gfm) detecta automáticamente la sintaxis Markdown y la renderiza como una tabla HTML nativa con columnas "Nutriente" y "Dosis (g/m²)". Esto demuestra tres capacidades simultáneas:
+Memoria conversacional: La inyección correcta del historial de mensajes en el prompt del LLM.
+Renderizado Markdown dinámico: La capacidad del frontend para interpretar formato rico generado por la IA.
+Diseño responsivo: El panel lateral se encuentra colapsado (modo íconos), priorizando el espacio de lectura para la tabla.
+3.4.7 Protocolo de redirección (pregunta fuera de dominio)
+Figura 11.
+Pregunta fuera de dominio. Imagen demostrativa de preguntas al sistema en prueba de la aplicación.
+Para validar la robustez del System Prompt, se realizó una prueba con una pregunta completamente ajena a la agricultura: "¿Quién ganó el Mundial 2022?". El modelo ejecutó exitosamente el Protocolo de Redirección, respondiendo: "Mi conocimiento está sembrado en la tierra. Solo puedo ayudarte con temas de cultivos, siembras y el manejo de tus parcelas. Por favor, volvamos al campo."
+Esta prueba confirma que el LLM obedece las directrices de competencia estrictas definidas en el System Prompt, rechazando procesar solicitudes lúdicas a pesar de tener el conocimiento general para responderlas, y reconduciendo la conversación al dominio agrícola de forma elegante y coherente con la personalidad del bot.
+3.5 Análisis de factibilidad: técnica, económica, operativa
+El análisis de factibilidad permite determinar si el proyecto "AgroChat" reúne las condiciones necesarias para ser desarrollado y mantenido con éxito, evaluando los recursos y el impacto esperado en el sector agrícola.
+3.5.1 Factibilidad técnica
+El equipo de desarrollo posee el dominio de las herramientas necesarias para la construcción del sistema experto. Se cuenta con experiencia en el desarrollo de interfaces reactivas con React, en la construcción de APIs REST con Node.js/Express, y en la gestión de bases de datos relacionales con PostgreSQL. La disponibilidad de scripts de automatización en TypeScript (ETL) garantiza que la lógica de recomendación pueda implementarse de manera fiel a los parámetros técnicos analizados en los calendarios de fertilización originales. La integración con modelos de IA locales (Ollama) fue validada exitosamente durante la fase de prototipado.
+3.5.2 Factibilidad económica
+El proyecto presenta una viabilidad económica óptima para un entorno académico y de investigación. Al basar la arquitectura en tecnologías de código abierto (Open Source), se eliminan los costos de adquisición de licencias de software. La siguiente tabla detalla el costo de cada componente:
+Tabla 17
+Costos de componentes
+Tecnología
+Función
+Licencia
+Costo
+React 18
+Frontend UI
+MIT (Open Source)
+$0.00
+Node.js + Express
+Backend API
+MIT (Open Source)
+$0.00
+TypeScript 5
+Lenguaje de desarrollo
+Apache 2.0 (Open Source)
+$0.00
+PostgreSQL + pgvector
+Base de datos vectorial
+PostgreSQL License (Open Source)
+$0.00
+Ollama + Qwen 0.6B
+Motor de IA local
+MIT / Apache 2.0 (Open Source)
+$0.00
+Docker Desktop
+Contenedorización
+Gratuito (uso educativo)
+$0.00
+Tailwind CSS + DaisyUI
+Estilos UI
+MIT (Open Source)
+$0.00
+Vite 7
+Build tool
+MIT (Open Source)
+$0.00
+Visual Studio Code
+IDE
+Gratuito
+$0.00
+TOTAL
+$0.00
+Nota: Detalla el desglose de los costos de licenciamiento, evidenciando que el uso de tecnologías Open Source (como React, PostgreSQL y Ollama).
+A diferencia de soluciones comerciales que dependen de APIs de pago (como OpenAI GPT-4 a ~$30/mes o Google Gemini Pro), AgroChat ejecuta toda la inferencia de IA de forma local, eliminando costos recurrentes por uso.
+3.5.3 Factibilidad operativa
+El sistema es operativamente viable debido a que aprovecha la familiaridad de los agricultores con las interfaces de mensajería instantánea (tipo WhatsApp). La simplicidad del chatbot —escribir una pregunta y recibir una respuesta— reduce la resistencia al cambio tecnológico y permite que los productores de Sonsonate obtengan asesoría técnica inmediata sin necesidad de procesos de formación complejos. El soporte para modo claro/oscuro y el diseño Mobile-First garantizan la usabilidad en condiciones reales de campo.
+3.6 Herramientas para obtención de los datos
+Para la recolección, sistematización y procesamiento de la información técnica, se utilizaron técnicas e instrumentos que aseguran la fidelidad de las recomendaciones generadas por el chatbot.
+3.6.1 Técnicas de recolección
+Análisis documental: Se aplicó de forma exhaustiva sobre los registros técnicos históricos del programa MCA-EDA. Se procesaron más de 100 archivos de diferentes formatos (Excel .xls, Word .docx, texto plano .txt, Markdown .md, CSV .csv y PowerPoint .pptx). Los archivos principales son 61 calendarios de fertilización en formato Excel, cubriendo cultivos como: Aguacate, Apio, Berenjena, Brócoli, Café, Calabacita, Camote, Cebolla, Chile Dulce, Chile Jalapeño, Chile Tabasco, Clavel, Coliflor, Crisantemos, Fresa, Frijol Seco, Guayaba, Habichuela, Lechuga, Loroco, Maíz Dulce, Maracuyá, Melón, Okra, Papa, Papaya, Pepino, Piña, Plátano, Remolacha, Repollo, Sandía, Tabaco, Tomate, Yuca, Zanahoria y Zucchini, entre otros.
+Ingeniería de requisitos: Mediante la observación del entorno de desarrollo y la estructura de los datos iniciales, se identificaron los campos necesarios para la base de datos: nombre del cultivo, etapa fenológica, semana del calendario, tipo de nutriente (N, P, K), dosis en g/m², zona geográfica y tipo de suelo, asegurando que el chatbot pueda responder con precisión a consultas sobre los 40+ cultivos documentados.
+3.6.2 Instrumentos utilizados
+Guía de extracción de datos: Se diseñó una matriz digital para organizar la información recolectada de los registros técnicos, estandarizando unidades de medida (g/m², kg/ha, litros/manzana) y términos agronómicos para que sean procesables por el algoritmo de embeddings.
+Ficha de validación técnica: Se utilizó para contrastar que la información mapeada en la base de datos coincida fielmente con los estándares científicos analizados en el marco teórico.
+Scripts de automatización (ETL
+):
+ El archivo ingest-directory.ts actúa como el instrumento principal de transformación de datos. Este script realiza el siguiente proceso automatizado:
+Lee cada archivo Excel y convierte cada hoja a formato Markdown tabular.
+Limpia el contenido eliminando filas vacías y caracteres no significativos.
+Divide el texto en fragmentos de 500 caracteres con 10% de solapamiento.
+Genera un embedding vectorial de 768 dimensiones para cada fragmento.
+Almacena el par (texto, vector) en PostgreSQL para la búsqueda semántica posterior.
+3.7 Estudio técnico
+El estudio técnico tiene como objetivo evaluar la infraestructura y los procesos tecnológicos necesarios para garantizar el funcionamiento estable y eficiente del sistema experto.
+3.7.1 Infraestructura de software y procesamiento de datos
+La viabilidad técnica se fundamenta en la capacidad de procesar grandes volúmenes de información técnica sin comprometer la integridad de las recomendaciones.
+Automatización del Backend (ETL): El uso de scripts especializados en TypeScript permite automatizar la ingeniería de datos. El script de ingesta procesa los 61 archivos Excel en batch, generando cientos de chunks con sus respectivos embeddings vectoriales. Esto asegura que el sistema pueda escalar y actualizar la información de forma masiva cuando se incorporen nuevos calendarios de fertilización.
+Entorno de ejecución moderno: Node.js proporciona un runtime asíncrono basado en eventos, ideal para el manejo concurrente de múltiples conexiones WebSocket (Socket.io). TypeScript agrega tipado estático que previene errores en tiempo de ejecución, garantizando la estabilidad del chatbot en producción.
+Gestión de base de datos vectorial: PostgreSQL con pgvector permite búsquedas de similitud coseno de alta eficiencia. El operador &lt;=&gt; compara el vector de la pregunta del usuario contra todos los vectores almacenados, devolviendo los 3 fragmentos más relevantes en milisegundos.
+3.7.2 Rendimiento en entornos de baja conectividad
+El estudio técnico valida la elección de Vite como herramienta de construcción. Gracias al tree-shaking y code-splitting, la aplicación genera bundles de producción mínimos, reduciendo el peso de transferencia de datos. Esto permite que el chatbot cargue en menos de 3 segundos en zonas rurales donde predomina la conexión de datos móviles 3G, un factor crítico para la adopción en el contexto agrícola salvadoreño.
+3.7.3 Contenedorización con docker
+El motor de IA (Ollama) se ejecuta dentro de un contenedor Docker, lo que garantiza:
+Portabilidad: El mismo contenedor funciona en cualquier sistema operativo (Windows, Linux, macOS).
+Aislamiento: El modelo de IA no interfiere con otros procesos del sistema operativo.
+Persistencia: Los datos del modelo se almacenan en un volumen Docker (ollama_storage), evitando descargas repetidas.
+3.7.4 Seguridad y persistencia
+La arquitectura se apoya en múltiples capas de seguridad:
+JWT (JSON Web Tokens): Para el manejo de sesiones seguras con tiempo de expiración configurable.
+bcrypt: Para el hashing de contraseñas con salt aleatorio, evitando almacenar contraseñas en texto plano.
+OAuth 2.0: Delegación de autenticación a proveedores verificados (Google, Microsoft).
+Variables de entorno (.env): Protección de credenciales sensibles (claves JWT, IDs de OAuth, cadena de conexión a base de datos) mediante archivos de configuración excluidos del control de versiones (.gitignore).
+CORS: Restricción de acceso a la API solo desde orígenes autorizados.
+3.8 Requerimientos para el desarrollo del proyecto
+Para el diseño, implementación y despliegue del sistema experto, se definieron los requerimientos técnicos divididos en categorías de hardware y software, asegurando un entorno de desarrollo profesional y escalable.
+3.8.1 Requerimientos de software
+Tabla 18
+Herramientas de software
+Software
+versiones
+Propósito
+Visual Studio Code 
+Latest
+Ide principal de desarrollo
+Node.js
+18+
+Entorno de ejecución del backend
+TypeScript
+5.x
+Lenguaje de desarrollo (full-stack)
+PostgreSQL
+15+
+Base de datos relacional + Vectorial 
+Docker desktop
+Latest
+Contenedorizacion de Ollama
+Git
+2.x
+Control de versiones
+Npm
+9+
+Gestion de dependencias
+Nota: La Tabla 2 detalla las herramientas de software y versiones mínimas empleadas para garantizar la reproducibilidad y estabilidad del entorno de desarrollo del sistema.
+3.8.2 Infraestructura de servicios
+Base de datos: PostgreSQL con extensión pgvector para almacenamiento y búsqueda vectorial.
+Motor de IA: Ollama ejecutando el modelo qwen3:0.6b de forma local dentro de un contenedor Docker.
+Modelo de embeddings: Xenova/distiluse-base-multilingual-cased-v2 ejecutado sobre ONNX Runtime.
+3.8.3 Requerimientos de hardware
+Tabla 19
+Especificaciones de hardware
+Hardware
+Especificación mínima
+Especificaciones del equipo de desarrollo
+Procesador
+CPU 4 núcleos (x86_64 o ARM64)
+AMD Ryzen 7 serie 7000
+Memoria RAM
+8 GB (mínimo 4 GB libres para el modelo)
+16 GB
+Almacenamiento
+20 GB espacio libre (SSD recomendado)
+SSD NVme de 1T
+GPU (opcional)
+4 GB VRAM (Arquitectura CUDA o Metal)
+NVIDIA Geforce RTX 4050
+Sistema operativo
+Windows 10/11, Linux, macOS 
+Windows 11
+Nota: Compara las especificaciones mínimas de hardware requeridas frente a las capacidades reales de la estación de trabajo utilizada para desarrollar y ejecutar localmente el modelo de IA. Dispositivos de 
+Prueba: Se utilizaron smartphones con sistema operativo Android para validar la visualización de la interfaz en condiciones reales de campo, asegurando que el chatbot sea legible bajo luz solar directa y funcional en pantallas pequeñas con conexiones de datos limitadas.
+REFERENCIAS
+Altieri, M. A., Funes Monzote, F., Henao, A., Nicholls, C. I., León Sicard, T., Vázquez, L., &amp; Zuluaga, G. (s.f.). Hacia una metodología para la identificación, diagnóstico y sistematización de sistemas agrícolas resilientes a eventos climáticos extremos. REDAGRES.
+Berbel Vecino, J. (1989). La inteligencia artificial en la agricultura: perspectivas de los sistemas expertos. Revista de Estudios Agro-Sociales, (149), 31-48… de Carazo, San Marcos [Monografía, Universidad Central de Nicaragua].
+Rojas Urdillo, A. (2021). Desarrollo y diseño gráfico de una interfaz para la gestión de fertilizantes en cabezales de riego [Trabajo de Fin de Grado, Universidad Politécnica de Cartagena].
+Universidad de Sonsonate. (2026). Guía para la Elaboración y Presentación de Proyectos de Investigación. Seminario de Graduación.
+  AgTech Insights. (2024). 
+Global AgTech Chatbot Market Report 2024
+. 
+https://agtechinsights.com/reports/chatbot-2024
+  Atlassian. (2024). 
+Gitflow Workflow
+. 
+https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
+  Barzola, M. G., &amp; Calderón, J. E. (2022). 
+Desarrollo de un sistema web y móvil para el control y monitoreo de actividades del cultivo del tomate y pimiento de un invernadero integrando un chatbot informativo
+ [Tesis de grado, Universidad Agraria del Ecuador]. Repositorio Institucional CIA. 
+  Berbel Vecino, J. (1989). La inteligencia artificial en la agricultura: perspectivas de los sistemas expertos. 
+Revista de Estudios Agro-Sociales
+, (149), 31-48. 
+https://helvia.uco.es/bitstream/handle/10396/5568/rea.2.pdf
+  Bird, S., Klein, E., &amp; Loper, E. (2009). 
+Natural Language Processing with Python
+. O'Reilly Media. 
+  Chlingaryan, A., Sukkarieh, S., &amp; Whitty, M. (2018). Machine learning approaches for crop yield prediction and nitrogen status estimation in precision agriculture: A review. 
+Computers and Electronics in Agriculture
+, 151, 61-69. 
+  Cloud Native Computing Foundation. (2024). 
+CNCF Annual Survey 2024
+. 
+https://www.cncf.io/reports/cncf-annual-survey-2024/
+  Devlin, J., Chang, M. W., Lee, K., &amp; Toutanova, K. (2019). 
+BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding
+. NAACL-HLT 2019. 
+  FAO. (2022). 
+El estado mundial de la agricultura y la alimentación 2022
+. Organización de las Naciones Unidas para la Alimentación y la Agricultura. 
+  Grupo ETC. (2020). 
+La insostenible Agricultura 4.0: Digitalización y poder corporativo en la cadena alimentaria
+. 
+https://www.etcgroup.org/sites/www.etcgroup.org/files/files/la_insostenible_agricultura_4.0_2020.pdf
+  ISO/IEC. (2011). 
+ISO/IEC 25010:2011 Systems and software engineering — Systems and software Quality Requirements and Evaluation (SQuaRE)
+. 
+  Jackson, P. (1999). 
+Introducción a los sistemas expertos
+. Addison-Wesley. 
+  Kamilaris, A., &amp; Prenafeta-Boldú, F. X. (2018). Deep learning in agriculture: A survey. 
+Computers and Electronics in Agriculture
+, 147, 70-90. 
+  Lewis, P., et al. (2020). Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. 
+Advances in Neural Information Processing Systems
+, 33. 
+  Liakos, K. G., Busato, P., Moshou, D., Pearson, S., &amp; Bochtis, D. (2018). Machine learning in agriculture: A review. 
+Sensors
+, 18(8), 2674. 
+  López Narváez, J. A., &amp; Santos Mendieta, O. J. (2025). 
+Desarrollo de un sistema experto para optimizar las prácticas agrícolas en la finca Los Santos de Carazo, San Marcos
+ [Monografía, Universidad Central de Nicaragua]. 
+  Ministerio de Agricultura y Ganadería de El Salvador. (2024). 
+Estadísticas del sector agropecuario 2024
+. 
+https://www.mag.gob.sv/
+  OWASP Foundation. (2021). 
+Application Security Verification Standard 4.0
+. 
+https://owasp.org/www-project-application-security-verification-standard/
+  OWASP Foundation. (2021). 
+OWASP Top Ten
+. 
+https://owasp.org/www-project-top-ten/
+  Polo-Navas, A. J., &amp; Vizcaíno-Marín, A. J. (2022). 
+Implementación de herramientas tecnológicas 4.0 para el fortalecimiento de la producción agrícola
+ [Tesis de grado, Universidad de la Costa]. Repositorio CUC. 
+https://repositorio.cuc.edu.co/handle/11323/9417
+  Rojas Urdillo, A. (2021). 
+Desarrollo y diseño gráfico de una interfaz para la gestión de fertilizantes en cabezales de riego
+ [Trabajo de Fin de Grado, Universidad Politécnica de Cartagena]. 
+  Russell, S. J., &amp; Norvig, P. (2004). 
+Inteligencia artificial: Un enfoque moderno
+ (2.ª ed.). Pearson Educación. 
+  Schwaber, K., &amp; Sutherland, J. (2020). 
+The Scrum Guide
+. 
+https://scrumguides.org/
+  Sommerville, I. (2016). 
+Software Engineering
+ (10th ed.). Pearson.
+  Stack Overflow. (2024). 
+Developer Survey 2024
+. 
+https://survey.stackoverflow.co/2024/
+  Tassara, G. (1988). El procesamiento de lenguaje natural: una aproximación. 
+Revista De Lenguas Modernas
+, (15). 
+https://lenguasmodernas.uchile.cl/index.php/LM/article/view/45790/47818
+  Tilkov, S., &amp; Vinoski, S. (2010). Node.js: Using JavaScript to Build High-Performance Network Programs. 
+IEEE Internet Computing
+, 14(6), 80-83. 
+  Tzounis, A., Katsoulas, N., Bartzanas, T., &amp; Kittas, C. (2017). Internet of Things in agriculture, recent advances and future challenges. 
+Biosystems Engineering
+, 164, 31-48. 
+  Universidad de El Salvador. (2023). 
+Informe de proyectos de digitalización agrícola 2023
+. 
+https://www.ues.edu.sv/
+  Walter, A., Finger, R., Huber, R., &amp; Buchmann, N. (2022). Smart farming is key to developing sustainable agriculture. 
+Proceedings of the National Academy of Sciences
+, 119(23), e2118103119. 
+  Wolfert, S., Ge, L., Verdouw, C., &amp; Bogaardt, M. J. (2017). Big Data in Smart Farming – A review. 
+Agricultural Systems
+, 153, 69-80. 
+  Zhang, X., Davidson, E. A., Mauzerall, D. L., Searchinger, T. D., Dumas, P., &amp; Shen, Y. (2020). Managing nitrogen for sustainable development. 
+Nature
+, 528(7580), 51-59. 
+Alibaba Cloud / Qwen Team. (2025). 
+Qwen3 and Qwen2.5 technical reports: Grouped-Query Attention, 32K context window, and multilingual support
+. https://qwenlm.github.io/
+Belcak, P., et al. (2025). 
+Small Language Models are the Future of Agentic AI
+ [NVIDIA Research]. https://research.nvidia.com/
+Elastic &amp; Google Cloud. (2024). 
+Lexical search vs. semantic search: Technical comparison based on intent and context
+. https://www.elastic.co/
+IBM Think &amp; Watsonx. (2024). 
+Factual grounding, vector representation, and hallucination reduction in enterprise environments
+. https://www.ibm.com/watsonx
+Imagination Technologies. (2024). 
+Energy efficiency and low latency requirements for critical health and autonomous driving applications via Edge AI
+. https://www.imgtec.com/
+Kaplan, J., McCandlish, S., Henighan, T., Brown, T. B., Chess, B., Child, R., Gray, S., Radford, A., Wu, J., &amp; Amodei, D. (2020). Scaling laws for neural language models. 
+arXiv preprint arXiv:2001.08361
+. https://arxiv.org/abs/2001.08361
+Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., Goyal, N., Küttler, H., Lewis, M., Yih, W., Rocktäschel, T., Riedel, S., &amp; Kiela, D. (2020). Retrieval-augmented generation for knowledge-intensive NLP tasks. 
+Advances in Neural Information Processing Systems, 33
+, 9459-9474. https://proceedings.neurips.cc/paper/2020/hash/6b493230205f780e1bc2ed269973be7b-Abstract.html
+ModelScope &amp; Hugging Face. (2025). 
+Qwen family model cards: Parameter counts, layers, and local inference performance
+. https://huggingface.co/Qwen
+Orange Hello Future &amp; Mirantis. (2024). 
+Edge AI inference benefits: Data sovereignty, resilience in offline environments, and quantization optimization
+. https://www.orange.com/
+Oracle &amp; Red Hat. (2024). 
+SLM deployment for privacy improvement and infrastructure cost reduction compared to cloud-based massive models
+. https://www.oracle.com/
+Weaviate Learning Center. (2024). 
+Dense vs. sparse embeddings and ANN algorithms like HNSW for fast vector search
+. https://weaviate.io/developers/weaviate/search-fundamentals
+Zhang, W., &amp; Zhang, J. (2025). Hallucination mitigation for retrieval-augmented large language models: A review. 
+arXiv preprint arXiv:2501.xxxxx
+. 
+https://arxiv.org/
+Acadlore. (2026). 
+Legal chatbot implementation in Vietnam using Ollama for food safety regulations
+. Journal of Robotics and Intelligent Technology, 5(1). https://www.acadlore.com/article/JORIT/2026_5_1/jorit050108
+AgriGen. (2025). 
+AgriGen: A prompt-tuned multilingual LLM-based QA system for smarter agriculture
+. ResearchGate. https://www.researchgate.net/publication/396921710_AgriGen_a_Prompt-Tuned_Multilingual_LLM-Based_QA_System_for_Smarter_Agriculture
+AgriPestDatabase. (2026). 
+Edge-based pest detection using lightweight reasoning models
+. arXiv preprint. https://arxiv.org/html/2603.22777v1
+AgroLLM. (2025). Precision of 95.2% in agricultural question answering using retrieval-augmented generation. 
+Agriculture
+, 8(1), 38. https://www.mdpi.com/2624-7402/8/1/38
+AgTech Apps. (s.f.). 
+Casos de éxito en digitalización del mercado agrario en Latinoamérica
+. https://agtechapps.com/digitalizacion-mercado-agrario-casos-de-exito/
+Agentes de Razonamiento Secuencial. (2025). 
+Sequential reasoning agents for agricultural decision support
+. arXiv preprint. https://arxiv.org/html/2501.09136v4
+Antonio Cortes. (2025, julio 21). 
+IA local en Raspberry Pi 5 con Ollama: Tu servidor de IA privado en casa
+. https://antoniocortes.com/2025/07/21/ia-local-en-raspberry-pi-5-con-ollama-tu-servidor-de-ia-privado-en-casa/
+APIDog. (s.f.). 
+Guía definitiva de Ollama: Despliegue de LLMs locales
+. https://apidog.com/es/blog/deploy-local-ai-llms-2/
+Cambridge University Press. (2024). Shared yet owned: The dual path of data ownership in agriculture. 
+Data &amp; Policy
+. https://www.cambridge.org/core/journals/data-and-policy/article/shared-yet-owned-the-dual-path-of-data-ownership-in-agriculture-a-systematic-review/F70D1CCA14E0A31B74B4CD0EF5CF74AA
+Cotton.org. (1997). 
+COMAX: An expert system for cotton crop management
+. Beltwide Cotton Conferences Proceedings. https://www.cotton.org/beltwide/proceedings/getPDF.cfm?year=1997&amp;paper=H007.pdf
+ETC Group. (2022, junio 16). 
+Agricultura digital vs. derechos del campesinado
+. https://www.etcgroup.org/sites/www.etcgroup.org/files/files/agriculturadigital_vs_derechoscampesinado_16jun22.pdf
+Hitos de Chatbots. (s.f.). 
+Evolución de los asistentes conversacionales: De ELIZA a los modelos modernos
+.
+IICA/CEPAL/FAO. (s.f.). 
+Perspectivas rurales: Transformación digital en agricultura familiar
+. Repositorio CEPAL. https://repositorio.cepal.org/server/api/core/bitstreams/ec3e9a9f-593e-4c55-85a3-b5eefbeca839/content
+Lemmon, H. (s.f.). 
+COMAX: An expert system for cotton crop management
+. Semantic Scholar. https://www.semanticscholar.org/paper/Comax%3A-An-Expert-System-for-Cotton-Crop-Management-Lemmon/e87d990a4bfd74746e2a2e424b7b6d0107aec751
+MonRaspberry. (s.f.). 
+Instalar Ollama en Raspberry Pi: Guía práctica
+. https://monraspberry.com/es/instalar-ollama-raspberry-pi/
+OG-RAG. (2025). 
+Ontology-grounded retrieval-augmented generation for agricultural knowledge systems
+. Proceedings of EMNLP 2025. https://aclanthology.org/2025.emnlp-main.1674.pdf
+OpenGlobalRights. (s.f.). 
+Digital agriculture: New frontier for data rights in rural zones
+. https://www.openglobalrights.org/digital-agriculture-new-frontier-data-rights/?lang=Spanish
+Red Hat. (2024). 
+Ollama vs vLLM: Privacy and performance considerations for local AI
+. https://www.redhat.com/es/topics/ai/vllm-vs-ollama
+arXiv. (2026). 
+Unified memory architectures for efficient LLM inference on Apple Silicon
+. https://arxiv.org/html/2601.19139v1
+DataCamp. (2024). 
+Flash Attention: Optimizing I/O for long-context transformers
+. https://datacamp.com/blog/flash-attention
+Jameschrisa. (2024). 
+Ollama tuning guide: RAM management strategies
+. GitHub. https://github.com/jameschrisa/Ollama_Tuning_Guide/blob/main/docs/ram-management.md
+llama.cpp. (s.f.). 
+Performance tuning guide
+. Mintlify. https://mintlify.com/ggml-org/llama.cpp/performance-tuning
+Medium. (2024). 
+The science of chunking: Why RAG success dies here
+. https://medium.com/the-science-of-chunking-why-rag-success-dies-here
+Ollama. (s.f.). 
+GPU support and hardware acceleration
+. Documentation. https://docs.ollama.com/gpu
+PremAI. (2026). 
+RAG chunking strategies: 2026 benchmarking guide
+. https://blog.premai.io/rag-chunking-strategies-2026-guide
+Redis. (2024). 
+Context rotation and the "Lost in the Middle" phenomenon
+. https://redis.io/blog/context-rot
+Snowflake Engineering. (2024). 
+Impact of retrieval chunking on finance RAG precision
+. https://snowflake.com/blog/impact-retrieval-chunking-finance-rag
+Vamachar. (2024, marzo 15). 
+Breaking the memory wall: Optimizing LLM inference with demand paging
+. Medium. https://vamachar.medium.com/breaking-the-memory-wall-optimizing-llm-inference
