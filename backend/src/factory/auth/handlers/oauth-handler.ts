@@ -5,14 +5,10 @@ import { AuthHandler, AuthProfile, Session } from "../auth-factory.types";
 
 export class OAuthHandler implements AuthHandler {
   async handle(profile: AuthProfile): Promise<Session> {
-    const {
-      id: providerAccountId,
-      email,
-      name,
-      image,
-      provider,
-      accessToken,
-    } = profile;
+    const providerAccountId = profile.id || "";
+    const email = profile.email || "";
+    const name = profile.name || "";
+    const { image, provider, accessToken } = profile;
 
     const existingAccount = await accountRepository.findUserByAccount({
       provider,

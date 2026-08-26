@@ -1,4 +1,5 @@
 import path from "path";
+import fs from "fs/promises";
 
 import {
   createChunks,
@@ -9,9 +10,14 @@ import {
 import { db } from "../src/database/db";
 import { documents } from "../src/database/schema/document";
 import { documentChunks } from "../src/database/schema/documentChunk";
-import { eq, InferInsertModel, sql } from "drizzle-orm";
+import { eq, InferInsertModel } from "drizzle-orm";
+import { embeddingService } from "../src/services/embeddingService";
 
-const DATA_PATH = path.resolve(
+// Carpeta donde el script de Python almacena los CSVs limpios
+const DATA_PATH = path.resolve(__dirname, "../../data/csv");
+
+// Carpeta donde se encuentran los archivos Excel originales para mapeo de nombres
+const EXCELS_DATA_PATH = path.resolve(
   __dirname,
   "../../data/Calendarios de Fertilizacion-20260214T220614Z-1-001/Calendarios de Fertilizacion",
 );
@@ -45,44 +51,140 @@ const insertDocument = async ({
 };
 
 const ingestData = async (pathDirectory: string) => {
-  const filesDirectory = await loadDirectory(DATA_PATH);
+  // 1. Cargar el mapeo de archivos Excel originales (stem -> original metadata)
+  const excelsMap = new Map<string, { fileName: string; fileType: string; fileUrl: string }>();
+  try {
+    const originalExcelFiles = await fs.readdir(EXCELS_DATA_PATH);
+    for (const file of originalExcelFiles) {
+      const ext = path.extname(file).toLowerCase();
+      if ([".xls", ".xlsx"].includes(ext)) {
+        const stem = path.basename(file, ext);
+        excelsMap.set(stem, {
+          fileName: file,
+          fileType: ext,
+          fileUrl: path.join(EXCELS_DATA_PATH, file)
+        });
+      }
+    }
+  } catch (e) {
+    console.warn("⚠️ No se pudo leer la carpeta de Excels originales para mapeo:", e);
+  }
 
-  console.log(`Se encontraron ${filesDirectory.length} archivos para procesar`);
+  // 2. Cargar los archivos CSV procesados de la carpeta data/csv
+  const filesDirectory = await loadDirectory(pathDirectory);
+  console.log(`Se encontraron ${filesDirectory.length} archivos CSV para procesar en data/csv`);
 
+  // 3. Agrupar los CSVs según el documento original al que pertenecen
+  const groupedCsvs = new Map<string, typeof filesDirectory>();
   for (const file of filesDirectory) {
-    const isExist = await isDocumentExist(file.name);
+    const csvName = file.name;
+    let foundStem = "";
 
+    // Buscar el stem más largo coincidente para evitar falsos positivos
+    const sortedStems = Array.from(excelsMap.keys()).sort((a, b) => b.length - a.length);
+    for (const stem of sortedStems) {
+      if (csvName.startsWith(stem + "_")) {
+        foundStem = stem;
+        break;
+      }
+    }
+
+    const key = foundStem || csvName;
+    if (!groupedCsvs.has(key)) {
+      groupedCsvs.set(key, []);
+    }
+    groupedCsvs.get(key)!.push(file);
+  }
+
+  // 4. Ingestar cada documento original con todos sus chunks de hojas (CSVs) agrupados
+  for (const [docKey, csvFiles] of groupedCsvs.entries()) {
+    const excelMeta = excelsMap.get(docKey) || {
+      fileName: `${docKey}.csv`,
+      fileType: ".csv",
+      fileUrl: path.join(pathDirectory, `${docKey}.csv`)
+    };
+
+    const isExist = await isDocumentExist(excelMeta.fileName);
     if (isExist) {
-      console.log(`Saltando ${file.name}, ya existe.`);
+      console.log(`Saltando documento original: ${excelMeta.fileName}, ya existe.`);
       continue;
     }
 
     await db.transaction(async (tx) => {
-      console.log(`Insertando ${file.name}...`);
+      console.log(`Insertando documento madre: ${excelMeta.fileName}...`);
 
       const document = await insertDocument({
         document: {
-          fileName: file.name,
-          fileType: file.extension,
-          fileUrl: file.path,
+          fileName: excelMeta.fileName,
+          fileType: excelMeta.fileType,
+          fileUrl: excelMeta.fileUrl,
         },
         instance: tx,
       });
 
-      const contentFile = await fileContent(file);
-      const chunks = createChunks(contentFile, 1000, 0.1);
+      let pageCounter = 1;
 
-      const values = chunks.map((chunk, index) => ({
-        content: chunk,
-        documentId: document.id,
-        pageNumber: index + 1,
-      }));
+      for (const csvFile of csvFiles) {
+        console.log(`  ↳ Ingestando datos de la hoja: ${csvFile.name}...`);
+        const fileResult = await fileContent(csvFile);
 
-      await tx.insert(documentChunks).values(values);
+        const chunks = fileResult.dataChunks;
 
-      console.log(`Chunks ${values.length} para el documento ${file.name}`);
+        // Procesar e insertar en lotes paralelos (batching)
+        const BATCH_SIZE = 5;
+        const values: Array<{
+          content: string;
+          documentId: string;
+          pageNumber: number;
+          embedding: number[];
+          sourceName?: string;
+          metadata?: { chunk_type: string };
+        }> = [];
 
-      console.log(`Documento guardado con ID: ${document.id}`);
+        // Generar e insertar el chunk de lista de fertilizantes si existe
+        if (fileResult.fertilizerListChunk) {
+          const flc = fileResult.fertilizerListChunk;
+          const { vector } = await embeddingService.generateEmbedding(flc.content);
+          values.push({
+            content: flc.content,
+            documentId: document.id,
+            pageNumber: pageCounter++,
+            embedding: vector,
+            sourceName: flc.sheetName,
+            metadata: { chunk_type: "fertilizer_list" }
+          });
+        }
+
+        if (chunks.length === 0 && values.length === 0) continue;
+
+        for (let batchStart = 0; batchStart < chunks.length; batchStart += BATCH_SIZE) {
+          const batch = chunks.slice(batchStart, batchStart + BATCH_SIZE);
+          const batchEnd = Math.min(batchStart + BATCH_SIZE, chunks.length);
+          console.log(`    ⤔ Procesando lote ${batchStart + 1}–${batchEnd} de ${chunks.length} chunks (${csvFile.name})...`);
+
+          const batchResults = await Promise.all(
+            batch.map(async (chunk, indexInBatch) => {
+              const chunkWithContext = `[Cultivo/Archivo: ${excelMeta.fileName}]\n${chunk}`;
+              const { vector } = await embeddingService.generateEmbedding(chunkWithContext);
+              return {
+                content: chunkWithContext,
+                documentId: document.id,
+                pageNumber: pageCounter++,
+                embedding: vector,
+              };
+            })
+          );
+
+          values.push(...batchResults);
+        }
+
+        if (values.length > 0) {
+          await tx.insert(documentChunks).values(values);
+          console.log(`    ✅ Insertados ${values.length} chunks de la hoja ${csvFile.name}`);
+        }
+      }
+
+      console.log(`✨ Documento ${excelMeta.fileName} guardado con éxito con un total de ${pageCounter - 1} chunks.`);
     });
   }
 };

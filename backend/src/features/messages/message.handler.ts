@@ -26,7 +26,11 @@ export const registerMessageHandlers = (io: Server, socket: Socket) => {
     controllers.set(chatId, abortController);
 
     try {
-      if (hasSession) {
+      if (chatId === 'no-memory-session') {
+        // Sesión temporal sin memoria: no tocar PostgreSQL
+        console.log('🛑 [DB Bypass] Sesión sin memoria detectada. No se guardará el mensaje en PostgreSQL.');
+        await messageService.noMemoryMessage({ content }, onCreate, onStream, abortController.signal);
+      } else if (hasSession) {
         await messageService.saveMessage(
           { chatId, content },
           onCreate,

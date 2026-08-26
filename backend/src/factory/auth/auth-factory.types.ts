@@ -1,6 +1,12 @@
 export interface AuthProfile {
   provider: "google" | "microsoft" | "local";
   idToken?: string;
+  id?: string;
+  email?: string;
+  name?: string;
+  image?: string;
+  accessToken?: string;
+  [key: string]: any;
 }
 
 export interface AuthLocalProfile extends AuthProfile {

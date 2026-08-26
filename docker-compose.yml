@@ -7,6 +7,13 @@ services:
     volumes:
       - ollama_storage:/root/.ollama
     restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
 volumes:
   ollama_storage:

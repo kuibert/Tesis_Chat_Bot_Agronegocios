@@ -10,7 +10,8 @@
     "db:migrations:run": "npx drizzle-kit push",
     "db:migrations:drop": "npx drizzle-kit drop",
     "data:ingest": "tsx scripts/ingest-data.ts",
-    "data:embedding": "tsx scripts/data-embeddings.ts"
+    "data:embedding": "tsx scripts/data-embeddings.ts",
+    "full-ingest": "tsx scripts/full-ingest.ts"
   },
   "dependencies": {
     "@xenova/transformers": "^2.16.0",
@@ -30,7 +31,8 @@
     "pg": "^8.20.0",
     "pptxgenjs": "^4.0.1",
     "socket.io": "^4.8.3",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "xlsx-populate": "^1.21.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

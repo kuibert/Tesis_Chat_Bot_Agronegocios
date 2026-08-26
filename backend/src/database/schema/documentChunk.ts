@@ -5,6 +5,7 @@ import {
   uuid,
   integer,
   customType,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { documents } from "./document";
 
@@ -32,5 +33,7 @@ export const documentChunks = pgTable("document_chunks", {
   content: text("content").notNull(),
   embedding: vector("embedding"),
   pageNumber: integer("page_number"),
+  sourceName: text("source_name"),
+  metadata: jsonb("metadata").$type<{ chunk_type?: string }>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
