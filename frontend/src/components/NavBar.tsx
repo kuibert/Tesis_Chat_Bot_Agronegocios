@@ -6,8 +6,6 @@ import {
   UserPlus,
   Settings,
   LogOut,
-  Trash2,
-  Share2,
 } from "lucide-react";
 import { Link } from "react-router";
 
@@ -116,18 +114,6 @@ export function NavBar({ ...props }: NavBarProps) {
                     <Moon className="swap-off size-4" />
                   )}
                   <span>{themeMode == "dark" ? "Claro" : "Oscuro"}</span>
-                </button>
-              </li>
-              <li>
-                <button className="flex items-center gap-2">
-                  <Share2 className="size-4 " />
-                  Compartir chat
-                </button>
-              </li>
-              <li>
-                <button className="flex items-center gap-2 text-error hover:bg-error/10">
-                  <Trash2 className="size-4" />
-                  Eliminar chat
                 </button>
               </li>
 

@@ -8,6 +8,8 @@ Antes de comenzar, asegúrate de tener instalado:
 
 - **Node.js** versión 18 o superior → [Descargar aquí](https://nodejs.org/)
 - **PostgreSQL** versión 14 o superior → [Descargar aquí](https://www.postgresql.org/download/)
+- **Python** versión 3.8 o superior → [Descargar aquí](https://www.python.org/downloads/) (necesario para el script de conversión de Excels)
+- **Docker** (recomendado para Ollama con GPU) → [Descargar aquí](https://www.docker.com/)
 - **Git** → [Descargar aquí](https://git-scm.com/)
 - Un editor de código (recomendado: [VS Code](https://code.visualstudio.com/))
 
@@ -19,6 +21,7 @@ Abre tu terminal y ejecuta:
 node --version    # Debe mostrar v18.x.x o superior
 npm --version     # Debe mostrar 9.x.x o superior
 psql --version    # Debe mostrar PostgreSQL 14.x o superior
+python --version  # Debe mostrar Python 3.8.x o superior
 git --version     # Debe mostrar git version 2.x.x
 ```
 
@@ -46,7 +49,7 @@ Abre PostgreSQL (pgAdmin o línea de comandos) y ejecuta:
 CREATE DATABASE fertilization_db;
 ```
 
-### 2.2 Ejecutar el esquema SQL
+### 2.2 Instalar pgvector y ejecutar el esquema SQL
 
 Desde la raíz del proyecto, ejecuta:
 
@@ -56,31 +59,61 @@ psql -U postgres -d fertilization_db -f database/schema.sql
 
 Si te pide contraseña, ingresa la contraseña de tu usuario `postgres`.
 
-### 2.3 Verificar que la tabla se creó
-
-```bash
-psql -U postgres -d fertilization_db -c "\dt"
-```
-
-Deberías ver la tabla `fertilization_plans`.
+Este script instala la extensión `vector` (pgvector) necesaria para la búsqueda semántica.
 
 ---
 
-## ⚙️ Paso 3: Configurar el Backend
+## 🤖 Paso 3: Configurar Ollama (LLM Local)
 
-### 3.1 Navega a la carpeta backend
+AgroChat utiliza **Ollama** para ejecutar modelos de lenguaje de forma local y privada.
+
+### Opción A: Docker Compose (Recomendada, con GPU NVIDIA)
+
+```bash
+# Desde la raíz del proyecto
+docker compose up -d
+```
+
+Esto levanta el servicio de Ollama con soporte para GPU NVIDIA en el puerto `11434`.
+
+### Opción B: Ollama instalado localmente
+
+1. Descarga Ollama desde [ollama.com](https://ollama.com/)
+2. Instala y ejecuta:
+
+```bash
+# Descargar el modelo por defecto
+ollama pull qwen2.5:7b
+
+# Iniciar el servidor (si no se inicia automáticamente)
+ollama serve
+```
+
+### Verificar que Ollama está corriendo
+
+```bash
+curl http://localhost:11434/api/tags
+```
+
+Deberías ver una lista de modelos disponibles.
+
+---
+
+## ⚙️ Paso 4: Configurar el Backend
+
+### 4.1 Navega a la carpeta backend
 
 ```bash
 cd backend
 ```
 
-### 3.2 Instalar dependencias
+### 4.2 Instalar dependencias
 
 ```bash
 npm install
 ```
 
-### 3.3 Configurar variables de entorno
+### 4.3 Configurar variables de entorno
 
 Crea un archivo `.env` en la carpeta `backend`:
 
@@ -101,29 +134,40 @@ DATABASE_URL="postgresql://postgres:TU_CONTRASEÑA@localhost:5432/fertilization_
 # Puerto del servidor (por defecto 3000)
 PORT=3000
 
+# Modelo de Ollama a utilizar
+OLLAMA_MODEL="qwen2.5:7b"
+
+# Nombre de la cookie de sesión
+COOKIE_NAME="agrochat_session"
+
 # Entorno
 NODE_ENV=development
 ```
 
 **⚠️ IMPORTANTE:** Reemplaza `TU_CONTRASEÑA` con tu contraseña real de PostgreSQL.
 
-### 3.4 Generar Prisma Client
+### 4.4 Sincronizar esquema con Drizzle ORM
 
 ```bash
-npx prisma generate
+npx drizzle-kit push
 ```
 
-### 3.5 Cargar datos de fertilización (Opcional)
+### 4.5 Cargar datos de fertilización (¡Paso CRÍTICO!)
 
-Si tienes los archivos Excel en la carpeta `data/`:
+Este es el paso que "alimenta el cerebro" del chatbot. El script `full-ingest.ts` automatiza todo el proceso:
+
+1. Convierte archivos `.xls` legacy a `.xlsx`
+2. Extrae cada hoja de Excel a archivos CSV con Python
+3. Limpia la base de datos (trunca tablas)
+4. Lee los CSVs, genera embeddings de 768 dimensiones con DistilBERT, y los almacena en PostgreSQL
 
 ```bash
-npx ts-node scripts/processXlsData.ts
+npx tsx scripts/full-ingest.ts
 ```
 
-Esto cargará los 61 calendarios de fertilización a la base de datos.
+**⏱️ Nota:** Este proceso puede tomar varios minutos dependiendo de tu hardware, ya que genera embeddings vectoriales para miles de registros. El modelo de IA (DistilBERT) corre en un Worker Thread separado para no bloquear el servidor.
 
-### 3.6 Iniciar el servidor backend
+### 4.6 Iniciar el servidor backend
 
 ```bash
 npm run dev
@@ -131,28 +175,39 @@ npm run dev
 
 Deberías ver:
 ```
-🚀 Servidor de AgroChat corriendo en http://localhost:3000
+Server running in: http://localhost:3000
+✅ [EmbeddingService] Worker listo para recibir peticiones.
 ```
 
 **✅ ¡Backend listo!** Deja esta terminal abierta.
 
 ---
 
-## 🎨 Paso 4: Configurar el Frontend
+## 🎨 Paso 5: Configurar el Frontend
 
-### 4.1 Abre una NUEVA terminal y navega al frontend
+### 5.1 Abre una NUEVA terminal y navega al frontend
 
 ```bash
 cd frontend
 ```
 
-### 4.2 Instalar dependencias
+### 5.2 Instalar dependencias
 
 ```bash
 npm install
 ```
 
-### 4.3 Iniciar el servidor frontend
+### 5.3 Configurar variables de entorno
+
+Crea un archivo `.env` en la carpeta `frontend`:
+
+```env
+VITE_API_URL=http://localhost:3000/api
+VITE_GOOGLE_CLIENT_ID=tu_google_client_id
+VITE_MICROSOFT_CLIENT_ID=tu_microsoft_client_id
+```
+
+### 5.4 Iniciar el servidor frontend
 
 ```bash
 npm run dev
@@ -160,21 +215,22 @@ npm run dev
 
 Deberías ver:
 ```
-VITE v4.5.14  ready in XXXms
+VITE v5.x.x  ready in XXXms
 
-➜  Local:   http://localhost:8081/
+➜  Local:   http://localhost:5173/
 ```
 
 **✅ ¡Frontend listo!**
 
 ---
 
-## 🧪 Paso 5: Probar la Aplicación
+## 🧪 Paso 6: Probar la Aplicación
 
-1. Abre tu navegador en **http://localhost:8081**
-2. Deberías ver la interfaz del chatbot con el título "Asistente de Fertilización 🇭🇳"
-3. Prueba hacer una pregunta, por ejemplo: *"¿Qué aplicar para tomate?"*
-4. Si funciona correctamente, recibirás una respuesta con datos históricos.
+1. Abre tu navegador en **http://localhost:5173**
+2. Puedes usar el chat **sin iniciar sesión** (modo sin memoria) o registrarte con Google/Microsoft
+3. Prueba hacer una pregunta, por ejemplo: *"¿Qué fertilizantes lleva el tomate?"*
+4. Si funciona correctamente, recibirás una respuesta con datos reales de los calendarios MCA-EDA, incluyendo las fuentes consultadas
+5. También puedes instalar la app como **PWA** usando el botón "Instalar App" en la barra de navegación
 
 ---
 
@@ -203,15 +259,23 @@ VITE v4.5.14  ready in XXXms
   ```
 - O detén el proceso que está usando el puerto 3000
 
-### Error: "Module not found: @prisma/client"
+### Error: "Ollama respondió con error" o "El asistente se está reiniciando"
 
-**Causa:** Prisma Client no se generó correctamente.
+**Causa:** El servicio de Ollama no está corriendo o el modelo no está descargado.
 
 **Solución:**
-```bash
-cd backend
-npx prisma generate
-```
+1. Verifica que Ollama esté corriendo: `curl http://localhost:11434/api/tags`
+2. Si usas Docker: `docker compose up -d`
+3. Si usas Ollama local: `ollama serve` y luego `ollama pull qwen2.5:7b`
+
+### Error: "Worker falló" o "Timeout: el Worker tardó más de 30s"
+
+**Causa:** El Worker Thread de embeddings tuvo un problema al cargar el modelo DistilBERT.
+
+**Solución:**
+1. Verifica que tienes suficiente RAM disponible (al menos 2GB libres)
+2. Reinicia el servidor backend (`npm run dev`)
+3. El Worker se reinicia automáticamente si falla
 
 ### Frontend muestra página en blanco
 
@@ -228,16 +292,27 @@ npx prisma generate
 
 ```
 Tesis_Chat_Bot_Agronegocios/
-├── backend/              # API y lógica del servidor
-│   ├── src/             # Código fuente
-│   ├── prisma/          # Configuración de Prisma ORM
-│   ├── scripts/         # Scripts de carga de datos
-│   └── .env            # ⚠️ Variables de entorno (NO versionar)
-├── frontend/            # Interfaz de usuario
-│   └── src/            # Componentes React
-├── database/            # Scripts SQL
-├── data/               # Archivos Excel (calendarios)
-└── README.md           # Documentación general
+├── backend/                    # API y lógica del servidor
+│   ├── src/
+│   │   ├── database/          # Esquema Drizzle ORM + Repositorios
+│   │   ├── factory/
+│   │   │   ├── ai/            # Pipeline RAG, Ollama handler, prompt builder
+│   │   │   └── auth/          # Autenticación (Google, Microsoft, local)
+│   │   ├── features/          # Módulos de dominio (auth, chats, messages)
+│   │   ├── services/          # Embedding service + Worker Thread
+│   │   └── routes/            # Rutas API REST y WebSocket
+│   ├── scripts/               # Scripts ETL (ingesta, conversión, truncado)
+│   └── .env                   # ⚠️ Variables de entorno (NO versionar)
+├── frontend/                   # Interfaz de usuario (PWA)
+│   └── src/
+│       ├── components/        # NavBar, SideBar, MarkdownMessage, PWA
+│       ├── page/              # ChatPage, SignInPage
+│       ├── hooks/             # Custom hooks (chat, auth)
+│       └── libs/              # Socket.IO client
+├── database/                   # Script SQL (pgvector)
+├── data/                       # Archivos Excel (calendarios) + CSVs
+├── docker-compose.yml          # Ollama con GPU NVIDIA
+└── README.md                   # Documentación general
 ```
 
 ---

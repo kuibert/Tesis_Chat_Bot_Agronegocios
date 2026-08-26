@@ -2,14 +2,15 @@ import { memo } from "react";
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-// import rehypeHighlight from "rehype-highlight";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.min.css";
 
 export const MarkdownMessage = memo(
   ({ content }: { content: string }) => {
     return (
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        // rehypePlugins={[rehypeHighlight]}
+        rehypePlugins={[rehypeHighlight]}
         components={{
           table: ({ children }) => (
             <div className="overflow-x-auto my-2">
