@@ -1,0 +1,683 @@
+{
+  "archivos_config": [
+    {
+      "nombre_archivo": "Aguacate_Año-1-a-4_MCA-EDA_Fert_2008-1.xls",
+      "cultivo": "aguacate",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Aguacate_Años-5-y-mas_MCA-EDA_Fert_2008-1.xls",
+      "cultivo": "aguacate",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Apio_de_Hoja_Fert_2007-6.xls",
+      "cultivo": "apio",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Apio_Fert_2007-6.xls",
+      "cultivo": "apio",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Bangaña_MCA-EDA_Fert_2008-23.xls",
+      "cultivo": "bangaña",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Berengena_MCA-EDA_Fert_2008-23.xls",
+      "cultivo": "berengena",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Brocoli_MCA-EDA_Fert_2008-1.xls",
+      "cultivo": "brocoli",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Cafe_MCA-EDA_Fert_2008-18.xls",
+      "cultivo": "cafe",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Cafe_Plantilla_MCA-EDA_Fert_2008-18.xls",
+      "cultivo": "cafe",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Calabacita_MCA-EDA_Fert_2009-02.xls",
+      "cultivo": "calabacita",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Calabaza_de_Jamaica_MCA-EDA_Fert_2009-02.xls",
+      "cultivo": "calabaza",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Calaguala_MCA-EDA_Fert_2007-20.xls",
+      "cultivo": "calaguala",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Camote_MCA-EDA_Fert_2008-3_Vivero.xls",
+      "cultivo": "camote",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Camote_MCA-EDA_Fert_2009-01.xls",
+      "cultivo": "camote",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Cebolla_MCA-EDA_Fert_2009-01.xls",
+      "cultivo": "cebolla",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Chile_Dulce_50-Ton_O_4500-B_MCA-EDA_Fert_2009-02.xls",
+      "cultivo": "chile",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Chile_Dulce_Menos_35-Ton_Fert_2007-1.xls",
+      "cultivo": "chile",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Chile_Jalapeño_MCA-EDA_Fert_2008-1.xls",
+      "cultivo": "chile",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Chile_Tabasco_Fert_2007-3.xls",
+      "cultivo": "chile",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Chive_MCA-EDA_Fert_2008-22.xls",
+      "cultivo": "chive",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Clavel_Fert_2007-6.xls",
+      "cultivo": "clavel",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Coliflor_MCA-EDA_Fert_2008-3.xls",
+      "cultivo": "coliflor",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Crisantemos_Fert_2006-3.xls",
+      "cultivo": "crisantemos",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Cunde_MCA-EDA_Fert_2008-23.xls",
+      "cultivo": "cunde",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Escallions_Fert_2005-21.xls",
+      "cultivo": "escallions",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Fresa_Fert_2005-45.xls",
+      "cultivo": "fresa",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Frijol_Seco_MCA-EDA_Fert_2009-02.xls",
+      "cultivo": "frijol",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Guayaba_MCA-EDA_Fert_2009-01.xls",
+      "cultivo": "guayaba",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Habichuela_MCA-EDA_Fert_2007-48.xls",
+      "cultivo": "habichuela",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Lechuga_MCA-EDA_Fert_2009-01.xls",
+      "cultivo": "lechuga",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Loroco_Fert_2007-2.xls",
+      "cultivo": "loroco",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Maiz_Dulce_MCA-EDA_Fert_2009-02.xls",
+      "cultivo": "maiz",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Malanga_MCA-EDA_Fert_2009-02.xls",
+      "cultivo": "malanga",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Maracuya_MCA-EDA_Fert_2008-1.xls",
+      "cultivo": "maracuya",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Melon_MCA-EDA_Fert_2008-23.xls",
+      "cultivo": "melon",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Okra_MCA-EDA_Fert_2008-23.xls",
+      "cultivo": "okra",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Papaya_Fert_2005-25.xls",
+      "cultivo": "papaya",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Papa_MCA-EDA_Fert_2009-02.xls",
+      "cultivo": "papa",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Pasto_Corte_Especial_MCA-EDA_Fert_2008-36.xls",
+      "cultivo": "pasto",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Pasto_Corte_MCA-EDA_Fert_2008-36.xls",
+      "cultivo": "pasto",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Pataste_MCA-EDA_Fert_2008-1.xls",
+      "cultivo": "pataste",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Pepino_MCA-EDA_Fert_2008-24.xls",
+      "cultivo": "pepino",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Piña_Fert_2006-10.xls",
+      "cultivo": "piña",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Piña_Fert_Prueba_Media_2006-10.xls",
+      "cultivo": "piña",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Piña_Fert_Prueba_Monty_Farms_2006-4.xls",
+      "cultivo": "piña",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Platano_MCA-EDA_Fert_2009-18.xls",
+      "cultivo": "platano",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Platano_MCA-EDA_Fert_Vegetativo_2009-14.xls",
+      "cultivo": "platano",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Platano_Mensual_Chiquita_MCA-EDA_Fert_2007-36.xls",
+      "cultivo": "platano",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Platano_Segundo_Ciclo_MCA-EDA_Fert_2009-02.xls",
+      "cultivo": "platano",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Remolacha_MCA-EDA_Fert_2008-10.xls",
+      "cultivo": "remolacha",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Repollo_MCA-EDA_Fert_2008-3.xls",
+      "cultivo": "repollo",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Sandia_MCA-EDA_Fert_2008-14.xls",
+      "cultivo": "sandia",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Tabaco_MCA-EDA_Fert_2009-02.xls",
+      "cultivo": "tabaco",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Tomate_3000-Gavetas_Invierno_MCA-EDA_Fert_2008-23.xls",
+      "cultivo": "tomate",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Tomate_3000-Gavetas_Verano_MCA-EDA_Fert_2008-23.xls",
+      "cultivo": "tomate",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Tomate_4000-Gavetas_Invierno_MCA-EDA_Fert_2008-23.xls",
+      "cultivo": "tomate",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Tomate_4000_Gavetas_Verano_MCA-EDA_Fert_2009-02.xls",
+      "cultivo": "tomate",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Yuca_MCA-EDA_Fert_2009-02.xls",
+      "cultivo": "yuca",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Zanahoria_MCA-EDA_Fert_2007-22.xls",
+      "cultivo": "zanahoria",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Zucchini_Fert_2005-25.xls",
+      "cultivo": "zucchini",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Cunde_MCA-EDA_Fert_2008-23.xlsx",
+      "cultivo": "cunde",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Escallions_Fert_2005-21.xlsx",
+      "cultivo": "escallions",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Fresa_Fert_2005-45.xlsx",
+      "cultivo": "fresa",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Frijol_Seco_MCA-EDA_Fert_2009-02.xlsx",
+      "cultivo": "frijol",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Guayaba_MCA-EDA_Fert_2009-01.xlsx",
+      "cultivo": "guayaba",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Habichuela_MCA-EDA_Fert_2007-48.xlsx",
+      "cultivo": "habichuela",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Lechuga_MCA-EDA_Fert_2009-01.xlsx",
+      "cultivo": "lechuga",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Loroco_Fert_2007-2.xlsx",
+      "cultivo": "loroco",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Maiz_Dulce_MCA-EDA_Fert_2009-02.xlsx",
+      "cultivo": "maiz",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Malanga_MCA-EDA_Fert_2009-02.xlsx",
+      "cultivo": "malanga",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Maracuya_MCA-EDA_Fert_2008-1.xlsx",
+      "cultivo": "maracuya",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Melon_MCA-EDA_Fert_2008-23.xlsx",
+      "cultivo": "melon",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Okra_MCA-EDA_Fert_2008-23.xlsx",
+      "cultivo": "okra",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Papaya_Fert_2005-25.xlsx",
+      "cultivo": "papaya",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Papa_MCA-EDA_Fert_2009-02.xlsx",
+      "cultivo": "papa",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Pasto_Corte_Especial_MCA-EDA_Fert_2008-36.xlsx",
+      "cultivo": "pasto",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Pasto_Corte_MCA-EDA_Fert_2008-36.xlsx",
+      "cultivo": "pasto",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Pataste_MCA-EDA_Fert_2008-1.xlsx",
+      "cultivo": "pataste",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Pepino_MCA-EDA_Fert_2008-24.xlsx",
+      "cultivo": "pepino",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Piña_Fert_2006-10.xlsx",
+      "cultivo": "piña",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Piña_Fert_Prueba_Media_2006-10.xlsx",
+      "cultivo": "piña",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Piña_Fert_Prueba_Monty_Farms_2006-4.xlsx",
+      "cultivo": "piña",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Platano_MCA-EDA_Fert_2009-18.xlsx",
+      "cultivo": "platano",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Platano_MCA-EDA_Fert_Vegetativo_2009-14.xlsx",
+      "cultivo": "platano",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Platano_Mensual_Chiquita_MCA-EDA_Fert_2007-36.xlsx",
+      "cultivo": "platano",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Platano_Segundo_Ciclo_MCA-EDA_Fert_2009-02.xlsx",
+      "cultivo": "platano",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Remolacha_MCA-EDA_Fert_2008-10.xlsx",
+      "cultivo": "remolacha",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Repollo_MCA-EDA_Fert_2008-3.xlsx",
+      "cultivo": "repollo",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Sandia_MCA-EDA_Fert_2008-14.xlsx",
+      "cultivo": "sandia",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Tabaco_MCA-EDA_Fert_2009-02.xlsx",
+      "cultivo": "tabaco",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Tomate_3000-Gavetas_Invierno_MCA-EDA_Fert_2008-23.xlsx",
+      "cultivo": "tomate",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Tomate_3000-Gavetas_Verano_MCA-EDA_Fert_2008-23.xlsx",
+      "cultivo": "tomate",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Tomate_4000-Gavetas_Invierno_MCA-EDA_Fert_2008-23.xlsx",
+      "cultivo": "tomate",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Tomate_4000_Gavetas_Verano_MCA-EDA_Fert_2009-02.xlsx",
+      "cultivo": "tomate",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Yuca_MCA-EDA_Fert_2009-02.xlsx",
+      "cultivo": "yuca",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Zanahoria_MCA-EDA_Fert_2007-22.xlsx",
+      "cultivo": "zanahoria",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    },
+    {
+      "nombre_archivo": "Zucchini_Fert_2005-25.xlsx",
+      "cultivo": "zucchini",
+      "suelo_recomendado": "franco_arcilloso",
+      "fertilidad_base": "intermedia",
+      "area_base": "1 manzana"
+    }
+  ]
+}
