@@ -27,7 +27,7 @@ export const ChatItem = memo(
     return (
       <div
         key={msg.id}
-        className={`flex w-full mb-6 ${!isAssistant ? "justify-end" : "justify-start"}`}
+        className={`flex w-full mb-10 ${!isAssistant ? "justify-end" : "justify-start"}`}
       >
         {isAssistant && (
             <div className="w-8 h-8 rounded-full bg-[#0F1115] flex items-center justify-center mr-3 flex-shrink-0 mt-1 shadow-sm">
@@ -35,7 +35,7 @@ export const ChatItem = memo(
             </div>
         )}
         
-        <div className={`flex flex-col max-w-[85%] md:max-w-[75%] relative group`}>
+        <div className={`flex flex-col ${isAssistant ? "max-w-[95%] md:max-w-[85%]" : "max-w-[85%] md:max-w-[75%]"} relative group`}>
             {isAssistant && (
                 <div className="text-[10px] text-gray-500 mb-1.5 flex items-center gap-2">
                     <span>AgroBot</span>
@@ -44,10 +44,10 @@ export const ChatItem = memo(
             )}
             
             <div
-                className={`text-sm md:text-base leading-relaxed ${
+                className={`text-sm md:text-base leading-relaxed md:leading-7 ${
                     !isAssistant
-                    ? "bg-[#2D3139] text-gray-200 px-4 py-2.5 rounded-2xl rounded-tr-none"
-                    : "bg-[#1C1E22] text-gray-200 px-4 py-2.5 rounded-2xl rounded-tl-none border border-[#2D3139]/50 shadow-sm"
+                    ? "bg-[#2D3139] text-gray-200 px-5 py-3.5 rounded-2xl rounded-tr-none"
+                    : "bg-[#1C1E22] text-gray-200 px-5 py-3.5 rounded-2xl rounded-tl-none border border-[#2D3139]/50 shadow-sm"
                 }`}
             >
                 {isLast && isAssistant && isGenerating && !hasStarted ? (

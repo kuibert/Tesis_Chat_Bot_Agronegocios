@@ -13,7 +13,7 @@ interface Props {
 
 export function ChatInputBar({ input, setInput, onSend, onStop, isPending, isGenerating }: Props) {
   return (
-    <div className="absolute bottom-6 left-0 right-0 w-full px-4 z-20 pointer-events-none">
+    <div className="absolute browser-only-bottom left-0 right-0 w-full px-4 z-20 pointer-events-none">
       <div className="flex gap-3 items-center max-w-3xl mx-auto bg-[#1C1E22] border border-[#2D3139]/50 px-4 py-2 rounded-full shadow-lg pointer-events-auto">
         <button className="text-gray-500 hover:text-gray-300 transition-colors p-1">
           <Paperclip className="size-4" />

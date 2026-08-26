@@ -9,7 +9,7 @@ export function DashboardLayout() {
   const toggleDrawer = () => toggleSide();
 
   return (
-    <div className="drawer lg:drawer-open">
+    <div className={`drawer ${isSideOpen ? "lg:drawer-open" : ""}`}>
       <input
         id="my-drawer-4"
         type="checkbox"
@@ -18,10 +18,10 @@ export function DashboardLayout() {
         onChange={toggleDrawer}
       />
 
-      <div className="drawer-content bg-[#131517] text-gray-100 min-h-screen flex flex-col">
+      <div className="drawer-content bg-[#131517] text-gray-100 h-dvh flex flex-col overflow-hidden">
         <NavBar className="navbar w-full bg-[#131517] border-b border-[#2D3139]" />
 
-        <main className="flex flex-1 w-full h-full overflow-hidden">
+        <main className="flex flex-1 w-full overflow-hidden">
           <Outlet />
         </main>
       </div>

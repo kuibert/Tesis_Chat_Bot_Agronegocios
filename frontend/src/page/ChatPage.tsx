@@ -105,7 +105,7 @@ export function ChatPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-120px)] relative">
+    <div className="flex-1 flex flex-col h-full relative">
       {chatId && messages.length > 0 && (
           <div className="absolute top-4 right-8 z-20">
               <button
@@ -118,7 +118,7 @@ export function ChatPage() {
           </div>
       )}
       <MessageWrapper ref={wrapperRef} onScroll={handleScroll}>
-        <div className="max-w-4xl w-full mx-auto p-4 space-y-6 mt-auto pb-32">
+        <div className="max-w-3xl w-full mx-auto px-4 md:px-6 flex flex-col pt-12 pb-28 space-y-6">
           
           {hasNextPage && (
             <div className="flex justify-center py-2">
@@ -157,26 +157,26 @@ export function ChatPage() {
             </div>
           )}
         </div>
-
-        {showScrollDown && (
-            <button
-                onClick={() => wrapperRef.current?.scrollToBottom()}
-                className="absolute bottom-24 right-8 z-30 p-2 bg-[#2D3139] border border-[#3A3F4A] rounded-full text-gray-300 hover:text-white shadow-lg transition-colors"
-                title="Ir al final"
-            >
-                <ArrowDown className="size-5" />
-            </button>
-        )}
-
-        <ChatInputBar 
-            input={input} 
-            setInput={setInput} 
-            onSend={handleSendMessage} 
-            onStop={stopGeneration}
-            isGenerating={isGenerating}
-            isPending={createChatMutation?.isPending || false} 
-        />
       </MessageWrapper>
+
+      {showScrollDown && (
+          <button
+              onClick={() => wrapperRef.current?.scrollToBottom()}
+              className="absolute bottom-24 right-8 z-30 p-2 bg-[#2D3139] border border-[#3A3F4A] rounded-full text-gray-300 hover:text-white shadow-lg transition-colors"
+              title="Ir al final"
+          >
+              <ArrowDown className="size-5" />
+          </button>
+      )}
+
+      <ChatInputBar 
+          input={input} 
+          setInput={setInput} 
+          onSend={handleSendMessage} 
+          onStop={stopGeneration}
+          isGenerating={isGenerating}
+          isPending={createChatMutation?.isPending || false} 
+      />
     </div>
   );
 }

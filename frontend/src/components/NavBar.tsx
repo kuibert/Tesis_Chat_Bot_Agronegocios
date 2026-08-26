@@ -13,6 +13,7 @@ import { Link } from "react-router";
 
 import { useApp } from "@/hooks/useApp";
 import { useAuth } from "@/hooks/useAuth";
+import { PwaInstallPrompt } from "./PwaInstallPrompt";
 
 type NavProps = React.ComponentProps<"nav">;
 
@@ -46,7 +47,10 @@ export function NavBar({ ...props }: NavBarProps) {
           Asistente Agrícola RAG
         </div>
 
-        {!hasSession ? (
+        <div className="flex items-center gap-2">
+          <PwaInstallPrompt />
+
+          {!hasSession ? (
           <div className="flex flex-row gap-2 justify-center items-center">
             <Link to={"sign-in"} className="btn btn-sm">
               <UserPlus className="size-4"></UserPlus>
@@ -140,6 +144,7 @@ export function NavBar({ ...props }: NavBarProps) {
             </ul>
           </div>
         )}
+        </div>
       </div>
     </nav>
   );

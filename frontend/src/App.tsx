@@ -5,7 +5,6 @@ import {
   QueryClient,
   QueryClientProvider
 } from "@tanstack/react-query";
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import { msalInstance } from "@/libs/microsoft";
 
@@ -27,8 +26,6 @@ export default function App() {
               <AuthProvider>
                 <MainNavigation />
               </AuthProvider>
-
-              <ReactQueryDevtools initialIsOpen={false} />
             </QueryClientProvider>
           </GoogleOAuthProvider>
         </MsalProvider>

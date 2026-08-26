@@ -88,15 +88,19 @@ export const useQueryHistoryChat = (
 ) => {
   return useInfiniteQuery({
     queryKey: ["chats", chatId, "messages"],
-    queryFn: ({ pageParam = 0 }) =>
-      chatService.chatHistory({ chatId, offset: pageParam, limit: 15 }),
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!opt.hasMemory || chatId === "no-memory-session") {
+        return { data: [], pagination: { hasMore: false } };
+      }
+      return chatService.chatHistory({ chatId, offset: pageParam, limit: 15 });
+    },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
       return lastPage.pagination?.hasMore
         ? lastPage.pagination.nextOffset
         : undefined;
     },
-    enabled: !!chatId && opt.hasMemory,
+    enabled: !!chatId,
   });
 };
 

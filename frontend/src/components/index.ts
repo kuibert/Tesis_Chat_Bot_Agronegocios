@@ -1,4 +1,5 @@
 export * from "./NavBar";
-export * from "./Sidebar";
+export * from "./SideBar";
 export * from "./Input";
 export * from "./MarkdownMessage";
+export * from "./PwaInstallPrompt";
