@@ -39,7 +39,7 @@ export async function streamOllamaChat(
   const isDosificationQuery = ["map_lbs", "insumos_dosis", "dosis", "semana", "libras", "gramos", "kg", "aplicar"].some(term => fullTextToInspect.includes(term));
 
   const dynamicOptions: OllamaInferenceOptions = isDosificationQuery
-    ? { temperature: 0.0, top_p: 0.0 }
+    ? { temperature: 0.0 }
     : {};
 
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options, ...dynamicOptions };

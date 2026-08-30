@@ -26,8 +26,9 @@ REGLAS CRÍTICAS:
    Esto DEBE hacerse siempre, incluso si hay múltiples archivos para el mismo cultivo.
    Ejemplo: "apio Nitrato de Amonio primera semana 1 Por Sem"
    NUNCA incluyas números ni unidades en la consulta reformulada.
-7. **PROHIBIDO COPIAR NÚMEROS**: Nunca incluyas en la consulta reformulada valores numéricos, unidades de medida, ni resultados de cálculos previos. La consulta debe contener únicamente el cultivo, el fertilizante o nutriente, la frecuencia o etapa, y la hoja prioritaria (ej. "1 Por Sem"). No copies dosis, áreas convertidas ni ningún otro número.
-8. **PREGUNTAS GENÉRICAS DE FERTILIZANTES**: Si el usuario pregunta "qué fertilizantes", "lista de fertilizantes", "fertilizantes que lleva el cultivo X" o similar, añade siempre la palabra clave "Fertilizantes" a la consulta reformulada, para priorizar la hoja de catálogo de fertilizantes si existe. Si no existe esa hoja, el sistema recuperará fragmentos de hojas de calendario que contengan los nombres en sus cabeceras. Ejemplo: "apio fertilizante Fertilizantes".
+7. **PROHIBIDO COPIAR NÚMEROS**: Nunca incluyas en la consulta reformulada valores numéricos de áreas o dosis.
+8. **PREGUNTAS GENÉRICAS DE FERTILIZANTES**: Si el usuario pregunta "qué fertilizantes", "lista de fertilizantes", "fertilizantes que lleva el cultivo X" o similar, añade siempre la palabra clave "Fertilizantes".
+9. **EVITAR HOJAS DE REQUERIMIENTOS**: Para evitar que la búsqueda vectorial traiga requerimientos nutricionales puros (N, P, K), DEBES agregar a la consulta reformulada palabras como "Lbs", "Kg", "Gramos" o "Lts" que se refieran al producto físico. NUNCA incluyas "N", "P2O5", "K2O", "MgO", etc. en la consulta reformulada a menos que el usuario lo pida explícitamente.
 
 Ejemplo de transformación:
 Pregunta original: "¿Cuánto MAP y sulfato de amonio debo aplicar cada semana en un cultivo de chile dulce para un área de 3500 metros cuadrados durante las primeras 4 semanas?"
@@ -49,13 +50,19 @@ export async function rewriteQueryWithContext(
 
   let searchString = String(lastUserMessage.content);
 
-  // PRE-PROCESAMIENTO: Normalización de áreas (Metros cuadrados a Hectáreas)
+  // PRE-PROCESAMIENTO: Normalización de áreas a Manzanas (Base oficial de los manuales: 1 Manzana = 7,000 m²)
   const metrosCuadradosMatch = searchString.match(/(\d+([\.,]\d+)?)\s*(metros\s+cuadrados|m2|m²)/i);
   if (metrosCuadradosMatch) {
     const metros = parseFloat(metrosCuadradosMatch[1].replace(",", "."));
-    const hectareas = (metros / 10000).toFixed(4);
-    // Inyectamos la aclaración matemática directamente en la pregunta
-    searchString += ` (NOTA DEL SISTEMA: ${metros} metros cuadrados son ${hectareas} hectáreas)`;
+    const manzanas = (metros / 7000).toFixed(4);
+    searchString += ` (NOTA DEL SISTEMA: ${metros} metros cuadrados equivalen a ${manzanas} manzanas [factor multiplicador: ${manzanas}])`;
+  }
+
+  const hectareasMatch = searchString.match(/(\d+([\.,]\d+)?)\s*(hectareas|hectáreas|ha)\b/i);
+  if (hectareasMatch) {
+    const ha = parseFloat(hectareasMatch[1].replace(",", "."));
+    const manzanas = (ha * (10000 / 7000)).toFixed(4);
+    searchString += ` (NOTA DEL SISTEMA: ${ha} hectáreas equivalen a ${manzanas} manzanas [factor multiplicador: ${manzanas}])`;
   }
 
   // Si no hay historial suficiente, no vale la pena reformular
