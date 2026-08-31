@@ -104,14 +104,15 @@ const ingestData = async (pathDirectory: string) => {
       fileUrl: path.join(pathDirectory, `${docKey}.csv`)
     };
 
-    const isExist = await isDocumentExist(excelMeta.fileName);
-    if (isExist) {
-      console.log(`Saltando documento original: ${excelMeta.fileName}, ya existe.`);
-      continue;
-    }
-
     await db.transaction(async (tx) => {
-      console.log(`Insertando documento madre: ${excelMeta.fileName}...`);
+      // 4.1 Idempotencia: Borrar el documento si ya existe (el cascade borrará sus chunks)
+      const isExist = await isDocumentExist(excelMeta.fileName);
+      if (isExist) {
+        console.log(`🔄 Documento original ${excelMeta.fileName} ya existe. Eliminando para reingesta limpia...`);
+        await tx.delete(documents).where(eq(documents.fileName, excelMeta.fileName));
+      } else {
+        console.log(`Insertando documento madre: ${excelMeta.fileName}...`);
+      }
 
       const document = await insertDocument({
         document: {
@@ -138,7 +139,7 @@ const ingestData = async (pathDirectory: string) => {
           pageNumber: number;
           embedding: number[];
           sourceName?: string;
-          metadata?: { chunk_type: string };
+          metadata?: { chunk_type: string; frecuencia_riego?: string; cultivo?: string; unidad_origen?: 'ha' | 'mz' };
         }> = [];
 
         // Generar e insertar el chunk de lista de fertilizantes si existe
@@ -151,7 +152,11 @@ const ingestData = async (pathDirectory: string) => {
             pageNumber: pageCounter++,
             embedding: vector,
             sourceName: flc.sheetName,
-            metadata: { chunk_type: "fertilizer_list" }
+            metadata: { 
+              chunk_type: "fertilizer_list",
+              frecuencia_riego: fileResult.frecuencia_riego,
+              cultivo: fileResult.cultivo
+            }
           });
         }
 
@@ -171,6 +176,11 @@ const ingestData = async (pathDirectory: string) => {
                 documentId: document.id,
                 pageNumber: pageCounter++,
                 embedding: vector,
+                metadata: {
+                  chunk_type: "data",
+                  frecuencia_riego: fileResult.frecuencia_riego,
+                  cultivo: fileResult.cultivo
+                }
               };
             })
           );
