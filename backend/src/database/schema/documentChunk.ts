@@ -34,6 +34,6 @@ export const documentChunks = pgTable("document_chunks", {
   embedding: vector("embedding"),
   pageNumber: integer("page_number"),
   sourceName: text("source_name"),
-  metadata: jsonb("metadata").$type<{ chunk_type?: string }>(),
+  metadata: jsonb("metadata").$type<{ chunk_type?: string; unidad_origen?: 'ha' | 'mz' }>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

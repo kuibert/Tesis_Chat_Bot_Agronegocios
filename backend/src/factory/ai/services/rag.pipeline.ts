@@ -9,10 +9,10 @@ import * as documentRepository from "../../../database/repositories/document.rep
 import { rewriteQueryWithContext } from "../services/context.manager";
 import { detectCrop } from "../utils/crop.detector";
 
-export async function executeRAG(messages: Message[]): Promise<{ contextText: string; sources: string[] }> {
+export async function executeRAG(messages: Message[]): Promise<{ contextText: string; sources: string[]; cropFilter?: string; targetWeeks: number[] }> {
   try {
     const lastUserMessage = [...messages].reverse().find(m => m.role === "user");
-    if (!lastUserMessage?.content) return { contextText: "", sources: [] };
+    if (!lastUserMessage?.content) return { contextText: "", sources: [], targetWeeks: [] };
 
     // 1. Detectar cultivo en el historial (con persistencia de sesión)
     const allFileNames = await documentRepository.getAllCropNames();
@@ -83,7 +83,7 @@ export async function executeRAG(messages: Message[]): Promise<{ contextText: st
 
     if (similarChunks.length === 0) {
       console.log("⚠️ No se encontró contexto relevante en la base de datos.");
-      return { contextText: "", sources: [] };
+      return { contextText: "", sources: [], cropFilter, targetWeeks };
     }
 
     // 5. Formatear contexto y loguear resultados
@@ -103,10 +103,10 @@ export async function executeRAG(messages: Message[]): Promise<{ contextText: st
     });
     console.log(`[RAG] Contexto inyectado: ${contextText.length} chars`);
 
-    return { contextText, sources: uniqueSources };
+    return { contextText, sources: uniqueSources, cropFilter, targetWeeks };
 
   } catch (error) {
     console.error("❌ Error en el proceso RAG:", error);
-    return { contextText: "", sources: [] };
+    return { contextText: "", sources: [], targetWeeks: [] };
   }
 }

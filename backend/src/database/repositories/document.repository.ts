@@ -6,16 +6,17 @@ import { sql, eq, and } from "drizzle-orm";
 function isFertilizerListQuery(query: string): boolean {
   const q = query.toLowerCase();
   
-  // 1. Detectar si coincide con el regex de lenguaje natural original
-  //    (por si la consulta llega sin reescribir o el reescritor no se ejecuta)
-  if (/qué fertilizantes|lleva el|lista de fertilizantes|fertilizantes disponibles|fertilizantes para el|fertilizante para el/.test(q)) {
+  // Si la pregunta pide dosis, cantidad, semanas específicas o aplicar, NO es una consulta de catálogo genérica
+  if (/dosis|cantidad|cu[aá]nto|semana|aplicar|d[ií]as|ddt|manzanas?|hect[aá]reas?|m2|m²/.test(q)) {
+    return false;
+  }
+  
+  // 1. Detectar si coincide con el regex de lenguaje natural de catálogo
+  if (/qu[eé] fertilizantes|lleva el|lista de fertilizantes|fertilizantes disponibles|fertilizantes para el|fertilizante para el/.test(q)) {
     return true;
   }
   
   // 2. Detectar si es la query Standalone reformulada (genérica, sin productos específicos)
-  //    El reescritor deja "apio fertilizante Fertilizantes" o similar.
-  //    Si contiene "fertilizante" o "fertilizantes" PERO NO contiene nombres de productos,
-  //    asumimos que es una consulta de catálogo.
   const tieneFertilizante = q.includes("fertilizante") || q.includes("fertilizantes");
   const tieneProductoEspecifico = /nitrato|urea|map|dap|sulfato|cloruro|solubor|carbonato|amonio|potasio|magnesio|calcio|fosfato|melaza/.test(q);
   
@@ -44,7 +45,8 @@ export const findSimilarChunks = async (
   minSimilarity = 0.20,
   cropFilter?: string,
   sheetFilter?: string,
-  searchString?: string
+  searchString?: string,
+  targetWeek?: number
 ) => {
   const vectorQuery = `[${embedding.join(',')}]`;
   
@@ -53,10 +55,10 @@ export const findSimilarChunks = async (
   
   let keywordScore = sql<number>`0`;
   let combinedScore = vectorScore;
+  const q = (searchString || "").toLowerCase();
   
   if (searchString && searchString.trim() !== '') {
     // Convierte "dosis aguacate semana 1" en "dosis | aguacate | semana | 1"
-    // Reemplaza signos de puntuación para evitar errores de sintaxis en to_tsquery
     const cleanString = searchString.replace(/[^\w\sáéíóúÁÉÍÓÚñÑ]/g, '');
     const orSearchString = cleanString.trim().split(/\s+/).filter(Boolean).join(' | ');
 
@@ -66,9 +68,31 @@ export const findSimilarChunks = async (
     combinedScore = sql<number>`(${vectorScore} * 0.9) + (${keywordScore} * 0.1)`;
   }
 
-  // Boost para preguntas de tipo lista de fertilizantes
+  // Boost para preguntas de tipo lista de fertilizantes de catálogo
   if (searchString && isFertilizerListQuery(searchString)) {
     combinedScore = sql<number>`(${combinedScore}) + (CASE WHEN ${documentChunks.metadata}->>'chunk_type' = 'fertilizer_list' THEN 0.3 ELSE 0 END)`;
+  }
+
+  // Boost prioritario (+0.50 o +1.0) si se detecta un número de semana
+  let semanaNum: number | null = null;
+  if (targetWeek !== undefined) {
+    semanaNum = targetWeek;
+  } else {
+    const semanaMatch = q.match(/(?:semana|sem)\s*[:#]?\s*(\d+)/i) || q.match(/(\d+)\s*(?:semanas?|sem)\b/i);
+    if (semanaMatch) semanaNum = parseInt(semanaMatch[1], 10);
+  }
+
+  if (semanaNum !== null) {
+    // Si viene forzado por targetWeek (multi-búsqueda), aplicamos un Boost masivo de +1.0 para vencer al RAG
+    const boostValue = targetWeek !== undefined ? 1.0 : 0.50;
+    combinedScore = sql<number>`(${combinedScore}) + (CASE WHEN ${documentChunks.content} LIKE ${`%"semana": ${semanaNum},%`} OR ${documentChunks.content} LIKE ${`%Semana: ${semanaNum}%`} OR ${documentChunks.content} LIKE ${`%semana ${semanaNum}%`} THEN ${boostValue} ELSE 0 END)`;
+  }
+
+  // Boost adicional (+0.40) si se menciona DDT (días después del trasplante)
+  const ddtMatch = q.match(/(\d+)\s*(?:d[ií]as?\s+(?:despu[eé]s|ddt)|ddt\b)/i) || q.match(/ddt\s*[:#]?\s*(\d+)/i);
+  if (ddtMatch) {
+    const ddtNum = parseInt(ddtMatch[1], 10);
+    combinedScore = sql<number>`(${combinedScore}) + (CASE WHEN ${documentChunks.content} LIKE ${`%"ddt": ${ddtNum},%`} OR ${documentChunks.content} LIKE ${`%DDT: ${ddtNum}%`} THEN 0.40 ELSE 0 END)`;
   }
 
   // Apilamos las condiciones dinámicamente
@@ -80,26 +104,71 @@ export const findSimilarChunks = async (
     conditions.push(sql`LOWER(${documents.fileName}) LIKE ${`%${cropFilter.toLowerCase()}%`}`);
   }
 
+  // 1. Detección inteligente de frecuencia / hoja de fertilización comercial
   let finalSheetFilter = sheetFilter;
+
   if (!finalSheetFilter && searchString) {
-    const q = searchString.toLowerCase();
-    if (q.includes('1 por sem') || q.includes('1 vez por semana') || q.includes('cada semana') || q.includes('primera semana') || q.includes('semana 1') || q.includes('1ra semana')) {
-      finalSheetFilter = '1 Por Sem';
-    } else if (q.includes('2 por sem') || q.includes('2 veces por semana') || q.includes('bisemanal')) {
+    if (
+      q.includes('2 por sem') || 
+      q.includes('2 veces por semana') || 
+      q.includes('dos veces por semana') || 
+      q.includes('bisemanal')
+    ) {
       finalSheetFilter = '2 Por Sem';
-    } else if (q.includes('14 dias') || q.includes('cada 14 días') || q.includes('quincenal')) {
+    } else if (
+      q.includes('3 por sem') || 
+      q.includes('3 veces por semana') || 
+      q.includes('tres veces por semana')
+    ) {
+      finalSheetFilter = '3 Por Sem';
+    } else if (
+      q.includes('14 dias') || 
+      q.includes('14 días') || 
+      q.includes('cada 14 días') || 
+      q.includes('cada 14 dias') || 
+      q.includes('cada dos semanas') || 
+      q.includes('quincenal') ||
+      q.includes('quincena')
+    ) {
       finalSheetFilter = '14 Dias';
-    } else if (q.includes('cal-diario') || q.includes('diario') || q.includes('cada día')) {
+    } else if (
+      q.includes('cal-diario') || 
+      q.includes('diario') || 
+      q.includes('diaria') || 
+      q.includes('cada día') || 
+      q.includes('cada dia')
+    ) {
       finalSheetFilter = 'Cal-Diario';
+    } else if (
+      q.includes('1 por sem') || 
+      q.includes('1 vez por semana') || 
+      q.includes('una vez por semana') || 
+      q.includes('cada semana') || 
+      q.includes('semanal') || 
+      q.includes('esta semana') || 
+      q.includes('primera semana') || 
+      q.includes('1ra semana') ||
+      /semana\s*\d+/i.test(q) ||
+      /d[ií]as?\s+despu[eé]s/i.test(q) ||
+      /\bddt\b/i.test(q)
+    ) {
+      finalSheetFilter = '1 Por Sem';
     }
   }
 
+  // 2. Exclusión de hojas teóricas (Req. Diario, ReSemanalFert, ReDiarioFert)
+  const pideRequerimientos = /requerimiento|absorci[oó]n|extracci[oó]n|nutricional|nutriente/i.test(q);
+  if (!pideRequerimientos) {
+    conditions.push(sql`${documentChunks.content} NOT LIKE '%(hoja: Req. Diario)%'`);
+    conditions.push(sql`${documentChunks.content} NOT LIKE '%(hoja: ReSemanalFert)%'`);
+    conditions.push(sql`${documentChunks.content} NOT LIKE '%(hoja: ReDiarioFert)%'`);
+  }
+
   if (finalSheetFilter) {
-    // Busca exactamente la subcadena de la hoja en el contenido del chunk
     conditions.push(sql`${documentChunks.content} LIKE ${`%(hoja: ${finalSheetFilter})%`}`);
   }
 
-  const effectiveLimit = finalSheetFilter ? 5 : limit;
+  const effectiveLimit = finalSheetFilter ? 6 : limit;
 
   let query = db
     .select({

@@ -1,4 +1,4 @@
-Semana (Semana),DDT (DDT),FECHA,FECHA (Cambios),Urea (Lbs),Urea (Cambios),FofatoMonoPotasico (Lbs),FofatoMonoPotasico (Cambios),Kcl (Lbs),Kcl (Cambios),Sulfato de Magnesio (Lbs),Sulfato de Magnesio (Cambios),Nitrato de Calcio (Lbs),Nitrato de Calcio (Cambios),Solubor (Gramos),Solubor (Cambios),Melaza (Lts),Melaza (Cambios),Admin_Costo / Aplicación (Costo / Aplicación)
+Semana,DDT,FECHA,Admin_col_3_Cambios,Urea (Lbs),Admin_Urea_Cambios,FofatoMonoPotasico (Lbs),Admin_FofatoMonoPotasico_Cambios,Kcl (Lbs),Admin_Kcl_Cambios,Sulfato de Magnesio (Lbs),Admin_Sulfato de Magnesio_Cambios,Nitrato de Calcio (Lbs),Admin_Nitrato de Calcio_Cambios,Solubor (Gramos),Admin_Solubor_Cambios,Melaza (Lts),Admin_Melaza_Cambios,Admin_Costo / Aplicación
 2,1,39966,,,,,,,,15.724488626154457,,32.41224777777776,,598.1947317073171,,28.0,,
 4,15,39980,,,,,,,,15.724488626154457,,32.41224777777776,,1105.9610731707317,,28.0,,
 6,29,39994,,,,,,,,33.54557573579618,,69.14612859259258,,1516.3557073170737,,28.0,,

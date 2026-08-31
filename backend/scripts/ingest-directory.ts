@@ -1,6 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
 import officeparser from "officeparser";
+import { normalizeFrequency, UnrecognizedFrequencyError } from "./utils/normalizeFrequency";
+import { isNoiseRow } from "./utils/isNoiseRow";
 
 /** Tamaño máximo permitido por chunk antes de activar el fallback */
 const MAX_CHUNK_SIZE = 1000;
@@ -160,6 +162,8 @@ export interface IngestedFile {
     type: "formulas" | "validations";
     sheetName: string;
   }>;
+  frecuencia_riego?: string;
+  cultivo?: string;
 }
 
 export const loadDirectory = async (
@@ -218,6 +222,18 @@ export const fileContent = async (file: fileDirectory): Promise<IngestedFile> =>
         docName = filename; // NOMBRE_ARCHIVO completo con extensión (ej: "Aguacate_Año-1-a-4_MCA-EDA_Fert_2008-1.xls")
         sheetName = csvName.substring(stem.length + 1).replace(/_/g, " ");
         break;
+      }
+    }
+
+    let frecuencia_riego = "estandar";
+    try {
+      frecuencia_riego = normalizeFrequency(sheetName);
+    } catch (e) {
+      if (e instanceof UnrecognizedFrequencyError) {
+        console.warn(`⚠️ ALERTA: ${e.message} (Archivo: ${docName})`);
+        // Opcional: Escribir a un archivo de log de frecuencias no reconocidas
+      } else {
+        console.error(e);
       }
     }
 
@@ -282,10 +298,16 @@ export const fileContent = async (file: fileDirectory): Promise<IngestedFile> =>
       area_base: "1 manzana"
     };
 
-    for (let i = 1; i < lines.length; i++) {
-      const values = parseCSVLine(lines[i]);
-      
-      const insumos_dosis_por_manzana: Record<string, number> = {};
+      for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        
+        // --- FILTRO ANTI-RUIDO ADMINISTRATIVO ---
+        if (isNoiseRow(values)) {
+          console.log(`🧹 Ignorando fila administrativa en ${docName} (hoja: ${sheetName})`);
+          continue;
+        }
+
+        const insumos_dosis_por_manzana: Record<string, number> = {};
       let semanaActual: number | string = i;
       let ddtActual: number | string = 0;
       let fechaActual = "";
@@ -335,20 +357,26 @@ ${JSON.stringify(objetoFilaJSON, null, 2)}
     return {
       dataChunks,
       fertilizerListChunk,
-      extraChunks: []
+      extraChunks: [],
+      frecuencia_riego,
+      cultivo: metaArchivo.cultivo
     };
   } else if (extension === ".txt" || extension === ".md") {
     const textContent = await fs.readFile(filePath, "utf-8");
     return {
       dataChunks: [textContent],
-      extraChunks: []
+      extraChunks: [],
+      frecuencia_riego: "estandar",
+      cultivo: "desconocido"
     };
   } else {
     const ast = await officeparser.parseOffice(filePath);
     const parsedText = ast.toText();
     return {
       dataChunks: [parsedText],
-      extraChunks: []
+      extraChunks: [],
+      frecuencia_riego: "estandar",
+      cultivo: "desconocido"
     };
   }
 };

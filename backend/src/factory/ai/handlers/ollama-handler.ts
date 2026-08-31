@@ -28,7 +28,17 @@ export class OllamaHandler implements AIHandler {
       const modelName = process.env.OLLAMA_MODEL || "qwen2.5:7b";
 
       // 1. Recuperar contexto RAG
-      const { contextText: ragContext, sources } = await executeRAG(messagesArray);
+      const { contextText: ragContext, sources, cropFilter, targetWeeks } = await executeRAG(messagesArray);
+
+      if (!ragContext || sources.length === 0) {
+        const cultivoStr = cropFilter ? `**${cropFilter}**` : "el cultivo solicitado";
+        const semanaStr = targetWeeks && targetWeeks.length > 0 ? `la **Semana ${targetWeeks.join(", ")}**` : "esta etapa";
+        const fallbackMessage = `🤖 **AgroBot Informa:** Lo siento, actualmente las recomendaciones técnicas para ${cultivoStr} en ${semanaStr} no se encuentran registradas en los manuales oficiales del MAG en nuestra base de datos. Por favor, verifica la etapa o consulta con un agrónomo.`;
+        
+        console.log("🛑 [Cortocircuito] No se encontró contexto. Respondiendo sin LLM.");
+        onChunk(fallbackMessage);
+        return;
+      }
 
       // --- EXTRAER MANZANAS DEL USUARIO PARA CÁLCULO EN TYPESCRIPT ---
       let manzanasUsuario = 1;

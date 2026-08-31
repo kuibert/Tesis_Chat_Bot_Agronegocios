@@ -39,6 +39,10 @@ export function cleanChunkContent(chunk: string, manzanasUsuario: number = 1): s
   // con nombres de fertilizantes. Borramos estas llaves para forzarlo a usar los físicos.
   clean = clean.replace(/"(n|p|k|ca|mg|s|b)"\s*:\s*[0-9.]+,?\s*/gi, '');
   
+  // Detectar si la unidad original ya viene en manzanas (mz)
+  const isMz = clean.toLowerCase().includes('"unidad_origen": "mz"') || clean.toLowerCase().includes("unidad origen: mz");
+  const divisorArea = isMz ? 1 : 1.43;
+
   // APLANAMIENTO Y CÁLCULO MATEMÁTICO REAL
   clean = clean.replace(/```json([\s\S]*?)```/gi, (match, jsonString) => {
     try {
@@ -64,9 +68,9 @@ export function cleanChunkContent(chunk: string, manzanasUsuario: number = 1): s
           if (nombreLimpio === "SOLUBOR") nombreLimpio = "Solubor";
           if (nombreLimpio === "MELAZA") nombreLimpio = "Melaza";
           
-          // --- MAGIA: TypeScript hace la multiplicación exacta compensando el factor de 1 Hectárea (1.43 Mz) del Excel original ---
+          // --- MAGIA: TypeScript hace la multiplicación exacta compensando el factor Hectárea/Manzana ---
           const dosisBase = Number(value);
-          const dosisTotalCalculada = ((dosisBase / 1.43) * manzanasUsuario).toFixed(2);
+          const dosisTotalCalculada = ((dosisBase / divisorArea) * manzanasUsuario).toFixed(2);
           
           text += `- ${nombreLimpio}: ${dosisTotalCalculada} ${unidad}\n`;
         }
@@ -77,7 +81,7 @@ export function cleanChunkContent(chunk: string, manzanasUsuario: number = 1): s
           if (typeof value !== "number" || ["semana","ddt","n","p","k","ca","mg","s","b"].includes(key.toLowerCase())) continue;
           
           const dosisBase = Number(value);
-          const dosisTotalCalculada = ((dosisBase / 1.43) * manzanasUsuario).toFixed(2);
+          const dosisTotalCalculada = ((dosisBase / divisorArea) * manzanasUsuario).toFixed(2);
           text += `- ${key}: ${dosisTotalCalculada}\n`;
         }
       }
