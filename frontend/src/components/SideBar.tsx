@@ -23,6 +23,7 @@ export function SideBar({ className }: { className?: string }) {
     };
 
     const deleteSession = (id: string) => {
+        if (!confirm("¿Eliminar este chat? Esta acción no se puede deshacer.")) return;
         if (deleteChatMutation) {
             deleteChatMutation.mutate(id, {
                 onSuccess: () => {
@@ -64,17 +65,17 @@ export function SideBar({ className }: { className?: string }) {
     return (
         <div className={className}>
             <label htmlFor="my-drawer-4" aria-label="close sidebar" className="drawer-overlay"></label>
-            <aside className="w-72 bg-[#1A1D21] flex flex-col min-h-full flex-shrink-0 relative z-20 transition-all duration-300">
+            <aside className="w-72 bg-white dark:bg-[#1A1D21] border-r border-slate-200 dark:border-transparent flex flex-col min-h-full flex-shrink-0 relative z-20 transition-all duration-300">
                 {/* Header Sidebar */}
                 <div className="p-5 flex items-center gap-3">
-                    <MessageSquare className="text-white size-5" />
-                    <h2 className="text-white font-bold text-lg tracking-wide">AGRO CHAT</h2>
+                    <MessageSquare className="text-emerald-600 dark:text-white size-5" />
+                    <h2 className="text-slate-800 dark:text-white font-bold text-lg tracking-wide">AGRO CHAT</h2>
                 </div>
 
                 <div className="px-5 mb-8 mt-2">
                     <button
                         onClick={createNewChat}
-                        className="w-full flex items-center justify-center space-x-2 bg-indigo-500 hover:bg-indigo-600 text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                        className="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-colors shadow-sm"
                         title="Nueva Conversación"
                     >
                         <span className="text-lg leading-none">+</span>
@@ -82,7 +83,7 @@ export function SideBar({ className }: { className?: string }) {
                     </button>
                 </div>
 
-                <div className="px-5 mb-4 flex items-center gap-2 text-gray-500">
+                <div className="px-5 mb-4 flex items-center gap-2 text-slate-400 dark:text-gray-500">
                     <History className="size-4" />
                     <span className="text-xs font-semibold uppercase tracking-wider">Mis chats</span>
                 </div>
@@ -90,7 +91,7 @@ export function SideBar({ className }: { className?: string }) {
                 {/* Listado de Sesiones */}
                 <div className="flex-1 overflow-y-auto px-3 space-y-0.5">
                     {sessions.length === 0 ? (
-                        <div className="text-center p-4 text-gray-500 text-sm mt-4">
+                        <div className="text-center p-4 text-slate-400 dark:text-gray-500 text-sm mt-4">
                             No hay historial aún.
                         </div>
                     ) : (
@@ -102,8 +103,8 @@ export function SideBar({ className }: { className?: string }) {
                                 <div
                                     key={session.id}
                                     className={`group flex items-center justify-between p-2.5 rounded-lg cursor-pointer transition-colors duration-200 ${isActive
-                                            ? 'bg-gray-800/60 text-white'
-                                            : 'bg-transparent text-gray-300 hover:bg-gray-800/40 hover:text-white'
+                                            ? 'bg-emerald-50 dark:bg-gray-800/60 text-emerald-900 dark:text-white font-semibold'
+                                            : 'bg-transparent text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800/40 hover:text-slate-900 dark:hover:text-white'
                                         }`}
                                     onClick={() => !isEditing && session.id && switchSession(session.id)}
                                 >
@@ -118,7 +119,7 @@ export function SideBar({ className }: { className?: string }) {
                                                     if (e.key === 'Escape') cancelEditing();
                                                 }}
                                                 autoFocus
-                                                className="w-full bg-[#2D3139] text-white text-sm px-2 py-1 rounded outline-none border border-indigo-500/50"
+                                                className="w-full bg-slate-100 dark:bg-[#2D3139] text-slate-900 dark:text-white text-sm px-2 py-1 rounded outline-none border border-emerald-500/50 dark:border-indigo-500/50"
                                             />
                                         ) : (
                                             <span className="truncate text-sm font-medium">
@@ -152,7 +153,7 @@ export function SideBar({ className }: { className?: string }) {
                                                         e.stopPropagation();
                                                         startEditing(session.id!, session.title!);
                                                     }}
-                                                    className="p-1 text-gray-500 hover:text-indigo-400"
+                                                    className="p-1 text-slate-400 hover:text-emerald-600 dark:text-gray-500 dark:hover:text-indigo-400"
                                                     title="Renombrar chat"
                                                 >
                                                     <Pencil className="size-3.5" />
@@ -162,7 +163,7 @@ export function SideBar({ className }: { className?: string }) {
                                                         e.stopPropagation();
                                                         if (session.id) deleteSession(session.id);
                                                     }}
-                                                    className="p-1 text-gray-500 hover:text-red-400"
+                                                    className="p-1 text-slate-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400"
                                                     title="Eliminar chat"
                                                 >
                                                     <span className="text-[13px]">🗑️</span>
