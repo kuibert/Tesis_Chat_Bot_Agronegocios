@@ -20,6 +20,7 @@ from excel_parser import (
     extraer_cabeceras_calendario, 
     hacer_cabeceras_unicas, 
     obtener_valor_celda_combinada,
+    extraer_catalogo_fertilizantes,
     ADMIN_KEYWORDS
 )
 
@@ -46,6 +47,24 @@ def procesar_archivo(archivo_path):
             continue
         ws_form = wb_form[nombre_hoja]
         ws_val = wb_val[nombre_hoja]
+
+        # Hoja de catálogo de fertilizantes — NO es un calendario, se procesa aparte
+        if nombre_hoja.lower().startswith("fertiliz") or "fertilizante" in nombre_hoja.lower():
+            if not usar_xlrd:
+                print(f"   ⚠️  Hoja '{nombre_hoja}': no hay .xls original disponible, se omite el catálogo (extraer_catalogo_fertilizantes requiere xlrd).")
+                continue
+
+            catalogo = extraer_catalogo_fertilizantes(xls_original, nombre_hoja)
+            if not catalogo:
+                continue
+
+            df_catalogo = pd.DataFrame(catalogo)
+            OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+            nombre_csv = f"{archivo_path.stem}_Fertilizantes.csv"
+            ruta_salida = OUTPUT_DIR / nombre_csv
+            df_catalogo.to_csv(ruta_salida, index=False, encoding="utf-8")
+            print(f"   ✅ {nombre_csv} ({len(df_catalogo)} fertilizantes)")
+            continue
 
         # Intentar extracción de cabeceras con xlrd primero (más preciso)
         cabeceras = None

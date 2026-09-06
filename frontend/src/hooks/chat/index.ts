@@ -5,6 +5,7 @@ import { useAuth } from "../useAuth";
 import {
   setQueryDataChat,
   setQueryMessageStream,
+  setQueryMessageMetadata,
   useGetChats,
   useCreateChat as useQueryCreateChat,
   useQueryHistoryChat,
@@ -87,9 +88,34 @@ export const useListeChat = (chatId: string | undefined) => {
     [activeChatId, queryClient, setHasStarted],
   );
 
-  const onEnd = useCallback(() => {
-    resetStatus();
-  }, [resetStatus]);
+  const onEnd = useCallback(
+    ({ messageId, metadata }: { messageId?: string; metadata?: Record<string, unknown> | null } = {}) => {
+      console.log("📥 [Socket messages:end]", { messageId, metadata });
+      resetStatus();
+      if (messageId && metadata) {
+        setQueryMessageMetadata({
+          messageId,
+          metadata,
+          queryClient,
+          chatId: activeChatId,
+        });
+      }
+    },
+    [resetStatus, queryClient, activeChatId],
+  );
+
+  const onError = useCallback(
+    (errorMsg: string) => {
+      resetStatus();
+      setQueryDataChat(queryClient, activeChatId, {
+        id: `error-${Date.now()}`,
+        role: "assistant",
+        content: `⚠️ ${errorMsg || "Ocurrió un error. Por favor, intenta de nuevo."}`,
+        createdAt: new Date().toISOString(),
+      });
+    },
+    [resetStatus, queryClient, activeChatId],
+  );
 
   useEffect(() => {
     if (!socket.connected) {
@@ -97,25 +123,44 @@ export const useListeChat = (chatId: string | undefined) => {
     }
 
     socket.on("messages:created", onCreated);
-
     socket.on("messages:stream", onStream);
     socket.on("messages:end", onEnd);
+    socket.on("messages:error", onError);
 
     return () => {
       socket.off("messages:created", onCreated);
       socket.off("messages:stream", onStream);
       socket.off("messages:end", onEnd);
+      socket.off("messages:error", onError);
     };
-  }, [onCreated, onStream, onEnd]);
+  }, [onCreated, onStream, onEnd, onError]);
 
   const sendMessage = useCallback(
-    (content: string, paramChatId?: string) => {
+    (
+      content: string,
+      paramChatId?: string,
+      toolParams?: {
+        cultivo: string;
+        fuenteArchivo: string | null;
+        areaHectareas: number;
+        diaDespuesSiembra: number;
+        diasDelPeriodo: number;
+      }
+    ) => {
       const finalChatId = paramChatId || chatId || GHOST_CHAT_ID;
-
-      socket.emit("messages:send", {
-        chatId: finalChatId,
-        content,
-      });
+      if (toolParams) {
+        // Caso de desambiguación resuelta: enviar parámetros directos al backend
+        socket.emit("messages:calculate", {
+          chatId: finalChatId,
+          content, // texto legible para mostrar como mensaje del usuario
+          toolParams, // parámetros ya resueltos para el motor
+        });
+      } else {
+        socket.emit("messages:send", {
+          chatId: finalChatId,
+          content,
+        });
+      }
     },
     [chatId],
   );

@@ -41,40 +41,42 @@ export function NavBar({ ...props }: NavBarProps) {
         </label>
 
         {/* Centro del Navbar */}
-        <div className="flex-1 text-center font-semibold text-sm text-gray-300 tracking-wide">
-          Asistente Agrícola RAG
+        <div className="flex-1 text-center font-semibold text-sm text-slate-700 dark:text-gray-300 tracking-wide">
+          AgroBot — Asistente de Fertilización
         </div>
 
         <div className="flex items-center gap-2">
           <PwaInstallPrompt />
 
+          {/* Botón de tema siempre accesible */}
+          <label className="swap swap-rotate btn btn-sm btn-ghost" title={themeMode === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}>
+            <input
+              type="checkbox"
+              checked={themeMode === "light"}
+              onChange={() => toggleTheme()}
+            />
+            <Sun className="swap-on size-4 text-amber-500" />
+            <Moon className="swap-off size-4 text-slate-400" />
+          </label>
+
           {!hasSession ? (
-          <div className="flex flex-row gap-2 justify-center items-center">
             <Link to={"sign-in"} className="btn btn-sm">
-              <UserPlus className="size-4"></UserPlus>
+              <UserPlus className="size-4" />
             </Link>
+          ) : (
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                role="button"
+                className="btn btn-sm btn-ghost m-1"
+              >
+                <Settings className="size-4" />
+              </div>
 
-            <label className="swap swap-rotate btn btn-sm">
-              <input type="checkbox" onChange={() => toggleTheme()} />
-
-              <Sun className="swap-on size-4" />
-              <Moon className="swap-off size-4" />
-            </label>
-          </div>
-        ) : (
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-sm btn-ghost m-1"
-            >
-              <Settings className="size-4" />
-            </div>
-
-            <ul
-              tabIndex={0}
-              className="menu dropdown-content bg-base-200 rounded-box z-999 w-56 p-2 shadow-2xl border border-base-300"
-            >
+              <ul
+                tabIndex={0}
+                className="menu dropdown-content bg-white dark:bg-[#1C1E22] text-slate-800 dark:text-gray-200 rounded-box z-999 w-56 p-2 shadow-2xl border border-slate-200 dark:border-[#2D3139]"
+              >
               <div className="flex items-center gap-2 px-3 py-2 overflow-hidden">
                 <div className="avatar placeholder shrink-0">
                   {session?.avatar ? (

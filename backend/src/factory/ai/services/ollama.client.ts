@@ -14,12 +14,14 @@ interface OllamaInferenceOptions {
   top_p?: number;        // Nucleus sampling: reduce vocabulario activo
   top_k?: number;        // Limita tokens candidatos en cada paso
   num_predict?: number;  // Máximo de tokens a generar (-1 = sin límite)
+  num_ctx?: number;      // Tamaño de ventana de contexto en VRAM
 }
 
 const DEFAULT_OPTIONS: OllamaInferenceOptions = {
   temperature: 0.1,   // Casi determinista: respuestas fieles al contexto RAG
   top_p: 0.9,          // Solo el 90% superior de probabilidad acumulada
   top_k: 40,           // Máximo 40 tokens candidatos por paso
+  num_ctx: 3072,       // 3072 tokens permite que Qwen 2.5 7B quepa 100% en la GPU de 6GB (RTX 4050)
 };
 
 const OLLAMA_BASE_URL = "http://localhost:11434";
@@ -60,6 +62,7 @@ export async function streamOllamaChat(
         top_p: mergedOptions.top_p,
         top_k: mergedOptions.top_k,
         num_predict: mergedOptions.num_predict ?? -1,
+        num_ctx: mergedOptions.num_ctx ?? 3072,
       },
     }),
   });
@@ -98,6 +101,7 @@ export async function chatOllama(
         top_p: rewriterOptions.top_p,
         top_k: rewriterOptions.top_k,
         num_predict: rewriterOptions.num_predict ?? 200, // El rewriter no necesita respuestas largas
+        num_ctx: 3072,
       },
     }),
   });
@@ -109,3 +113,33 @@ export async function chatOllama(
   const data = await response.json();
   return data.message?.content?.trim() ?? "";
 }
+
+/**
+ * Llamada de chat CON tools, sin streaming — necesaria para leer tool_calls
+ * de forma confiable (con streaming llegan fragmentados).
+ */
+export async function chatOllamaConTools(
+  model: string,
+  systemPrompt: string,
+  messages: Message[],
+  tools: { type: string; function: Record<string, unknown> }[],
+): Promise<{ message: { role: string; content: string; tool_calls?: any[] } }> {
+  const response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "system", content: systemPrompt }, ...messages],
+      tools,
+      stream: false,
+      options: { temperature: 0, top_p: 1.0, top_k: 1, num_ctx: 3072 }, // determinista, igual que chatOllama
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Ollama (fase de tools) respondió con error ${response.status}`);
+  }
+
+  return response.json();
+}
+

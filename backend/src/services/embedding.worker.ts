@@ -51,6 +51,7 @@ async function processText(text: string): Promise<number[]> {
 
   // Generar embedding con Mean Pooling + Normalización para similitud coseno
   const output = await pipe(cleanText, { pooling: 'mean', normalize: true });
+  console.log('Dimensión real del embedding:', output.data.length);
 
   // Convertir Tensor a Array normal de JavaScript
   const vector = Array.from(output.data) as number[];

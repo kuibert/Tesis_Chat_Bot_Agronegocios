@@ -93,12 +93,16 @@ export const updateMessage = async (
   messageData: {
     messageId: string;
     content: string;
+    metadata?: any;
   },
   tx: any = db,
 ) => {
   const [message] = await tx
     .update(messages)
-    .set({ content: messageData.content })
+    .set({
+      content: messageData.content,
+      ...(messageData.metadata !== undefined ? { metadata: messageData.metadata } : {}),
+    })
     .where(eq(messages.id, messageData.messageId))
     .returning();
 

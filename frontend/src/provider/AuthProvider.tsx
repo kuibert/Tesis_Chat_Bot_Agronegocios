@@ -67,6 +67,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     if (session) {
       localStorage.setItem("session", JSON.stringify(session));
+      if (!socket.connected) socket.connect();
     } else {
       localStorage.removeItem("session");
     }

@@ -70,8 +70,12 @@ export async function rewriteQueryWithContext(
     return searchString;
   }
 
-  // Tomar los últimos 4 mensajes para contexto
-  const rawHistory = messages.slice(-5, -1).map(m => `${m.role.toUpperCase()}: ${m.content}`).join("\n");
+  // Tomar los últimos 4 mensajes para contexto (solo mensajes del usuario para evitar contaminación)
+  const rawHistory = messages
+    .slice(-5, -1)
+    .filter(m => m.role === "user")
+    .map(m => `USUARIO: ${m.content}`)
+    .join("\n");
   
   // Regex Bypass: disfrazamos químicos para evitar censura del modelo Llama 3
   const recentHistory = rawHistory.replace(/Nitrato de Amonio/gi, "Quimico_A");

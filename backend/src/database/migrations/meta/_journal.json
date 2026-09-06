@@ -36,6 +36,20 @@
       "when": 1783143261308,
       "tag": "0004_mushy_typhoid_mary",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788320180014,
+      "tag": "0005_ambitious_gideon",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788390016576,
+      "tag": "0006_fast_triathlon",
+      "breakpoints": true
     }
   ]
 }

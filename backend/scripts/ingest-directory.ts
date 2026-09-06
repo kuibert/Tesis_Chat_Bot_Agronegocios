@@ -3,6 +3,7 @@ import path from "path";
 import officeparser from "officeparser";
 import { normalizeFrequency, UnrecognizedFrequencyError } from "./utils/normalizeFrequency";
 import { isNoiseRow } from "./utils/isNoiseRow";
+import { validarRequerimiento, Advertencia } from "./utils/validarRequerimiento";
 
 /** Tamaño máximo permitido por chunk antes de activar el fallback */
 const MAX_CHUNK_SIZE = 1000;
@@ -164,6 +165,8 @@ export interface IngestedFile {
   }>;
   frecuencia_riego?: string;
   cultivo?: string;
+  exito: boolean;
+  advertencias: string[];
 }
 
 export const loadDirectory = async (
@@ -199,7 +202,7 @@ export const fileContent = async (file: fileDirectory): Promise<IngestedFile> =>
     const csvContent = await fs.readFile(filePath, "utf-8");
     const lines = csvContent.split(/\r?\n/).filter(line => line.trim().length > 0);
     if (lines.length === 0) {
-      return { dataChunks: [], extraChunks: [] };
+      return { dataChunks: [], extraChunks: [], exito: false, advertencias: ["Archivo CSV vacío"] };
     }
 
     // 2. Extraer cabecera y filas
@@ -226,12 +229,14 @@ export const fileContent = async (file: fileDirectory): Promise<IngestedFile> =>
     }
 
     let frecuencia_riego = "estandar";
+    const advertencias: string[] = [];
+    
     try {
       frecuencia_riego = normalizeFrequency(sheetName);
     } catch (e) {
       if (e instanceof UnrecognizedFrequencyError) {
+        advertencias.push(`Frecuencia no reconocida: ${sheetName}. Se requiere revisión manual.`);
         console.warn(`⚠️ ALERTA: ${e.message} (Archivo: ${docName})`);
-        // Opcional: Escribir a un archivo de log de frecuencias no reconocidas
       } else {
         console.error(e);
       }
@@ -298,6 +303,8 @@ export const fileContent = async (file: fileDirectory): Promise<IngestedFile> =>
       area_base: "1 manzana"
     };
 
+    const filasValidas: any[] = [];
+
       for (let i = 1; i < lines.length; i++) {
         const values = parseCSVLine(lines[i]);
         
@@ -327,13 +334,35 @@ export const fileContent = async (file: fileDirectory): Promise<IngestedFile> =>
           ddtActual = !isNaN(parsed) ? parsed : valTrimmed;
         } else if (llaveLimpia === "fecha") {
           fechaActual = valTrimmed;
-        } else if (!llaveLimpia.startsWith("admin_")) {
+        } else if (
+          !llaveLimpia.startsWith("admin_") && 
+          !llaveLimpia.startsWith("columna_") && 
+          !llaveLimpia.startsWith("unnamed") &&
+          llaveLimpia !== "total"
+        ) {
           const num = parseFloat(valTrimmed);
           if (!isNaN(num) && num > 0) {
             insumos_dosis_por_manzana[llaveLimpia] = num;
           }
         }
       });
+
+      // Si la semana es absurdamente alta (más de 3 años), probablemente es una fila de "Gran Total" o basura matemática.
+      if (typeof semanaActual === "number" && semanaActual > 156) {
+        console.log(`🧹 Ignorando fila matemática/sumatoria en ${docName} (Semana ${semanaActual} es irreal)`);
+        continue;
+      }
+
+      // Si algún nutriente excede el umbral humano, asumimos que es una celda de Totales mal formateada y barremos la fila
+      const esFilaDeSumatoria = Object.entries(insumos_dosis_por_manzana).some(([k, v]) => {
+        const umbral = k.includes("gramos") ? 30000 : 5000;
+        return v > umbral;
+      });
+
+      if (esFilaDeSumatoria) {
+        console.log(`🧹 Ignorando fila de sumatoria en ${docName} (Valores astronómicos detectados en nutrientes)`);
+        continue;
+      }
 
       if (Object.keys(insumos_dosis_por_manzana).length > 0) {
         const objetoFilaJSON: any = {
@@ -351,15 +380,23 @@ ${JSON.stringify(objetoFilaJSON, null, 2)}
 \`\`\``.trim();
 
         dataChunks.push(nuevoContenidoChunk);
+        filasValidas.push(objetoFilaJSON);
       }
     }
+
+    const advertenciasSanidad = validarRequerimiento(filasValidas);
+    advertenciasSanidad.forEach(a => advertencias.push(`[${a.tipo}]: ${a.detalle}`));
+
+    const tieneErroresCriticos = advertencias.some(a => a.includes("CRITICO_") || a.includes("no reconocida"));
 
     return {
       dataChunks,
       fertilizerListChunk,
       extraChunks: [],
       frecuencia_riego,
-      cultivo: metaArchivo.cultivo
+      cultivo: metaArchivo.cultivo,
+      exito: !tieneErroresCriticos,
+      advertencias
     };
   } else if (extension === ".txt" || extension === ".md") {
     const textContent = await fs.readFile(filePath, "utf-8");
@@ -367,7 +404,9 @@ ${JSON.stringify(objetoFilaJSON, null, 2)}
       dataChunks: [textContent],
       extraChunks: [],
       frecuencia_riego: "estandar",
-      cultivo: "desconocido"
+      cultivo: "desconocido",
+      exito: true,
+      advertencias: []
     };
   } else {
     const ast = await officeparser.parseOffice(filePath);
@@ -376,7 +415,9 @@ ${JSON.stringify(objetoFilaJSON, null, 2)}
       dataChunks: [parsedText],
       extraChunks: [],
       frecuencia_riego: "estandar",
-      cultivo: "desconocido"
+      cultivo: "desconocido",
+      exito: true,
+      advertencias: []
     };
   }
 };

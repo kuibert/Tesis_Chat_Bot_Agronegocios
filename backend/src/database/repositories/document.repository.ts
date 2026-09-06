@@ -51,26 +51,29 @@ export const findSimilarChunks = async (
   const vectorQuery = `[${embedding.join(',')}]`;
   
   // Vector Score: 1 - cosine distance
-  const vectorScore = sql<number>`1 - (${documentChunks.embedding} <=> ${vectorQuery})`;
+  const vectorScore = sql<number>`(1 - (${documentChunks.embedding} <=> ${vectorQuery}::vector))`;
   
-  let keywordScore = sql<number>`0`;
+  let keywordScore = sql<number>`0.0`;
   let combinedScore = vectorScore;
   const q = (searchString || "").toLowerCase();
   
   if (searchString && searchString.trim() !== '') {
-    // Convierte "dosis aguacate semana 1" en "dosis | aguacate | semana | 1"
-    const cleanString = searchString.replace(/[^\w\sáéíóúÁÉÍÓÚñÑ]/g, '');
-    const orSearchString = cleanString.trim().split(/\s+/).filter(Boolean).join(' | ');
+    const cleanWords = searchString
+      .replace(/[^\w\sáéíóúÁÉÍÓÚñÑ]/g, ' ')
+      .trim()
+      .split(/\s+/)
+      .filter(w => w.length > 1);
 
-    // Keyword Score: PostgreSQL Full Text Search Rank (Flexible OR)
-    keywordScore = sql<number>`ts_rank_cd(to_tsvector('spanish', ${documentChunks.content}), to_tsquery('spanish', ${orSearchString}))`;
-    // Hybrid Score: 90% Vector, 10% Keyword
-    combinedScore = sql<number>`(${vectorScore} * 0.9) + (${keywordScore} * 0.1)`;
+    if (cleanWords.length > 0) {
+      const orSearchString = cleanWords.join(' | ');
+      keywordScore = sql<number>`COALESCE(ts_rank_cd(to_tsvector('spanish', ${documentChunks.content}), to_tsquery('spanish', ${orSearchString})), 0.0)`;
+      combinedScore = sql<number>`((${vectorScore} * 0.9) + (${keywordScore} * 0.1))`;
+    }
   }
 
   // Boost para preguntas de tipo lista de fertilizantes de catálogo
   if (searchString && isFertilizerListQuery(searchString)) {
-    combinedScore = sql<number>`(${combinedScore}) + (CASE WHEN ${documentChunks.metadata}->>'chunk_type' = 'fertilizer_list' THEN 0.3 ELSE 0 END)`;
+    combinedScore = sql<number>`(${combinedScore} + (CASE WHEN ${documentChunks.metadata}->>'chunk_type' = 'fertilizer_list' THEN 0.3 ELSE 0.0 END))`;
   }
 
   // Boost prioritario (+0.50 o +1.0) si se detecta un número de semana
@@ -83,16 +86,15 @@ export const findSimilarChunks = async (
   }
 
   if (semanaNum !== null) {
-    // Si viene forzado por targetWeek (multi-búsqueda), aplicamos un Boost masivo de +1.0 para vencer al RAG
     const boostValue = targetWeek !== undefined ? 1.0 : 0.50;
-    combinedScore = sql<number>`(${combinedScore}) + (CASE WHEN ${documentChunks.content} LIKE ${`%"semana": ${semanaNum},%`} OR ${documentChunks.content} LIKE ${`%Semana: ${semanaNum}%`} OR ${documentChunks.content} LIKE ${`%semana ${semanaNum}%`} THEN ${boostValue} ELSE 0 END)`;
+    combinedScore = sql<number>`(${combinedScore} + (CASE WHEN ${documentChunks.content} LIKE ${`%"semana": ${semanaNum},%`} OR ${documentChunks.content} LIKE ${`%Semana: ${semanaNum}%`} OR ${documentChunks.content} LIKE ${`%semana ${semanaNum}%`} THEN ${boostValue} ELSE 0.0 END))`;
   }
 
   // Boost adicional (+0.40) si se menciona DDT (días después del trasplante)
   const ddtMatch = q.match(/(\d+)\s*(?:d[ií]as?\s+(?:despu[eé]s|ddt)|ddt\b)/i) || q.match(/ddt\s*[:#]?\s*(\d+)/i);
   if (ddtMatch) {
     const ddtNum = parseInt(ddtMatch[1], 10);
-    combinedScore = sql<number>`(${combinedScore}) + (CASE WHEN ${documentChunks.content} LIKE ${`%"ddt": ${ddtNum},%`} OR ${documentChunks.content} LIKE ${`%DDT: ${ddtNum}%`} THEN 0.40 ELSE 0 END)`;
+    combinedScore = sql<number>`(${combinedScore} + (CASE WHEN ${documentChunks.content} LIKE ${`%"ddt": ${ddtNum},%`} OR ${documentChunks.content} LIKE ${`%DDT: ${ddtNum}%`} THEN 0.40 ELSE 0.0 END))`;
   }
 
   // Apilamos las condiciones dinámicamente
@@ -140,7 +142,7 @@ export const findSimilarChunks = async (
     ) {
       finalSheetFilter = 'Cal-Diario';
     } else if (
-      q.includes('1 por sem') || 
+      (q.includes('1 por sem') || 
       q.includes('1 vez por semana') || 
       q.includes('una vez por semana') || 
       q.includes('cada semana') || 
@@ -150,25 +152,29 @@ export const findSimilarChunks = async (
       q.includes('1ra semana') ||
       /semana\s*\d+/i.test(q) ||
       /d[ií]as?\s+despu[eé]s/i.test(q) ||
-      /\bddt\b/i.test(q)
+      /\bddt\b/i.test(q)) &&
+      !q.includes('pdf') &&
+      !q.includes('manual') &&
+      !q.includes('guia') &&
+      !q.includes('guía')
     ) {
       finalSheetFilter = '1 Por Sem';
     }
   }
 
-  // 2. Exclusión de hojas teóricas (Req. Diario, ReSemanalFert, ReDiarioFert)
+  // 2. Exclusión de hojas teóricas (Req. Diario, ReSemanalFert, ReDiarioFert), permitiendo siempre PDFs
   const pideRequerimientos = /requerimiento|absorci[oó]n|extracci[oó]n|nutricional|nutriente/i.test(q);
   if (!pideRequerimientos) {
-    conditions.push(sql`${documentChunks.content} NOT LIKE '%(hoja: Req. Diario)%'`);
-    conditions.push(sql`${documentChunks.content} NOT LIKE '%(hoja: ReSemanalFert)%'`);
-    conditions.push(sql`${documentChunks.content} NOT LIKE '%(hoja: ReDiarioFert)%'`);
+    conditions.push(sql`(${documentChunks.content} NOT LIKE '%(hoja: Req. Diario)%' OR ${documents.fileType} = 'pdf')`);
+    conditions.push(sql`(${documentChunks.content} NOT LIKE '%(hoja: ReSemanalFert)%' OR ${documents.fileType} = 'pdf')`);
+    conditions.push(sql`(${documentChunks.content} NOT LIKE '%(hoja: ReDiarioFert)%' OR ${documents.fileType} = 'pdf')`);
   }
 
   if (finalSheetFilter) {
-    conditions.push(sql`${documentChunks.content} LIKE ${`%(hoja: ${finalSheetFilter})%`}`);
+    conditions.push(sql`(${documentChunks.content} LIKE ${`%(hoja: ${finalSheetFilter})%`} OR ${documents.fileType} = 'pdf')`);
   }
 
-  const effectiveLimit = finalSheetFilter ? 6 : limit;
+  const effectiveLimit = finalSheetFilter ? 8 : limit;
 
   let query = db
     .select({
@@ -182,7 +188,7 @@ export const findSimilarChunks = async (
     .from(documentChunks)
     .innerJoin(documents, eq(documentChunks.documentId, documents.id))
     .where(and(...conditions))
-    .orderBy(sql`${combinedScore} DESC`)
+    .orderBy(sql`3 DESC`)
     .limit(effectiveLimit);
 
   return await query;

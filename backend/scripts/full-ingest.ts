@@ -21,10 +21,13 @@ const main = () => {
   // Paso 3: Limpieza de base de datos (truncado de tablas)
   runCommand("npx tsx scripts/truncate-db.ts", "Paso 3/4: Limpiando base de datos (truncado de tablas)");
 
-  // Paso 4: Ingesta de datos desde CSV
-  runCommand("npm run data:ingest", "Paso 4/4: Ingestando datos desde CSV");
+  // Paso 4: Ingesta de datos desde CSV (Excels)
+  runCommand("npm run data:ingest", "Paso 4/5: Ingestando datos desde CSV (Matrices de Requerimientos)");
 
-  console.log("\n✅ Ingesta completa. La base de datos está lista.");
+  // Paso 5: Ingesta de documentos técnicos PDF
+  runCommand("npm run data:ingest:pdfs", "Paso 5/5: Ingestando documentos técnicos PDF");
+
+  console.log("\n✅ Ingesta completa de Excels y PDFs. La base de datos está 100% lista.");
 };
 
 main();

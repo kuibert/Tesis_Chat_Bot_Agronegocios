@@ -257,3 +257,105 @@ def hacer_cabeceras_unicas(cabeceras):
             conteos[col] = 0
             unicas.append(col)
     return unicas
+
+# Sinónimos de columnas del catálogo
+COLUMNAS_CATALOGO = {
+    "nombre": ["nombre"],
+    "formula": ["formula", "fórmula"],
+    "precio": ["precio"],
+    "n": ["n"],
+    "p2o5": ["p2o5"],
+    "k2o": ["k2o", "k20"],  # mismo caso que en Req. Diario: algunos archivos usan "K20"
+    "mgo": ["mgo"],
+    "cao": ["cao", "ca"],
+    "so3": ["so3"],
+    "b": ["b"],
+    "unidades": ["unidades", "unidad"],
+}
+
+def extraer_catalogo_fertilizantes(xls_path: Path, nombre_hoja: str = "Fertilizantes"):
+    """
+    Extrae la hoja de catálogo (Nombre | Formula | Precio | N | P2O5 | K2O | ... | Unidades).
+    No es un calendario, así que NO usa extraer_cabeceras_con_xlrd — busca su propia
+    fila de encabezado por nombre de columna, igual que el resolver de columnas que ya
+    usa el pipeline en TypeScript para 'Req. Diario'.
+
+    Retorna: lista de dicts, uno por fertilizante, o [] si la hoja no existe/no calza.
+    """
+    try:
+        wb = xlrd.open_workbook(str(xls_path))
+        # Buscar variaciones del nombre de hoja si no coincide exacto
+        hoja_real = None
+        for s in wb.sheet_names():
+            if s.lower() == nombre_hoja.lower() or s.lower().startswith("fertiliz"):
+                hoja_real = s
+                break
+        if not hoja_real:
+            return []
+        ws = wb.sheet_by_name(hoja_real)
+    except Exception as e:
+        print(f"      ⚠️  xlrd no pudo leer hoja '{nombre_hoja}' de '{xls_path.name}': {e}")
+        return []
+
+    # 1. Buscar la fila de encabezado: debe tener "Nombre" y "Formula" en las primeras columnas
+    fila_header = None
+    for r in range(min(ws.nrows, 15)):
+        valores_fila = [str(ws.cell_value(r, c)).strip().lower() for c in range(min(ws.ncols, 15))]
+        if "nombre" in valores_fila and any("formula" in v or "fórmula" in v for v in valores_fila):
+            fila_header = r
+            break
+
+    if fila_header is None:
+        print(f"      ⚠️  Hoja '{nombre_hoja}' en '{xls_path.name}': no se encontró fila de encabezado del catálogo, se omite.")
+        return []
+
+    # 2. Mapear cada columna lógica a su índice real (por nombre, no por posición fija)
+    encabezados = [str(ws.cell_value(fila_header, c)).strip().lower() for c in range(ws.ncols)]
+    columnas_idx = {}
+    for campo, sinonimos in COLUMNAS_CATALOGO.items():
+        idx = next((i for i, h in enumerate(encabezados) if h in sinonimos), None)
+        columnas_idx[campo] = idx
+
+    if columnas_idx["nombre"] is None:
+        print(f"      ⚠️  Hoja '{nombre_hoja}' en '{xls_path.name}': no se pudo mapear columna 'Nombre', se omite.")
+        return []
+
+    # 3. Leer filas de datos (después del encabezado), descartando vacías/separadoras
+    def valor_num(r, campo):
+        idx = columnas_idx.get(campo)
+        if idx is None:
+            return 0.0
+        v = ws.cell_value(r, idx)
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return 0.0
+
+    def valor_texto(r, campo):
+        idx = columnas_idx.get(campo)
+        if idx is None:
+            return None
+        v = ws.cell_value(r, idx)
+        return str(v).strip() if v else None
+
+    catalogo = []
+    for r in range(fila_header + 1, ws.nrows):
+        nombre = valor_texto(r, "nombre")
+        if not nombre:
+            continue  # fila vacía o separadora entre secciones (Fósforo/Potasio/etc.)
+        catalogo.append({
+            "nombre": nombre,
+            "formula": valor_texto(r, "formula"),
+            "precio": valor_num(r, "precio") or None,
+            "n": valor_num(r, "n"),
+            "p2o5": valor_num(r, "p2o5"),
+            "k2o": valor_num(r, "k2o"),
+            "mgo": valor_num(r, "mgo"),
+            "cao": valor_num(r, "cao"),
+            "so3": valor_num(r, "so3"),
+            "b": valor_num(r, "b"),
+            "unidad": valor_texto(r, "unidades") or "Lbs",
+        })
+
+    return catalogo
+

@@ -23,7 +23,7 @@ export function ChatPage() {
   }, [urlChatId, hasSession]);
 
   const createChatMutation = useCreateChat();
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
     useHistoryChat(chatId ?? "");
 
   const { hasStarted, isGenerating, sendMessage, stopGeneration } = useListeChat(chatId);
@@ -76,7 +76,7 @@ export function ChatPage() {
 
     if (!chatId && hasSession) {
       createChatMutation?.mutate(
-        { data: { title: currentInput } },
+        { data: { title: currentInput.replace(/^["'""'']+|["'""'']+$/g, "").trim() } },
         {
           onSuccess: (newChat: Chat) => {
             navigate(`/chat/${newChat.id}`);
@@ -111,7 +111,7 @@ export function ChatPage() {
               <button
                   onClick={handleClearHistory}
                   disabled={clearHistoryMutation?.isPending}
-                  className="text-xs text-gray-500 hover:text-red-400 bg-[#1C1E22] border border-[#2D3139] px-3 py-1.5 rounded-full transition-colors shadow-sm"
+                  className="text-xs text-slate-500 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 bg-white dark:bg-[#1C1E22] border border-slate-200 dark:border-[#2D3139] px-3 py-1.5 rounded-full transition-colors shadow-sm"
               >
                   {clearHistoryMutation?.isPending ? "Limpiando..." : "Limpiar historial"}
               </button>
@@ -147,6 +147,7 @@ export function ChatPage() {
                 isLast={isLast}
                 isGenerating={isGenerating}
                 hasStarted={hasStarted}
+                onSendMessage={sendMessage}
               />
             );
           })}
@@ -156,13 +157,25 @@ export function ChatPage() {
               <span className="loading loading-dots loading-md"></span>
             </div>
           )}
+
+          {isError && chatId && (
+            <div className="flex flex-col items-center justify-center p-10 gap-3 text-sm text-gray-500">
+              <span>No se pudo cargar el historial.</span>
+              <button
+                onClick={() => window.location.reload()}
+                className="text-indigo-400 hover:text-indigo-300 underline text-xs"
+              >
+                Reintentar
+              </button>
+            </div>
+          )}
         </div>
       </MessageWrapper>
 
       {showScrollDown && (
           <button
               onClick={() => wrapperRef.current?.scrollToBottom()}
-              className="absolute bottom-24 right-8 z-30 p-2 bg-[#2D3139] border border-[#3A3F4A] rounded-full text-gray-300 hover:text-white shadow-lg transition-colors"
+              className="absolute bottom-24 right-8 z-30 p-2 bg-white dark:bg-[#2D3139] border border-slate-200 dark:border-[#3A3F4A] rounded-full text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white shadow-lg transition-colors"
               title="Ir al final"
           >
               <ArrowDown className="size-5" />

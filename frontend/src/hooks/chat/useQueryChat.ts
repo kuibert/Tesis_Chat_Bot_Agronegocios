@@ -184,9 +184,6 @@ export const setQueryDataChat = (
         };
       }),
     };
-
-    console.log(data)
-
     return data;
   });
 };
@@ -227,3 +224,24 @@ export const setQueryMessageStream = ({
     return { ...oldData, pages: newPages };
   });
 };
+
+export const setQueryMessageMetadata = ({
+  messageId,
+  metadata,
+  queryClient,
+  chatId,
+}: {
+  messageId: string;
+  metadata: Record<string, unknown> | null;
+  queryClient: QueryClient;
+  chatId: string;
+}) => {
+  queryClient.setQueryData(["chats", chatId, "messages"], (oldData: any) => {
+    if (!oldData?.pages?.[0]?.data) return oldData;
+    const messages = oldData.pages[0].data.map((msg: any) =>
+      msg.id === messageId ? { ...msg, metadata } : msg
+    );
+    return { ...oldData, pages: [{ ...oldData.pages[0], data: messages }] };
+  });
+};
+

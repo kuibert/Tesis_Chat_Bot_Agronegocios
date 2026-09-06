@@ -126,13 +126,8 @@ const ingestData = async (pathDirectory: string) => {
       let pageCounter = 1;
 
       for (const csvFile of csvFiles) {
-        console.log(`  ↳ Ingestando datos de la hoja: ${csvFile.name}...`);
         const fileResult = await fileContent(csvFile);
 
-        const chunks = fileResult.dataChunks;
-
-        // Procesar e insertar en lotes paralelos (batching)
-        const BATCH_SIZE = 5;
         const values: Array<{
           content: string;
           documentId: string;
@@ -142,7 +137,9 @@ const ingestData = async (pathDirectory: string) => {
           metadata?: { chunk_type: string; frecuencia_riego?: string; cultivo?: string; unidad_origen?: 'ha' | 'mz' };
         }> = [];
 
-        // Generar e insertar el chunk de lista de fertilizantes si existe
+        // Generar e insertar ÚNICAMENTE el chunk narrativo de fertilizantes de catálogo
+        // Los datos numéricos (Req.Diario, calendarios) ya viven en tablas relacionales
+        // y no deben vectorizarse — eso evita alucinaciones del LLM con aritmética.
         if (fileResult.fertilizerListChunk) {
           const flc = fileResult.fertilizerListChunk;
           const { vector } = await embeddingService.generateEmbedding(flc.content);
@@ -160,37 +157,9 @@ const ingestData = async (pathDirectory: string) => {
           });
         }
 
-        if (chunks.length === 0 && values.length === 0) continue;
-
-        for (let batchStart = 0; batchStart < chunks.length; batchStart += BATCH_SIZE) {
-          const batch = chunks.slice(batchStart, batchStart + BATCH_SIZE);
-          const batchEnd = Math.min(batchStart + BATCH_SIZE, chunks.length);
-          console.log(`    ⤔ Procesando lote ${batchStart + 1}–${batchEnd} de ${chunks.length} chunks (${csvFile.name})...`);
-
-          const batchResults = await Promise.all(
-            batch.map(async (chunk, indexInBatch) => {
-              const chunkWithContext = `[Cultivo/Archivo: ${excelMeta.fileName}]\n${chunk}`;
-              const { vector } = await embeddingService.generateEmbedding(chunkWithContext);
-              return {
-                content: chunkWithContext,
-                documentId: document.id,
-                pageNumber: pageCounter++,
-                embedding: vector,
-                metadata: {
-                  chunk_type: "data",
-                  frecuencia_riego: fileResult.frecuencia_riego,
-                  cultivo: fileResult.cultivo
-                }
-              };
-            })
-          );
-
-          values.push(...batchResults);
-        }
-
         if (values.length > 0) {
           await tx.insert(documentChunks).values(values);
-          console.log(`    ✅ Insertados ${values.length} chunks de la hoja ${csvFile.name}`);
+          console.log(`    ✅ Insertado catálogo narrativo de ${csvFile.name}`);
         }
       }
 

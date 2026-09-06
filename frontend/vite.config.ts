@@ -22,7 +22,7 @@ export default defineConfig({
         description:
           "Asistente inteligente de fertilización agrícola con IA para El Salvador",
         theme_color: "#16a34a",
-        background_color: "#f0fdf4",
+        background_color: "#1A1D21",
         display: "standalone",
         orientation: "portrait",
         start_url: "/",
@@ -72,6 +72,18 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom"],
+          auth: ["@azure/msal-react", "@azure/msal-browser", "@react-oauth/google"],
+          query: ["@tanstack/react-query"],
+          socket: ["socket.io-client"],
+        },
+      },
+    },
+  },
   server: {
     allowedHosts: true,
     headers: {
@@ -87,6 +99,12 @@ export default defineConfig({
         ws: true,
         changeOrigin: true,
       },
+    },
+  },
+  preview: {
+    proxy: {
+      "/api": { target: "http://localhost:3000", changeOrigin: true },
+      "/socket.io": { target: "http://localhost:3000", ws: true, changeOrigin: true },
     },
   },
 });

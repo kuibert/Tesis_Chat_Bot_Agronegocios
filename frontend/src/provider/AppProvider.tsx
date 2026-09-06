@@ -32,6 +32,11 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     const html = document.querySelector("html");
     if (html) {
       html.setAttribute("data-theme", theme);
+      if (theme === "dark") {
+        html.classList.add("dark");
+      } else {
+        html.classList.remove("dark");
+      }
       localStorage.setItem("theme", theme);
     }
   }, [theme]);

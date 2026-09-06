@@ -32,7 +32,9 @@ export async function executeRAG(messages: Message[]): Promise<{ contextText: st
     }
 
     // 2. Query Rewriting: reformular la consulta para tener Conciencia de Contexto
-    const searchString = await rewriteQueryWithContext(messages, cropFilter);
+    let searchString = await rewriteQueryWithContext(messages, cropFilter);
+    // Limpiar comillas residuales que bajan la similitud por debajo del threshold
+    searchString = searchString.replace(/^["'“”‘’]+|["'“”‘’]+$/g, "").trim();
 
     // 3. Generar embedding y detectar hoja de Excel objetivo
     console.log(`🔍 Generando embedding: "${searchString}"`);

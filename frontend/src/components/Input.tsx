@@ -33,6 +33,7 @@ export function Input({ value, onChange, onSend, ...props }: InputProps) {
       onKeyDown={(e) => {
         if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault();
+          if (props.readOnly) return;
           onSend?.();
         }
       }}

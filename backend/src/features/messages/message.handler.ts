@@ -25,29 +25,66 @@ export const registerMessageHandlers = (io: Server, socket: Socket) => {
     const abortController = new AbortController();
     controllers.set(chatId, abortController);
 
+    let result: { messageId?: string; metadata?: Record<string, unknown> } = {};
+
     try {
       if (chatId === 'no-memory-session') {
         // Sesión temporal sin memoria: no tocar PostgreSQL
         console.log('🛑 [DB Bypass] Sesión sin memoria detectada. No se guardará el mensaje en PostgreSQL.');
-        await messageService.noMemoryMessage({ content }, onCreate, onStream, abortController.signal);
+        result = await messageService.noMemoryMessage({ content }, onCreate, onStream, abortController.signal);
       } else if (hasSession) {
-        await messageService.saveMessage(
+        result = await messageService.saveMessage(
           { chatId, content },
           onCreate,
           onStream,
           abortController.signal
         );
       } else {
-        await messageService.noMemoryMessage({ content }, onCreate, onStream, abortController.signal);
+        result = await messageService.noMemoryMessage({ content }, onCreate, onStream, abortController.signal);
       }
     } catch (error: any) {
       if (error.name !== 'AbortError') {
-          console.error("Error en el flujo de mensajes:", error);
-          socket.emit("messages:error", "Error al procesar el mensaje");
+        console.error("Error en el flujo de mensajes:", error);
+        socket.emit("messages:error", "Error al procesar el mensaje");
       }
     } finally {
       controllers.delete(chatId);
-      socket.emit("messages:end");
+      // LOG TEMPORAL
+      console.log("[handler] result antes de messages:end:", JSON.stringify(result));
+      socket.emit("messages:end", {
+        messageId: result.messageId,
+        metadata: result.metadata ?? null,
+      });
+    }
+  });
+
+  socket.on("messages:calculate", async (payload) => {
+    const { chatId, content, toolParams } = payload;
+
+    const abortController = new AbortController();
+    controllers.set(chatId, abortController);
+
+    let result: { messageId?: string; metadata?: Record<string, unknown> } = {};
+
+    try {
+      result = await messageService.calculateDirect(
+        { chatId, content, toolParams },
+        onCreate,
+        onStream,
+        abortController.signal,
+      );
+    } catch (error: any) {
+      if (error.name !== "AbortError") {
+        console.error("Error en cálculo directo:", error);
+        socket.emit("messages:error", "Error al procesar el cálculo");
+      }
+    } finally {
+      controllers.delete(chatId);
+      console.log("[handler calculate] result antes de messages:end:", JSON.stringify(result));
+      socket.emit("messages:end", {
+        messageId: result.messageId,
+        metadata: result.metadata ?? null,
+      });
     }
   });
 };

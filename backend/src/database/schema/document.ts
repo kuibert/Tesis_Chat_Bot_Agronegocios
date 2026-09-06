@@ -5,5 +5,6 @@ export const documents = pgTable("documents", {
   fileName: text("file_name").notNull(),
   fileUrl: text("file_url"),
   fileType: text("file_type"), // pdf, txt, docx
+  contentHash: text("content_hash"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

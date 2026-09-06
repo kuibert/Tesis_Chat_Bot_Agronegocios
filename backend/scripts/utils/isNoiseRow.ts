@@ -14,7 +14,11 @@ const NOISE_KEYWORDS = [
   "dirección",
   "observaciones generales",
   "fecha",
-  "agricultor"
+  "agricultor",
+  "total",
+  "totales",
+  "subtotal",
+  "suma"
 ];
 
 export function isNoiseRow(rowValues: string[]): boolean {
