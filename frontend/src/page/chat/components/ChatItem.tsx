@@ -1,6 +1,6 @@
 import { memo, useState } from "react";
 import { Loader2, Copy, Check } from "lucide-react";
-import { MarkdownMessage } from "@/components";
+import { MarkdownMessage } from "./MarkdownMessage";
 import { NutrientResultCard } from "./NutrientResultCard";
 
 export const ChatItem = memo(
