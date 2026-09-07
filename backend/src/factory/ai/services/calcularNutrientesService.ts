@@ -1,14 +1,14 @@
-// backend/src/services/calcularNutrientesService.ts
+// backend/src/factory/ai/services/calcularNutrientesService.ts
 //
 // Motor de cálculo determinístico. El LLM lo invoca como tool — nunca calcula
 // aritmética él mismo. Si hay ambigüedad (ej. "Piña" con 3 programas distintos),
 // devuelve las opciones en vez de adivinar.
 
-import { db } from "../database/db";
-import { cultivos } from "../database/schema/Cultivo";
-import { requerimientoElemental } from "../database/schema/RequerimientoElemental";
-import { fuenteFertilizanteCultivo } from "../database/schema/FuenteFertilizanteCultivo";
-import { fertilizantes } from "../database/schema/Fertilizante";
+import { db } from "../../../database/db";
+import { cultivos } from "../../../database/schema/Cultivo";
+import { requerimientoElemental } from "../../../database/schema/RequerimientoElemental";
+import { fuenteFertilizanteCultivo } from "../../../database/schema/FuenteFertilizanteCultivo";
+import { fertilizantes } from "../../../database/schema/Fertilizante";
 import { and, eq, ilike, or } from "drizzle-orm";
 
 // ---------------------------------------------------------------------------

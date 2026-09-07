@@ -11,7 +11,7 @@ import { db } from "../src/database/db";
 import { documents } from "../src/database/schema/document";
 import { documentChunks } from "../src/database/schema/documentChunk";
 import { eq, InferInsertModel } from "drizzle-orm";
-import { embeddingService } from "../src/services/embeddingService";
+import { embeddingService } from "../src/factory/ai/services/embeddingService";
 
 // Carpeta donde el script de Python almacena los CSVs limpios
 const DATA_PATH = path.resolve(__dirname, "../../data/csv");

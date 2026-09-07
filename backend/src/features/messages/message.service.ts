@@ -2,7 +2,7 @@ import { Message } from "../../factory/ai/ai-factory.types";
 import { AIProviderFactory } from "../../factory/ai/ai-factory";
 
 import * as chatRepository from "../../database/repositories/chat.repository";
-import { calcularNutrientes } from "../../services/calcularNutrientesService";
+import { calcularNutrientes } from "../../factory/ai/services/calcularNutrientesService";
 import { streamOllamaChat } from "../../factory/ai/services/ollama.client";
 const GHOST_CHAT_ID = `no-memory-session`;
 

@@ -4,7 +4,7 @@
  *
  * La lógica de construcción de prompts está en:  ../utils/prompt.builder.ts
  * La lógica de conexión HTTP a Ollama está en:  ../services/ollama.client.ts
- * La lógica de fuzzy matching de cultivos está aquí (utilidad interna del handler).
+ * La lógica de parsing de área (manzanas/m²/ha) está en:  parseAreaToManzanas() (helper privado).
  */
 
 import { AIHandler, Message, StreamHandler, MetadataHandler } from "../ai-factory.types";
@@ -13,6 +13,50 @@ import { streamOllamaChat, chatOllamaConTools } from "../services/ollama.client"
 import { executeRAG } from "../services/rag.pipeline";
 import { TODOS_LOS_TOOLS } from "../tools/calcularNutrientes.tool";
 import { ejecutarToolCall } from "../tools/toolDispatcher";
+
+// ---------------------------------------------------------------------------
+// UTILIDAD INTERNA: Parseo de área del usuario → manzanas
+// ---------------------------------------------------------------------------
+
+/**
+ * Analiza el texto del último mensaje del usuario y normaliza cualquier
+ * unidad de área a manzanas (unidad base de los manuales del MAG).
+ * 1 manzana = 7,000 m² = 0.70 hectáreas.
+ *
+ * @returns { manzanas, textoOriginal } donde manzanas siempre es >= 0
+ */
+function parseAreaToManzanas(text: string): { manzanas: number; textoOriginal: string } {
+  const metrosMatch = text.match(/(\d+([\.,]\d+)?)\s*(metros\s+cuadrados|m2|m²)/i);
+  if (metrosMatch) {
+    return {
+      manzanas: parseFloat(metrosMatch[1].replace(",", ".")) / 7000,
+      textoOriginal: metrosMatch[0],
+    };
+  }
+
+  const haMatch = text.match(/(\d+([\.,]\d+)?)\s*(hectareas|hectáreas|ha)\b/i);
+  if (haMatch) {
+    return {
+      manzanas: parseFloat(haMatch[1].replace(",", ".")) * (10000 / 7000),
+      textoOriginal: haMatch[0],
+    };
+  }
+
+  const mzMatch = text.match(/(\d+([\.,]\d+)?)\s*(manzanas|mz)\b/i);
+  if (mzMatch) {
+    return {
+      manzanas: parseFloat(mzMatch[1].replace(",", ".")) ,
+      textoOriginal: mzMatch[0],
+    };
+  }
+
+  if (/media manzana/i.test(text))  return { manzanas: 0.5,  textoOriginal: "media manzana" };
+  if (/cuarto de manzana/i.test(text)) return { manzanas: 0.25, textoOriginal: "cuarto de manzana" };
+  if (/dos manzanas y media/i.test(text)) return { manzanas: 2.5, textoOriginal: "dos manzanas y media" };
+
+  // Sin coincidencia → asumir 1 manzana como valor por defecto
+  return { manzanas: 1, textoOriginal: "1 manzana" };
+}
 
 // ---------------------------------------------------------------------------
 // HANDLER PRINCIPAL
@@ -39,41 +83,12 @@ export class OllamaHandler implements AIHandler {
 
       const sinContextoRAG = !ragContext || sources.length === 0;
 
-      // --- EXTRAER MANZANAS DEL USUARIO PARA CÁLCULO EN TYPESCRIPT ---
-      let manzanasUsuario = 1;
-      let textoAreaOriginal = "1 manzana";
+      // 2. Extraer y normalizar el área del mensaje del usuario a manzanas
       const lastUserMessage = [...messagesArray].reverse().find(m => m.role === "user");
-      
-      if (lastUserMessage && lastUserMessage.content) {
-        const text = String(lastUserMessage.content);
-        
-        const metrosMatch = text.match(/(\d+([\.,]\d+)?)\s*(metros\s+cuadrados|m2|m²)/i);
-        if (metrosMatch) {
-          manzanasUsuario = parseFloat(metrosMatch[1].replace(",", ".")) / 7000;
-          textoAreaOriginal = metrosMatch[0];
-        } else {
-          const haMatch = text.match(/(\d+([\.,]\d+)?)\s*(hectareas|hectáreas|ha)\b/i);
-          if (haMatch) {
-            manzanasUsuario = parseFloat(haMatch[1].replace(",", ".")) * (10000 / 7000);
-            textoAreaOriginal = haMatch[0];
-          } else {
-            const mzMatch = text.match(/(\d+([\.,]\d+)?)\s*(manzanas|mz)\b/i);
-            if (mzMatch) {
-              manzanasUsuario = parseFloat(mzMatch[1].replace(",", "."));
-              textoAreaOriginal = mzMatch[0];
-            } else if (text.match(/media manzana/i)) {
-              manzanasUsuario = 0.5;
-              textoAreaOriginal = "media manzana";
-            } else if (text.match(/cuarto de manzana/i)) {
-              manzanasUsuario = 0.25;
-              textoAreaOriginal = "cuarto de manzana";
-            } else if (text.match(/dos manzanas y media/i)) {
-              manzanasUsuario = 2.5;
-              textoAreaOriginal = "dos manzanas y media";
-            }
-          }
-        }
-      }
+      const { manzanas: manzanasUsuario, textoOriginal: textoAreaOriginal } =
+        lastUserMessage?.content
+          ? parseAreaToManzanas(String(lastUserMessage.content))
+          : { manzanas: 1, textoOriginal: "1 manzana" };
 
       const areaHectareasCalculada = manzanasUsuario * 0.7;
 

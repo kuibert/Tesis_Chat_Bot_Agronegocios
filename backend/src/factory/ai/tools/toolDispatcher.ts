@@ -3,7 +3,7 @@
 // Une el nombre del tool (como lo devuelve Ollama) con la función real que lo ejecuta.
 // Agregar un tool nuevo en el futuro = una línea aquí + su definición de schema.
 
-import { calcularNutrientes } from "../../../services/calcularNutrientesService";
+import { calcularNutrientes } from "../services/calcularNutrientesService";
 
 type ToolCallOllama = {
   function: {

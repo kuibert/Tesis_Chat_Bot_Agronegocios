@@ -4,7 +4,7 @@
  */
 
 import { Message } from "../ai-factory.types";
-import { embeddingService } from "../../../services/embeddingService";
+import { embeddingService } from "./embeddingService";
 import * as documentRepository from "../../../database/repositories/document.repository";
 import { rewriteQueryWithContext } from "../services/context.manager";
 import { detectCrop } from "../utils/crop.detector";
